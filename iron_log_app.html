@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="utf-8">
 <title>IRON LOG</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
@@ -965,30 +968,30 @@
 
     var html = '<div class="ex-head">' +
       '<div class="ex-order">' +
-      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + JSON.stringify(ex.id) + ',-1)"' + (isFirst ? " disabled" : "") + ' aria-label="順番を上げる">▲</button>' +
+      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + jsArg(ex.id) + ',-1)"' + (isFirst ? " disabled" : "") + ' aria-label="順番を上げる">▲</button>' +
       '<span class="ex-order-num">' + (idx + 1) + '</span>' +
-      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + JSON.stringify(ex.id) + ',1)"' + (isLast ? " disabled" : "") + ' aria-label="順番を下げる">▼</button>' +
+      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + jsArg(ex.id) + ',1)"' + (isLast ? " disabled" : "") + ' aria-label="順番を下げる">▼</button>' +
       '</div>' +
       '<div class="ex-name-wrap"><span class="ex-name">' + escapeHTML(ex.name) + '</span>' +
       '<span class="ex-target">目標 ' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span></div>' +
-      '<button type="button" class="ex-toggle-btn ' + (draft.included ? "on" : "") + '" onclick="toggleRecInclude(' + JSON.stringify(ex.id) + ')">' +
+      '<button type="button" class="ex-toggle-btn ' + (draft.included ? "on" : "") + '" onclick="toggleRecInclude(' + jsArg(ex.id) + ')">' +
       (draft.included ? "実施" : "スキップ中") + '</button></div>';
 
     if (draft.included) {
       var rows = draft.sets.map(function (s, j) {
-        var live = "onRecFieldChange(this," + JSON.stringify(ex.id) + "," + j + ",";
+        var live = "onRecFieldChange(this," + jsArg(ex.id) + "," + j + ",";
         return '<div class="set-row">' +
           '<div class="set-idx">' + (j + 1) + '</div>' +
           '<div class="set-fields">' +
-            qtyFieldHTML("rec_w_" + ex.id + "_" + j, ucfg.label, s.weight, ucfg, ex.unit, live + '"weight")') +
-            qtyFieldHTML("rec_r_" + ex.id + "_" + j, REPS_CFG.label, s.reps, REPS_CFG, "回", live + '"reps")') +
+            qtyFieldHTML("rec_w_" + ex.id + "_" + j, ucfg.label, s.weight, ucfg, ex.unit, live + "'weight')") +
+            qtyFieldHTML("rec_r_" + ex.id + "_" + j, REPS_CFG.label, s.reps, REPS_CFG, "回", live + "'reps')") +
           '</div>' +
           (draft.sets.length > 1
-            ? '<button type="button" class="set-remove" onclick="removeRecSet(' + JSON.stringify(ex.id) + ',' + j + ')">✕</button>'
+            ? '<button type="button" class="set-remove" onclick="removeRecSet(' + jsArg(ex.id) + ',' + j + ')">✕</button>'
             : '<span class="set-remove-spacer"></span>') +
           '</div>';
       }).join("");
-      html += rows + '<button type="button" class="add-set-btn" onclick="addRecSet(' + JSON.stringify(ex.id) + ')">＋ セットを追加</button>';
+      html += rows + '<button type="button" class="add-set-btn" onclick="addRecSet(' + jsArg(ex.id) + ')">＋ セットを追加</button>';
       if (prevText) html += '<div class="ex-prev">前回：' + escapeHTML(prevText) + '</div>';
     } else {
       html += '<div class="ex-empty-body"><div class="ex-prev">今日はスキップします' + (prevText ? "（前回：" + escapeHTML(prevText) + "）" : "") + '</div></div>';
@@ -1510,6 +1513,18 @@
     });
   }
   function escapeAttr(s) { return escapeHTML(s); }
+
+  /* 二重引用符で囲まれた HTML 属性（onclick / oninput）の中に埋め込める
+     シングルクォート付き JS 文字列リテラルを作る。
+     JSON.stringify は "..." を返すため属性がそこで切れてハンドラが壊れる。 */
+  function jsArg(v) {
+    return "'" + String(v == null ? "" : v)
+      .replace(/\\/g, "\\\\")
+      .replace(/'/g, "\\'")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;") + "'";
+  }
 
   /* ---------- Toast ---------- */
   var toastTimer = null;
