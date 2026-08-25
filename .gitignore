@@ -17,4 +17,5 @@ _old/
 *.local.json
 my_data*.json
 
-# ローカル確認用のサーバ設定
+# バックアップJSON（記録が入るのでコミットしない）
+ironlog_backup_*.json
