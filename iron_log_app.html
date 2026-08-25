@@ -1,0 +1,1536 @@
+<title>IRON LOG</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#15181B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ Tokens ============ */
+  :root {
+    --bg: #F3EFE9;
+    --surface: #FFFFFF;
+    --surface-2: #EAE4D9;
+    --text: #1C2024;
+    --text-muted: #6B7076;
+    --border: #E1DACE;
+    --accent: #B85A28;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #EFDCC9;
+    --success: #3F7D58;
+    --success-bg: #E4EFE8;
+    --danger: #B23B3B;
+    --danger-bg: #F5E6E4;
+    --shadow: 0 1px 2px rgba(30,20,10,0.06), 0 6px 20px rgba(30,20,10,0.07);
+    --font-display: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    --font-body: "Noto Sans JP", "Hiragino Sans", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15181B;
+      --surface: #1E2226;
+      --surface-2: #262B30;
+      --text: #ECE9E3;
+      --text-muted: #9BA1A7;
+      --border: #2B3136;
+      --accent: #E08A4F;
+      --accent-ink: #1A1200;
+      --accent-soft: #3A2B1C;
+      --success: #6BB98A;
+      --success-bg: #1E2E24;
+      --danger: #E2726B;
+      --danger-bg: #34201F;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15181B;
+    --surface: #1E2226;
+    --surface-2: #262B30;
+    --text: #ECE9E3;
+    --text-muted: #9BA1A7;
+    --border: #2B3136;
+    --accent: #E08A4F;
+    --accent-ink: #1A1200;
+    --accent-soft: #3A2B1C;
+    --success: #6BB98A;
+    --success-bg: #1E2E24;
+    --danger: #E2726B;
+    --danger-bg: #34201F;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+  }
+  body { min-height: 100vh; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  button, input, textarea, select { font-family: inherit; }
+  input:focus-visible, button:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  /* ============ App shell ============ */
+  #app-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: max(14px, env(safe-area-inset-top)) 18px 12px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 19px;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+  .wordmark .bar { color: var(--accent); }
+  .topbar .today {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  main {
+    flex: 1;
+    padding: 16px 16px 96px;
+  }
+
+  .page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  h1.page-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    margin: 4px 0 4px;
+    text-wrap: balance;
+  }
+  p.page-sub {
+    color: var(--text-muted);
+    font-size: 13.5px;
+    margin: 0 0 18px;
+    line-height: 1.6;
+  }
+  .edit-toggle-btn {
+    flex-shrink: 0;
+    margin-top: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  .edit-toggle-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ============ Bottom nav ============ */
+  nav.tabbar {
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 6px 4px max(6px, env(safe-area-inset-bottom));
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 2px;
+    font-size: 10.5px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .tab-btn svg { width: 21px; height: 21px; }
+  .tab-btn.active { color: var(--accent); }
+  .tab-btn.active .tab-dot { opacity: 1; }
+  .tab-dot {
+    width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+    opacity: 0; margin-top: -1px;
+  }
+
+  /* ============ Home dashboard ============ */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat-tile { padding: 14px 14px 12px; }
+  .stat-tile .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-tile .value { font-family: var(--font-mono); font-weight: 700; font-size: 24px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .stat-tile .value small { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+
+  .next-session { padding: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+  .next-session .badge {
+    font-family: var(--font-display); font-weight: 900; font-size: 15px; width: 46px; height: 46px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-ink); flex-shrink: 0;
+  }
+  .next-session .info { flex: 1; min-width: 0; }
+  .next-session .info .t { font-weight: 700; font-size: 15px; }
+  .next-session .info .d { color: var(--text-muted); font-size: 12.5px; margin-top: 2px; line-height: 1.5; }
+  .next-session .go {
+    background: var(--surface-2); border: none; color: var(--text); font-weight: 600; font-size: 12.5px; padding: 9px 13px;
+    border-radius: 9px; cursor: pointer; flex-shrink: 0;
+  }
+
+  .section-label {
+    font-family: var(--font-display); font-weight: 700; font-size: 12.5px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.07em; margin: 20px 2px 9px;
+  }
+
+  .spark-card { padding: 14px; margin-bottom: 10px; }
+  .spark-card .row { display: flex; justify-content: space-between; align-items: baseline; }
+  .spark-card .name { font-weight: 600; font-size: 13.5px; }
+  .spark-card .now { font-family: var(--font-mono); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .spark-card canvas { width: 100%; height: 40px; margin-top: 6px; display: block; }
+  .empty-hint { color: var(--text-muted); font-size: 12.5px; text-align: center; padding: 18px 10px; }
+
+  /* ============ Forms (記録入力) ============ */
+  .field-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .field { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .field input[type="date"], .field select {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 10px 11px; font-size: 14px; color: var(--text);
+  }
+  .day-toggle { display: flex; gap: 8px; }
+  .day-toggle button {
+    flex: 1; padding: 10px 6px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); font-weight: 700; font-family: var(--font-display); font-size: 13px; cursor: pointer;
+  }
+  .day-toggle button.sel { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .exercise-card { padding: 12px 14px; margin-bottom: 8px; }
+  .exercise-card .ex-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .exercise-card .ex-name-wrap { min-width: 0; flex: 1; }
+  .exercise-card .ex-name { font-weight: 600; font-size: 13.5px; display: block; }
+  .exercise-card .ex-target { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .ex-toggle-btn {
+    flex-shrink: 0; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted);
+    font-size: 11px; font-weight: 700; padding: 6px 11px; border-radius: 8px; cursor: pointer;
+  }
+  .ex-toggle-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .ex-prev { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .ex-empty-body { padding-top: 4px; }
+  .ex-order { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; padding-top: 1px; }
+  .ex-order-btn {
+    width: 24px; height: 17px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted);
+    border-radius: 5px; font-size: 9px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  }
+  .ex-order-btn:disabled { opacity: 0.25; cursor: default; }
+  .ex-order-btn:active:not(:disabled) { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .ex-order-num { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text-muted); }
+
+  .btn-primary {
+    width: 100%; background: var(--accent); color: var(--accent-ink); border: none; padding: 14px; border-radius: 12px;
+    font-family: var(--font-display); font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 6px;
+  }
+  .btn-primary:active { opacity: 0.85; }
+  .btn-secondary {
+    width: 100%; background: none; color: var(--text-muted); border: 1px dashed var(--border); padding: 11px;
+    border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px;
+  }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 50; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ============ History ============ */
+  .hist-card { padding: 13px 14px; margin-bottom: 9px; cursor: pointer; }
+  .hist-card .h-top { display: flex; justify-content: space-between; align-items: center; }
+  .hist-card .h-date { font-weight: 700; font-family: var(--font-display); font-size: 14.5px; }
+  .hist-card .h-day { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-muted); }
+  .hist-card .h-day.A { background: var(--accent); color: var(--accent-ink); }
+  .hist-card .h-summary {
+    font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.6;
+    overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .hist-detail { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .hist-detail .kv { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; }
+  .hist-detail .kv .k { color: var(--text-muted); flex-shrink: 0; }
+  .hist-detail .kv .v { font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+  .hist-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .hist-actions button {
+    flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .hist-actions button.del { color: var(--danger); }
+
+  /* ============ Program overview (view mode) ============ */
+  .prog-card { padding: 16px; margin-bottom: 12px; }
+  .prog-card .prog-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .prog-card .prog-week { font-family: var(--font-display); font-weight: 900; font-size: 17px; }
+  .prog-card .prog-week small { font-weight: 500; font-size: 12px; color: var(--text-muted); }
+  .deload-badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--danger-bg); color: var(--danger); }
+  .prog-bar-track { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .prog-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .prog-dates { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+
+  .sched-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .sched-card { padding: 13px 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .sched-card .sc-badge {
+    font-family: var(--font-display); font-weight: 900; font-size: 13px; width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent);
+  }
+  .sched-card .sc-title { font-weight: 700; font-size: 13.5px; }
+  .sched-card .sc-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.6; }
+
+  .phase-note { padding: 13px 14px; margin-bottom: 14px; font-size: 12.5px; color: var(--text-muted); line-height: 1.7; }
+  .phase-note b { color: var(--text); }
+
+  /* ============ Targets (view, per-set detail) ============ */
+  .target-table { padding: 4px; }
+  .target-row2 { padding: 13px 12px; border-bottom: 1px solid var(--border); }
+  .target-row2:last-child { border-bottom: none; }
+  .tr2-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .tr2-name-wrap { display: flex; align-items: center; gap: 7px; min-width: 0; }
+  .tr2-name { font-weight: 600; font-size: 13.5px; }
+  .day-chip { font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 5px; background: var(--surface-2); color: var(--text-muted); flex-shrink: 0; }
+  .t-status { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; flex-shrink: 0; }
+  .t-status.ok { background: var(--success-bg); color: var(--success); }
+  .t-status.watch { background: var(--danger-bg); color: var(--danger); }
+
+  .tr2-progress { display: flex; align-items: center; gap: 10px; }
+  .tr2-num { text-align: left; flex-shrink: 0; }
+  .tr2-num.goal { text-align: right; }
+  .tr2-num .n-val { font-family: var(--font-mono); font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .tr2-num.goal .n-val { color: var(--accent); }
+  .tr2-num .n-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .tr2-bar { flex: 1; }
+  .tr2-bar-track { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .tr2-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .tr2-bar-label { text-align: center; font-size: 9.5px; color: var(--text-muted); margin-top: 4px; font-family: var(--font-mono); }
+  .tr2-detail {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--border);
+    font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); display: flex; flex-direction: column; gap: 3px;
+  }
+  .tr2-detail .dl { color: var(--text); font-weight: 600; font-family: var(--font-body); margin-right: 4px; }
+  .tr2-detail .goal-line .dl { color: var(--accent); }
+
+  /* ============ Plan edit shell ============ */
+  .plan-meta-card { padding: 16px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .plan-meta-card .field label { display: block; margin-bottom: 5px; }
+  .plan-meta-card input[type="text"], .plan-meta-card input[type="date"], .plan-meta-card input[type="number"], .plan-meta-card textarea {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font-size: 13.5px; color: var(--text);
+  }
+  .plan-meta-card textarea { min-height: 60px; resize: vertical; font-family: var(--font-body); }
+  .day-edit-block { display: flex; flex-direction: column; gap: 8px; padding: 12px; background: var(--surface-2); border-radius: 10px; }
+  .day-edit-block .dlabel { font-family: var(--font-display); font-weight: 700; font-size: 12.5px; color: var(--accent); }
+
+  .ex-edit-row { padding: 13px 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+  .ex-edit-row .er-top { display: flex; gap: 8px; }
+  .ex-edit-row .er-top input[type="text"] {
+    flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font-size: 13.5px; font-weight: 600; color: var(--text);
+  }
+  .ex-edit-row .er-selects { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ex-edit-row select {
+    flex: 1; min-width: 64px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; font-size: 12px; color: var(--text);
+  }
+  .qty-group { border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; }
+  .qty-group .qg-label {
+    font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 9px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .qty-group.goal .qg-label { color: var(--accent); }
+  .qty-group .qg-count { font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 10.5px; color: var(--text-muted); }
+
+  .set-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+  .set-row:last-of-type { margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+  .set-idx {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
+    font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    margin-top: 20px; color: var(--text-muted); font-family: var(--font-mono);
+  }
+  .set-fields { flex: 1; display: flex; gap: 10px; min-width: 0; }
+  .set-remove {
+    background: none; border: none; color: var(--danger); font-size: 16px; line-height: 1; cursor: pointer;
+    padding: 4px 5px; flex-shrink: 0; margin-top: 16px;
+  }
+  .set-remove-spacer { width: 24px; flex-shrink: 0; }
+  .add-set-btn {
+    width: 100%; background: none; border: 1px dashed var(--border); color: var(--accent); font-size: 11.5px; font-weight: 700;
+    padding: 8px; border-radius: 8px; cursor: pointer; margin-top: 2px;
+  }
+
+  /* ============ Numeric stepper (weight / reps) ============ */
+  .qty-field { flex: 1; min-width: 0; }
+  .qf-label { font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px; }
+  .qf-stepper { display: flex; align-items: center; gap: 6px; }
+  .qf-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text); font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; -webkit-user-select: none; user-select: none; line-height: 1; padding: 0;
+  }
+  .qf-btn:active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .qf-value-wrap {
+    flex: 1; min-width: 0; display: flex; align-items: baseline; justify-content: center; gap: 3px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 2px;
+  }
+  .qf-input {
+    width: 100%; min-width: 0; background: none; border: none; text-align: center;
+    font-family: var(--font-mono); font-size: 14.5px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums;
+  }
+  .qf-input::-webkit-outer-spin-button, .qf-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .qf-input { -moz-appearance: textfield; appearance: textfield; }
+  .qf-unit { font-size: 10.5px; color: var(--text-muted); flex-shrink: 0; }
+
+  .er-bottom { display: flex; justify-content: flex-end; }
+  .remove-ex-btn { color: var(--danger); background: none; border: none; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 2px; }
+  .plan-edit-actions { display: flex; gap: 8px; margin-top: 4px; margin-bottom: 30px; }
+  .plan-edit-actions .cancel {
+    flex: 1; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .plan-edit-actions .save {
+    flex: 2; background: var(--accent); color: var(--accent-ink); border: none; border-radius: 12px; padding: 13px; font-size: 14px;
+    font-family: var(--font-display); font-weight: 700; cursor: pointer;
+  }
+
+  /* ============ Settings ============ */
+  .settings-card { padding: 16px; margin-bottom: 12px; }
+  .settings-card h3 { font-family: var(--font-display); font-size: 14px; margin: 0 0 6px; }
+  .settings-card p { font-size: 12.5px; color: var(--text-muted); margin: 0 0 10px; line-height: 1.6; }
+  textarea.data-box {
+    width: 100%; min-height: 90px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 10px; font-family: var(--font-mono); font-size: 11px; color: var(--text); resize: vertical;
+  }
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-row button {
+    flex: 1; padding: 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .install-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .install-steps li { display: flex; gap: 10px; font-size: 12.5px; color: var(--text); align-items: flex-start; line-height: 1.5; }
+  .install-steps .num {
+    flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--surface-2); color: var(--text-muted);
+    font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono);
+  }
+
+  .screen { display: none; animation: fadein 0.18s ease; }
+  .screen.active { display: block; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<div id="app-shell">
+  <div class="topbar">
+    <div class="wordmark"><span class="bar">/</span>IRON LOG</div>
+    <div class="today" id="topbarDate">--</div>
+  </div>
+
+  <main>
+    <!-- ============ HOME ============ -->
+    <section class="screen" id="screen-home">
+      <h1 class="page-title">ホーム</h1>
+      <p class="page-sub" id="homeSub">筋力向上プログラムの進捗</p>
+
+      <div class="stat-grid">
+        <div class="card stat-tile">
+          <div class="label">記録日数</div>
+          <div class="value" id="statCount">0<small>回</small></div>
+        </div>
+        <div class="card stat-tile">
+          <div class="label">最終記録</div>
+          <div class="value" id="statLast" style="font-size:16px;">-</div>
+        </div>
+      </div>
+
+      <div class="card next-session" id="nextSessionCard">
+        <div class="badge" id="nextBadge">A</div>
+        <div class="info">
+          <div class="t" id="nextTitle">Day A · High Day</div>
+          <div class="d" id="nextDesc">-</div>
+        </div>
+        <button class="go" onclick="startRecord()">記録する</button>
+      </div>
+
+      <div class="section-label">主要種目の推移</div>
+      <div id="sparkList"></div>
+    </section>
+
+    <!-- ============ RECORD ============ -->
+    <section class="screen" id="screen-record">
+      <h1 class="page-title">記録入力</h1>
+      <p class="page-sub">Day A / Day B を選ぶとその日の種目だけが表示されます。▲▼で実施順序を並べ替えられます</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label>日付</label>
+          <input type="date" id="inDate">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label>区分</label>
+        <div class="day-toggle" id="dayToggle">
+          <button type="button" data-day="A" onclick="setDay('A')">Day A</button>
+          <button type="button" data-day="B" onclick="setDay('B')">Day B</button>
+        </div>
+      </div>
+
+      <div id="exerciseFields"></div>
+
+      <div class="field" style="margin-top:4px;">
+        <label>その他・メモ</label>
+        <div class="card" style="padding:2px;">
+          <input type="text" id="inOther" placeholder="腹上げ15×1 / クロス15×1 など" style="border:none;width:100%;background:transparent;padding:10px 11px;font-family:var(--font-body);font-size:13.5px;color:var(--text);">
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="saveRecord()">この内容を保存</button>
+      <button class="btn-secondary" onclick="clearForm()">フォームをクリア</button>
+    </section>
+
+    <!-- ============ HISTORY ============ -->
+    <section class="screen" id="screen-history">
+      <h1 class="page-title">履歴</h1>
+      <p class="page-sub">タップで詳細を展開・編集できます</p>
+      <div id="historyList"></div>
+    </section>
+
+    <!-- ============ TARGETS / PLAN ============ -->
+    <section class="screen" id="screen-targets">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">プラン</h1>
+          <p class="page-sub" id="targetsSub">目標重量とプログラム設定</p>
+        </div>
+        <button class="edit-toggle-btn" id="targetEditBtn" onclick="toggleEditMode()">編集する</button>
+      </div>
+
+      <!-- view mode -->
+      <div id="targetsView">
+        <div class="card prog-card" id="progCard"></div>
+        <div class="sched-grid" id="schedGrid"></div>
+        <div class="card phase-note" id="phaseNoteView"></div>
+        <div class="section-label">メイン種目</div>
+        <div class="card target-table" id="targetMain"></div>
+        <div class="section-label">補助種目</div>
+        <div class="card target-table" id="targetAcc"></div>
+      </div>
+
+      <!-- edit mode -->
+      <div id="targetsEdit" style="display:none;">
+        <div class="card plan-meta-card">
+          <div class="field-row" style="margin-bottom:0;">
+            <div class="field"><label>開始日</label><input type="date" id="planStart"></div>
+            <div class="field"><label>期間（週）</label><input type="number" id="planWeeks" min="1" max="52"></div>
+            <div class="field"><label>デロード週</label><input type="number" id="planDeload" min="1" max="52"></div>
+          </div>
+          <div class="field"><label>メモ（進め方のポイントなど）</label><textarea id="planNote"></textarea></div>
+          <div class="day-edit-block">
+            <div class="dlabel">Day A</div>
+            <input type="text" id="planATitle" placeholder="例：Day A · High Day">
+            <input type="text" id="planADesc" placeholder="種目を「／」区切りで入力">
+          </div>
+          <div class="day-edit-block">
+            <div class="dlabel">Day B</div>
+            <input type="text" id="planBTitle" placeholder="例：Day B · Volume Day">
+            <input type="text" id="planBDesc" placeholder="種目を「／」区切りで入力">
+          </div>
+        </div>
+
+        <div class="section-label">種目リスト</div>
+        <p class="page-sub" style="margin-top:-4px;">セットごとに重さ・回数を＋／－または直接入力で設定できます</p>
+        <div id="exEditList"></div>
+        <button class="btn-secondary" onclick="addExerciseRow()">＋ 種目を追加</button>
+
+        <div class="plan-edit-actions">
+          <button class="cancel" onclick="cancelPlanEdit()">キャンセル</button>
+          <button class="save" onclick="savePlanEdit()">プランを保存</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="screen" id="screen-settings">
+      <h1 class="page-title">設定</h1>
+      <p class="page-sub">データはこの端末のブラウザにのみ保存されます</p>
+
+      <div class="card settings-card">
+        <h3>ホーム画面に追加</h3>
+        <p>Android Chromeでこのページを開いた状態で追加すると、アプリのように使えます。</p>
+        <ol class="install-steps">
+          <li><span class="num">1</span>右上の <b>⋮</b>（メニュー）をタップ</li>
+          <li><span class="num">2</span>「ホーム画面に追加」を選択</li>
+          <li><span class="num">3</span>「追加」をタップすると完了</li>
+        </ol>
+      </div>
+
+      <div class="card settings-card">
+        <h3>バックアップ（エクスポート）</h3>
+        <p>記録データとプラン設定をテキストとして書き出します。コピーして保存してください。</p>
+        <textarea class="data-box" id="exportBox" readonly></textarea>
+        <div class="btn-row">
+          <button onclick="doExport()">最新の内容を表示</button>
+          <button onclick="copyExport()">コピー</button>
+        </div>
+      </div>
+
+      <div class="card settings-card">
+        <h3>復元（インポート）</h3>
+        <p>エクスポートしたテキストを貼り付けて復元します。記録は追加、プランは上書きされます。</p>
+        <textarea class="data-box" id="importBox" placeholder="ここに貼り付け"></textarea>
+        <div class="btn-row">
+          <button onclick="doImport()">復元する</button>
+        </div>
+      </div>
+
+      <div class="card settings-card">
+        <h3>プランを初期状態に戻す</h3>
+        <p>種目リストや目標重量を、はじめの8週間プログラムの内容にリセットします。記録は消えません。</p>
+        <div class="btn-row">
+          <button onclick="resetPlan()">プランをリセット</button>
+        </div>
+      </div>
+
+      <div class="card settings-card">
+        <h3>全データを削除</h3>
+        <p>この端末に保存されている記録をすべて削除します。元に戻せません。</p>
+        <div class="btn-row">
+          <button onclick="wipeAll()" style="color:var(--danger);">すべて削除</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" data-screen="home" onclick="showScreen('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      ホーム<span class="tab-dot"></span>
+    </button>
+    <button class="tab-btn" data-screen="record" onclick="showScreen('record')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      記録<span class="tab-dot"></span>
+    </button>
+    <button class="tab-btn" data-screen="history" onclick="showScreen('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 3"/></svg>
+      履歴<span class="tab-dot"></span>
+    </button>
+    <button class="tab-btn" data-screen="targets" onclick="showScreen('targets')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>
+      プラン<span class="tab-dot"></span>
+    </button>
+    <button class="tab-btn" data-screen="settings" onclick="showScreen('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      設定<span class="tab-dot"></span>
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "ironlog_records_v2";
+  var PLAN_KEY = "ironlog_plan_v3";
+
+  var UNIT_CONFIG = {
+    "kg":   { min: 0, max: 300, step: 2.5, label: "重さ" },
+    "段階": { min: 1, max: 20,  step: 1,   label: "強度" },
+    "秒":   { min: 5, max: 600, step: 5,   label: "秒数" }
+  };
+  var REPS_CFG = { min: 1, max: 99, step: 1, label: "回数" };
+  var MAX_SETS = 8;
+
+  function mkSets(weight, reps, count) {
+    var arr = [];
+    for (var i = 0; i < count; i++) arr.push({ weight: weight, reps: reps });
+    return arr;
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  var DEFAULT_PLAN = {
+    startDate: "2025-07-29",
+    weeks: 8,
+    deloadWeek: 5,
+    note: "指定回数を余裕でクリアできたら次回+2.5kgを目安に増量してください。同じ重量が2回連続で頭打ちになったら、1週間デロード（80%）を挟んでから再挑戦しましょう。",
+    daySchedule: {
+      A: { title: "Day A · High Day", desc: "ベンチプレス／スクワット／ショルダープレス／デッドリフト" },
+      B: { title: "Day B · Volume Day", desc: "インクラインベンチ／ワイドスクワット／プルダウン／ランジ" }
+    },
+    dayOrder: {
+      A: ["handG", "bPress", "squat", "sPress", "dLift", "armCurl", "calf"],
+      B: ["handG", "armCurl", "calf", "inBPress", "wSquat", "bSquat", "lunge", "pulldown", "legE", "legC"]
+    },
+    exercises: [
+      { id: "handG",    name: "ハンドグリップ",         day: "both", category: "補助",   unit: "秒",   status: "ok",    current: { sets: mkSets(30, 1, 2) },     goal: { sets: mkSets(30, 1, 2) } },
+      { id: "bPress",   name: "ベンチプレス",           day: "A",    category: "メイン", unit: "kg",   status: "ok",    current: { sets: mkSets(60, 5, 1) },     goal: { sets: mkSets(65, 4, 1) } },
+      { id: "squat",    name: "スクワット",             day: "A",    category: "メイン", unit: "kg",   status: "ok",    current: { sets: mkSets(65, 3, 1) },     goal: { sets: mkSets(70, 4, 1) } },
+      { id: "sPress",   name: "ショルダープレス",       day: "A",    category: "メイン", unit: "kg",   status: "watch", current: { sets: mkSets(32.5, 10, 3) }, goal: { sets: mkSets(37.5, 6, 3) } },
+      { id: "dLift",    name: "デッドリフト",           day: "A",    category: "メイン", unit: "kg",   status: "watch", current: { sets: mkSets(40, 5, 1) },     goal: { sets: mkSets(60, 4, 1) } },
+      { id: "armCurl",  name: "アームカール",           day: "both", category: "補助",   unit: "kg",   status: "ok",    current: { sets: mkSets(20, 10, 3) },    goal: { sets: mkSets(22.5, 10, 3) } },
+      { id: "calf",     name: "カーフレイズ",           day: "both", category: "補助",   unit: "kg",   status: "ok",    current: { sets: mkSets(60, 30, 3) },    goal: { sets: mkSets(70, 30, 3) } },
+      { id: "inBPress", name: "インクラインベンチ",     day: "B",    category: "メイン", unit: "kg",   status: "ok",    current: { sets: mkSets(50, 10, 1) },    goal: { sets: mkSets(55, 6, 1) } },
+      { id: "wSquat",   name: "ワイドスクワット",       day: "B",    category: "補助",   unit: "kg",   status: "ok",    current: { sets: mkSets(55, 10, 2) },    goal: { sets: mkSets(60, 10, 2) } },
+      { id: "bSquat",   name: "ブルガリアンスクワット", day: "B",    category: "補助",   unit: "kg",   status: "ok",    current: { sets: mkSets(0, 10, 2) },     goal: { sets: mkSets(30, 10, 2) } },
+      { id: "lunge",    name: "ランジ",                 day: "B",    category: "補助",   unit: "kg",   status: "ok",    current: { sets: mkSets(40, 10, 2) },    goal: { sets: mkSets(45, 10, 2) } },
+      { id: "pulldown", name: "ラットプルダウン",       day: "B",    category: "補助",   unit: "段階", status: "ok",    current: { sets: mkSets(8, 10, 3) },     goal: { sets: mkSets(10, 10, 3) } },
+      { id: "legE",     name: "レッグエクステンション", day: "B",    category: "補助",   unit: "kg",   status: "ok",    current: { sets: mkSets(17.5, 15, 2) },  goal: { sets: mkSets(20, 15, 2) } },
+      { id: "legC",     name: "レッグカール",           day: "B",    category: "補助",   unit: "kg",   status: "watch", current: { sets: mkSets(5, 10, 3) },     goal: { sets: mkSets(8, 10, 3) } }
+    ]
+  };
+
+  var records = [];
+  var plan = {};
+  var planDraft = null;
+  var targetsEditMode = false;
+  var currentDay = "A";
+  var recordDraft = {}; // { [exId]: { included: bool, sets: [{weight,reps}, ...] } }
+
+  function isValidPlanShape(p) {
+    return p && p.exercises && p.exercises.length && p.exercises[0].current &&
+      Array.isArray(p.exercises[0].current.sets) && p.exercises[0].current.sets.length &&
+      typeof p.exercises[0].current.sets[0].weight === "number";
+  }
+  function isValidRecordEntry(v) {
+    return v && typeof v === "object" && Array.isArray(v.sets) && v.sets.length &&
+      typeof v.sets[0].weight === "number";
+  }
+
+  function loadRecords() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      records = raw ? JSON.parse(raw) : [];
+    } catch (e) { records = []; }
+  }
+  function persistRecords() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); } catch (e) {}
+  }
+
+  function loadPlan() {
+    try {
+      var raw = localStorage.getItem(PLAN_KEY);
+      plan = raw ? JSON.parse(raw) : clone(DEFAULT_PLAN);
+      if (!isValidPlanShape(plan)) plan = clone(DEFAULT_PLAN);
+    } catch (e) { plan = clone(DEFAULT_PLAN); }
+    ensureDayOrder(plan);
+  }
+
+  /* keeps plan.dayOrder.A / .B in sync with which exercises currently belong to each day —
+     drops ids that no longer qualify, appends newly-qualifying ids at the end */
+  function ensureDayOrder(p) {
+    if (!p.dayOrder) p.dayOrder = { A: [], B: [] };
+    ["A", "B"].forEach(function (d) {
+      var relevant = p.exercises.filter(function (ex) { return ex.day === d || ex.day === "both"; }).map(function (ex) { return ex.id; });
+      var order = (p.dayOrder[d] || []).filter(function (id) { return relevant.indexOf(id) !== -1; });
+      relevant.forEach(function (id) { if (order.indexOf(id) === -1) order.push(id); });
+      p.dayOrder[d] = order;
+    });
+  }
+  function persistPlan() {
+    try { localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); } catch (e) {}
+  }
+
+  function fmtDate(iso) {
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    var w = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
+    return (d.getMonth() + 1) + "/" + d.getDate() + "（" + w + "）";
+  }
+  function fmtDateShort(iso) {
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    return (d.getMonth() + 1) + "/" + d.getDate();
+  }
+  function todayISO() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function addDays(iso, days) {
+    var d = new Date(iso + "T00:00:00");
+    d.setDate(d.getDate() + days);
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function computeWeek() {
+    var start = new Date((plan.startDate || todayISO()) + "T00:00:00");
+    var today = new Date(todayISO() + "T00:00:00");
+    if (isNaN(start)) return 1;
+    var diffDays = Math.floor((today - start) / 86400000);
+    var w = Math.floor(diffDays / 7) + 1;
+    if (w < 1) w = 1;
+    if (w > plan.weeks) w = plan.weeks;
+    return w;
+  }
+
+  /* group consecutive identical {weight,reps} sets into "60kg×10×3"-style text */
+  function formatQty(qty, unit) {
+    if (!qty || !qty.sets || !qty.sets.length) return "-";
+    var groups = [];
+    qty.sets.forEach(function (s) {
+      var last = groups[groups.length - 1];
+      if (last && last.weight === s.weight && last.reps === s.reps) last.count++;
+      else groups.push({ weight: s.weight, reps: s.reps, count: 1 });
+    });
+    return groups.map(function (g) {
+      return g.weight + unit + "×" + g.reps + (g.count > 1 ? "×" + g.count : "");
+    }).join(" / ");
+  }
+  function topWeight(qty) {
+    if (!qty || !qty.sets || !qty.sets.length) return 0;
+    return Math.max.apply(null, qty.sets.map(function (s) { return s.weight; }));
+  }
+  function displayValue(v, unit) {
+    if (v == null) return "";
+    if (typeof v === "string") return v;
+    if (isValidRecordEntry(v)) return formatQty(v, unit);
+    return "";
+  }
+
+  /* ---------- Numeric stepper (shared by plan edit + record entry) ---------- */
+  window.adjustQty = function (id, delta, min, max) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var v = parseFloat(el.value);
+    if (isNaN(v)) v = min;
+    v = Math.round((v + delta) * 100) / 100;
+    if (v < min) v = min;
+    if (v > max) v = max;
+    el.value = v;
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+
+  function qtyFieldHTML(id, label, value, cfg, suffix, liveHandlerAttr) {
+    var inputMode = (cfg.step % 1 !== 0) ? "decimal" : "numeric";
+    var minusOnclick = "adjustQty('" + id + "'," + (-cfg.step) + "," + cfg.min + "," + cfg.max + ")";
+    var plusOnclick = "adjustQty('" + id + "'," + cfg.step + "," + cfg.min + "," + cfg.max + ")";
+    return '<div class="qty-field">' +
+      '<div class="qf-label">' + label + '</div>' +
+      '<div class="qf-stepper">' +
+      '<button type="button" class="qf-btn" onclick="' + minusOnclick + '" aria-label="' + label + 'を減らす">−</button>' +
+      '<div class="qf-value-wrap">' +
+      '<input type="number" id="' + id + '" class="qf-input" value="' + value + '" step="' + cfg.step + '" min="' + cfg.min + '" max="' + cfg.max + '" inputmode="' + inputMode + '"' +
+      (liveHandlerAttr ? ' oninput="' + liveHandlerAttr + '"' : '') + '>' +
+      '<span class="qf-unit">' + suffix + '</span>' +
+      '</div>' +
+      '<button type="button" class="qf-btn" onclick="' + plusOnclick + '" aria-label="' + label + 'を増やす">＋</button>' +
+      '</div></div>';
+  }
+
+  /* ---------- Navigation ---------- */
+  window.showScreen = function (name) {
+    document.querySelectorAll(".screen").forEach(function (s) { s.classList.remove("active"); });
+    document.getElementById("screen-" + name).classList.add("active");
+    document.querySelectorAll(".tab-btn").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.screen === name);
+    });
+    if (name === "home") renderHome();
+    if (name === "history") renderHistory();
+    if (name === "targets") { targetsEditMode = false; renderTargets(); }
+    window.scrollTo(0, 0);
+  };
+
+  window.startRecord = function () {
+    setDay(currentDay);
+    showScreen("record");
+  };
+
+  /* ---------- Record form ---------- */
+  function lastEntryFor(exId) {
+    for (var i = records.length - 1; i >= 0; i--) {
+      if (records[i][exId]) return records[i][exId];
+    }
+    return null;
+  }
+  function lastSetsFor(exId) {
+    var v = lastEntryFor(exId);
+    return isValidRecordEntry(v) ? clone(v.sets) : null;
+  }
+
+  function initRecordDraft() {
+    recordDraft = {};
+    plan.exercises.forEach(function (ex) {
+      var prevSets = lastSetsFor(ex.id);
+      recordDraft[ex.id] = { included: false, sets: clone(prevSets || ex.current.sets) };
+    });
+  }
+
+  function buildExerciseFields() {
+    initRecordDraft();
+    applyDayInclusion(currentDay);
+    renderDayExerciseCards();
+  }
+
+  /* marks exercises belonging to day `d` as included by default, everything else excluded */
+  function applyDayInclusion(d) {
+    ensureDayOrder(plan);
+    var ids = plan.dayOrder[d] || [];
+    plan.exercises.forEach(function (ex) {
+      if (recordDraft[ex.id]) recordDraft[ex.id].included = ids.indexOf(ex.id) !== -1;
+    });
+  }
+
+  function dayExerciseList(d) {
+    var ids = plan.dayOrder[d] || [];
+    return ids.map(function (id) {
+      return plan.exercises.filter(function (ex) { return ex.id === id; })[0];
+    }).filter(Boolean);
+  }
+
+  function renderDayExerciseCards() {
+    var wrap = document.getElementById("exerciseFields");
+    wrap.innerHTML = "";
+    var list = dayExerciseList(currentDay);
+    if (!list.length) {
+      wrap.innerHTML = '<div class="card empty-hint">この区分に割り当てられた種目がありません。「プラン」タブで種目の区分を設定してください。</div>';
+      return;
+    }
+    list.forEach(function (ex, idx) {
+      var box = document.createElement("div");
+      box.className = "card exercise-card";
+      box.id = "exCard_" + ex.id;
+      wrap.appendChild(box);
+      renderExerciseCard(ex, idx, list.length);
+    });
+  }
+
+  window.moveExerciseOrder = function (exId, dir) {
+    var order = plan.dayOrder[currentDay];
+    var i = order.indexOf(exId);
+    var j = i + dir;
+    if (i === -1 || j < 0 || j >= order.length) return;
+    var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+    persistPlan();
+    renderDayExerciseCards();
+  };
+
+  window.onRecFieldChange = function (el, exId, setIdx, field) {
+    var v = parseFloat(el.value);
+    if (isNaN(v)) return;
+    if (recordDraft[exId] && recordDraft[exId].sets[setIdx]) recordDraft[exId].sets[setIdx][field] = v;
+  };
+
+  function renderExerciseCard(ex, idx, total) {
+    var el = document.getElementById("exCard_" + ex.id);
+    if (!el) return;
+    var draft = recordDraft[ex.id];
+    var ucfg = UNIT_CONFIG[ex.unit] || UNIT_CONFIG.kg;
+    var prevText = displayValue(lastEntryFor(ex.id), ex.unit);
+    var isFirst = idx === 0, isLast = idx === total - 1;
+
+    var html = '<div class="ex-head">' +
+      '<div class="ex-order">' +
+      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + JSON.stringify(ex.id) + ',-1)"' + (isFirst ? " disabled" : "") + ' aria-label="順番を上げる">▲</button>' +
+      '<span class="ex-order-num">' + (idx + 1) + '</span>' +
+      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + JSON.stringify(ex.id) + ',1)"' + (isLast ? " disabled" : "") + ' aria-label="順番を下げる">▼</button>' +
+      '</div>' +
+      '<div class="ex-name-wrap"><span class="ex-name">' + escapeHTML(ex.name) + '</span>' +
+      '<span class="ex-target">目標 ' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span></div>' +
+      '<button type="button" class="ex-toggle-btn ' + (draft.included ? "on" : "") + '" onclick="toggleRecInclude(' + JSON.stringify(ex.id) + ')">' +
+      (draft.included ? "実施" : "スキップ中") + '</button></div>';
+
+    if (draft.included) {
+      var rows = draft.sets.map(function (s, j) {
+        var live = "onRecFieldChange(this," + JSON.stringify(ex.id) + "," + j + ",";
+        return '<div class="set-row">' +
+          '<div class="set-idx">' + (j + 1) + '</div>' +
+          '<div class="set-fields">' +
+            qtyFieldHTML("rec_w_" + ex.id + "_" + j, ucfg.label, s.weight, ucfg, ex.unit, live + '"weight")') +
+            qtyFieldHTML("rec_r_" + ex.id + "_" + j, REPS_CFG.label, s.reps, REPS_CFG, "回", live + '"reps")') +
+          '</div>' +
+          (draft.sets.length > 1
+            ? '<button type="button" class="set-remove" onclick="removeRecSet(' + JSON.stringify(ex.id) + ',' + j + ')">✕</button>'
+            : '<span class="set-remove-spacer"></span>') +
+          '</div>';
+      }).join("");
+      html += rows + '<button type="button" class="add-set-btn" onclick="addRecSet(' + JSON.stringify(ex.id) + ')">＋ セットを追加</button>';
+      if (prevText) html += '<div class="ex-prev">前回：' + escapeHTML(prevText) + '</div>';
+    } else {
+      html += '<div class="ex-empty-body"><div class="ex-prev">今日はスキップします' + (prevText ? "（前回：" + escapeHTML(prevText) + "）" : "") + '</div></div>';
+    }
+    el.innerHTML = html;
+  }
+
+  window.toggleRecInclude = function (exId) {
+    recordDraft[exId].included = !recordDraft[exId].included;
+    var list = dayExerciseList(currentDay);
+    var idx = list.findIndex(function (e) { return e.id === exId; });
+    renderExerciseCard(list[idx], idx, list.length);
+  };
+
+  window.addRecSet = function (exId) {
+    var draft = recordDraft[exId];
+    if (draft.sets.length >= MAX_SETS) { showToast("セット数の上限（" + MAX_SETS + "）に達しています"); return; }
+    var last = draft.sets[draft.sets.length - 1] || { weight: 20, reps: 10 };
+    draft.sets.push({ weight: last.weight, reps: last.reps });
+    var list = dayExerciseList(currentDay);
+    var idx = list.findIndex(function (e) { return e.id === exId; });
+    renderExerciseCard(list[idx], idx, list.length);
+  };
+
+  window.removeRecSet = function (exId, j) {
+    var draft = recordDraft[exId];
+    if (draft.sets.length > 1) draft.sets.splice(j, 1);
+    var list = dayExerciseList(currentDay);
+    var idx = list.findIndex(function (e) { return e.id === exId; });
+    renderExerciseCard(list[idx], idx, list.length);
+  };
+
+  window.setDay = function (d) {
+    currentDay = d;
+    document.querySelectorAll("#dayToggle button").forEach(function (b) {
+      b.classList.toggle("sel", b.dataset.day === d);
+    });
+    applyDayInclusion(d);
+    renderDayExerciseCards();
+  };
+
+  window.clearForm = function () {
+    document.getElementById("inDate").value = todayISO();
+    document.getElementById("inOther").value = "";
+    buildExerciseFields();
+    setDay(currentDay);
+  };
+
+  window.saveRecord = function () {
+    var date = document.getElementById("inDate").value || todayISO();
+    var rec = { date: date, day: currentDay, other: document.getElementById("inOther").value.trim() };
+    var any = false;
+    plan.exercises.forEach(function (ex) {
+      var draft = recordDraft[ex.id];
+      if (draft && draft.included && draft.sets.length) {
+        rec[ex.id] = { sets: clone(draft.sets) };
+        any = true;
+      }
+    });
+    if (!any && !rec.other) {
+      showToast("種目を1つ以上「実施する」に切り替えてください");
+      return;
+    }
+    records.push(rec);
+    records.sort(function (a, b) { return a.date.localeCompare(b.date); });
+    persistRecords();
+    showToast("保存しました");
+    buildExerciseFields();
+    showScreen("home");
+  };
+
+  /* ---------- Home ---------- */
+  function renderHome() {
+    var mainCount = plan.exercises.filter(function (e) { return e.category === "メイン"; }).length;
+    document.getElementById("homeSub").textContent = plan.weeks + "週間プログラム 第" + computeWeek() + "週 ／ メイン種目" + mainCount + "種目を強化中";
+    document.getElementById("statCount").innerHTML = records.length + "<small>回</small>";
+    document.getElementById("statLast").textContent = records.length ? fmtDate(records[records.length - 1].date) : "まだ記録なし";
+
+    var lastDay = records.length ? records[records.length - 1].day : "B";
+    var next = lastDay === "A" ? "B" : "A";
+    var sched = plan.daySchedule[next] || { title: "Day " + next, desc: "" };
+    document.getElementById("nextBadge").textContent = next;
+    document.getElementById("nextTitle").textContent = sched.title;
+    document.getElementById("nextDesc").textContent = sched.desc;
+    currentDay = next;
+
+    var sparkList = document.getElementById("sparkList");
+    sparkList.innerHTML = "";
+    var mains = plan.exercises.filter(function (e) { return e.category === "メイン"; }).slice(0, 3);
+    if (!records.length || !mains.length) {
+      sparkList.innerHTML = '<div class="card empty-hint">記録を入力すると、ここに主要種目の推移が表示されます。</div>';
+      return;
+    }
+    mains.forEach(function (ex) {
+      var pts = [];
+      records.forEach(function (r) {
+        var v = r[ex.id];
+        if (!v) return;
+        var w = NaN;
+        if (typeof v === "string") w = parseFloat((v.match(/[\d.]+/) || [])[0]);
+        else if (isValidRecordEntry(v)) w = topWeight(v);
+        if (!isNaN(w)) pts.push(w);
+      });
+      var card = document.createElement("div");
+      card.className = "card spark-card";
+      var nowVal = pts.length ? pts[pts.length - 1] + ex.unit : "-";
+      card.innerHTML = '<div class="row"><span class="name">' + escapeHTML(ex.name) + '</span><span class="now">' + nowVal + '</span></div><canvas></canvas>';
+      sparkList.appendChild(card);
+      if (pts.length >= 2) drawSpark(card.querySelector("canvas"), pts);
+      else card.querySelector("canvas").style.display = "none";
+    });
+  }
+
+  function drawSpark(canvas, pts) {
+    var dpr = window.devicePixelRatio || 1;
+    var w = canvas.clientWidth || 300, h = 40;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    var ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    var min = Math.min.apply(null, pts), max = Math.max.apply(null, pts);
+    var range = max - min || 1;
+    var pad = 4;
+    function xy(i) {
+      var x = pad + (i / (pts.length - 1)) * (w - pad * 2);
+      var y = h - pad - ((pts[i] - min) / range) * (h - pad * 2);
+      return [x, y];
+    }
+    var accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#B85A28";
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    pts.forEach(function (_, i) {
+      var p = xy(i);
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    });
+    ctx.stroke();
+    var last = xy(pts.length - 1);
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(last[0], last[1], 2.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  /* ---------- History ---------- */
+  function renderHistory() {
+    var list = document.getElementById("historyList");
+    list.innerHTML = "";
+    if (!records.length) {
+      list.innerHTML = '<div class="card empty-hint">まだ記録がありません。「記録」タブから追加してください。</div>';
+      return;
+    }
+    var sorted = records.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    sorted.forEach(function (rec) {
+      var realIndex = records.indexOf(rec);
+      var summary = plan.exercises.filter(function (ex) { return rec[ex.id]; })
+        .map(function (ex) { return ex.name + " " + displayValue(rec[ex.id], ex.unit); }).join(" ／ ");
+      var card = document.createElement("div");
+      card.className = "card hist-card";
+      card.innerHTML =
+        '<div class="h-top"><span class="h-date">' + fmtDate(rec.date) + '</span>' +
+        '<span class="h-day ' + rec.day + '">Day ' + rec.day + '</span></div>' +
+        '<div class="h-summary">' + escapeHTML(summary || rec.other || "-") + '</div>' +
+        '<div class="hist-detail" style="display:none;"></div>';
+      card.addEventListener("click", function (e) {
+        if (e.target.tagName === "BUTTON") return;
+        var detail = card.querySelector(".hist-detail");
+        var open = detail.style.display !== "none";
+        list.querySelectorAll(".hist-detail").forEach(function (d) { d.style.display = "none"; });
+        if (!open) {
+          detail.innerHTML = buildDetailHTML(rec, realIndex);
+          detail.style.display = "grid";
+        }
+      });
+      list.appendChild(card);
+    });
+  }
+
+  function buildDetailHTML(rec, index) {
+    var rows = plan.exercises.filter(function (ex) { return rec[ex.id]; })
+      .map(function (ex) { return '<div class="kv"><span class="k">' + escapeHTML(ex.name) + '</span><span class="v">' + escapeHTML(displayValue(rec[ex.id], ex.unit)) + '</span></div>'; })
+      .join("");
+    if (rec.other) rows += '<div class="kv"><span class="k">その他</span><span class="v">' + escapeHTML(rec.other) + '</span></div>';
+    rows += '<div class="hist-actions"><button onclick="deleteRecord(' + index + ')" class="del">削除</button></div>';
+    return rows;
+  }
+
+  window.deleteRecord = function (index) {
+    if (!confirm("この記録を削除しますか？")) return;
+    records.splice(index, 1);
+    persistRecords();
+    renderHistory();
+    showToast("削除しました");
+  };
+
+  /* ---------- Targets: view mode ---------- */
+  function targetRowHTML(t) {
+    var dayLabel = t.day === "A" ? "Day A" : t.day === "B" ? "Day B" : "共通";
+    var curTop = topWeight(t.current), goalTop = topWeight(t.goal);
+    var pct = 100;
+    if (goalTop !== curTop) pct = goalTop === 0 ? 0 : Math.max(0, Math.min(100, (curTop / goalTop) * 100));
+    return '<div class="target-row2">' +
+      '<div class="tr2-top">' +
+        '<div class="tr2-name-wrap"><span class="tr2-name">' + escapeHTML(t.name) + '</span><span class="day-chip">' + dayLabel + '</span></div>' +
+        '<span class="t-status ' + (t.status === "watch" ? "watch" : "ok") + '">' + (t.status === "watch" ? "要てこ入れ" : "順調") + '</span>' +
+      '</div>' +
+      '<div class="tr2-progress">' +
+        '<div class="tr2-num"><div class="n-val">' + curTop + t.unit + '</div><div class="n-sub">' + t.current.sets.length + 'セット</div></div>' +
+        '<div class="tr2-bar"><div class="tr2-bar-track"><div class="tr2-bar-fill" style="width:' + pct.toFixed(0) + '%;"></div></div><div class="tr2-bar-label">現状 → 目標</div></div>' +
+        '<div class="tr2-num goal"><div class="n-val">' + goalTop + t.unit + '</div><div class="n-sub">' + t.goal.sets.length + 'セット</div></div>' +
+      '</div>' +
+      '<div class="tr2-detail">' +
+        '<div class="cur-line"><span class="dl">現状</span>' + escapeHTML(formatQty(t.current, t.unit)) + '</div>' +
+        '<div class="goal-line"><span class="dl">目標</span>' + escapeHTML(formatQty(t.goal, t.unit)) + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderProgCard() {
+    var week = computeWeek();
+    var pct = Math.round((week / plan.weeks) * 100);
+    var isDeload = week === plan.deloadWeek;
+    var endDate = addDays(plan.startDate || todayISO(), (plan.weeks || 8) * 7 - 1);
+    document.getElementById("progCard").innerHTML =
+      '<div class="prog-top"><span class="prog-week">第' + week + '週 <small>/ 全' + plan.weeks + '週</small></span>' +
+      (isDeload ? '<span class="deload-badge">デロード週</span>' : '') + '</div>' +
+      '<div class="prog-bar-track"><div class="prog-bar-fill" style="width:' + pct + '%;"></div></div>' +
+      '<div class="prog-dates"><span>' + fmtDateShort(plan.startDate || todayISO()) + ' 開始</span><span>' + fmtDateShort(endDate) + ' 終了予定</span></div>';
+  }
+
+  function renderSchedGrid() {
+    var A = plan.daySchedule.A, B = plan.daySchedule.B;
+    document.getElementById("schedGrid").innerHTML =
+      '<div class="card sched-card"><div class="sc-badge">A</div><div><div class="sc-title">' + escapeHTML(A.title) + '</div><div class="sc-desc">' + escapeHTML(A.desc) + '</div></div></div>' +
+      '<div class="card sched-card"><div class="sc-badge">B</div><div><div class="sc-title">' + escapeHTML(B.title) + '</div><div class="sc-desc">' + escapeHTML(B.desc) + '</div></div></div>';
+  }
+
+  function renderTargetsView() {
+    renderProgCard();
+    renderSchedGrid();
+    document.getElementById("phaseNoteView").innerHTML = '<b>メモ：</b>' + escapeHTML(plan.note || "");
+    var mains = plan.exercises.filter(function (e) { return e.category === "メイン"; });
+    var accs = plan.exercises.filter(function (e) { return e.category !== "メイン"; });
+    document.getElementById("targetMain").innerHTML = mains.length ? mains.map(targetRowHTML).join("") : '<div class="empty-hint">メイン種目がありません</div>';
+    document.getElementById("targetAcc").innerHTML = accs.length ? accs.map(targetRowHTML).join("") : '<div class="empty-hint">補助種目がありません</div>';
+  }
+
+  /* ---------- Targets: edit mode ---------- */
+  window.toggleEditMode = function () {
+    if (!targetsEditMode) {
+      planDraft = clone(plan);
+      targetsEditMode = true;
+    } else {
+      targetsEditMode = false;
+    }
+    renderTargets();
+  };
+
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+  function numVal(id, fallback) {
+    var v = parseFloat(val(id));
+    return isNaN(v) ? fallback : v;
+  }
+
+  function collectDraftFromInputs() {
+    if (!planDraft) return;
+    planDraft.startDate = val("planStart") || planDraft.startDate;
+    planDraft.weeks = parseInt(val("planWeeks"), 10) || planDraft.weeks;
+    planDraft.deloadWeek = parseInt(val("planDeload"), 10) || planDraft.deloadWeek;
+    planDraft.note = val("planNote");
+    planDraft.daySchedule.A.title = val("planATitle") || planDraft.daySchedule.A.title;
+    planDraft.daySchedule.A.desc = val("planADesc");
+    planDraft.daySchedule.B.title = val("planBTitle") || planDraft.daySchedule.B.title;
+    planDraft.daySchedule.B.desc = val("planBDesc");
+    planDraft.exercises.forEach(function (ex, i) {
+      ex.name = (val("pe_name_" + i) || "").trim() || ex.name;
+      ex.day = val("pe_day_" + i) || ex.day;
+      ex.category = val("pe_cat_" + i) || ex.category;
+      ex.unit = val("pe_unit_" + i) || ex.unit;
+      ex.status = val("pe_status_" + i) || ex.status;
+      ["current", "goal"].forEach(function (kind) {
+        var prefix = kind === "current" ? "cur" : "goal";
+        ex[kind].sets = ex[kind].sets.map(function (s, j) {
+          return {
+            weight: numVal("pe_" + prefix + "_w_" + i + "_" + j, s.weight),
+            reps: numVal("pe_" + prefix + "_r_" + i + "_" + j, s.reps)
+          };
+        });
+      });
+    });
+  }
+
+  function daySelectHTML(name, selected) {
+    var opts = [["A", "Day A"], ["B", "Day B"], ["both", "共通"]];
+    return '<select id="' + name + '">' + opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === selected ? " selected" : "") + '>' + o[1] + '</option>';
+    }).join("") + '</select>';
+  }
+  function catSelectHTML(name, selected) {
+    var opts = ["メイン", "補助"];
+    return '<select id="' + name + '">' + opts.map(function (o) {
+      return '<option value="' + o + '"' + (o === selected ? " selected" : "") + '>' + o + '</option>';
+    }).join("") + '</select>';
+  }
+  function statusSelectHTML(name, selected) {
+    return '<select id="' + name + '">' +
+      '<option value="ok"' + (selected !== "watch" ? " selected" : "") + '>順調</option>' +
+      '<option value="watch"' + (selected === "watch" ? " selected" : "") + '>要てこ入れ</option>' +
+      '</select>';
+  }
+  function unitSelectHTML(name, selected, onChangeAttr) {
+    var opts = ["kg", "段階", "秒"];
+    return '<select id="' + name + '" onchange="' + onChangeAttr + '">' + opts.map(function (o) {
+      return '<option value="' + o + '"' + (o === selected ? " selected" : "") + '>' + o + '</option>';
+    }).join("") + '</select>';
+  }
+
+  function setRowHTML(exIndex, prefix, setIndex, s, unit, removable) {
+    var ucfg = UNIT_CONFIG[unit] || UNIT_CONFIG.kg;
+    return '<div class="set-row">' +
+      '<div class="set-idx">' + (setIndex + 1) + '</div>' +
+      '<div class="set-fields">' +
+        qtyFieldHTML("pe_" + prefix + "_w_" + exIndex + "_" + setIndex, ucfg.label, s.weight, ucfg, unit, null) +
+        qtyFieldHTML("pe_" + prefix + "_r_" + exIndex + "_" + setIndex, REPS_CFG.label, s.reps, REPS_CFG, "回", null) +
+      '</div>' +
+      (removable
+        ? '<button type="button" class="set-remove" onclick="removeSetRow(' + exIndex + ',\'' + prefix + '\',' + setIndex + ')">✕</button>'
+        : '<span class="set-remove-spacer"></span>') +
+      '</div>';
+  }
+
+  function qtyGroupHTML(exIndex, kind, label, qty, unit) {
+    var prefix = kind === "goal" ? "goal" : "cur";
+    var rows = qty.sets.map(function (s, j) {
+      return setRowHTML(exIndex, prefix, j, s, unit, qty.sets.length > 1);
+    }).join("");
+    return '<div class="qty-group ' + (kind === "goal" ? "goal" : "") + '">' +
+      '<div class="qg-label">' + label + '<span class="qg-count">' + qty.sets.length + 'セット</span></div>' +
+      rows +
+      '<button type="button" class="add-set-btn" onclick="addSetRow(' + exIndex + ',\'' + prefix + '\')">＋ セットを追加</button>' +
+      '</div>';
+  }
+
+  function renderPlanEditForm() {
+    document.getElementById("planStart").value = planDraft.startDate || "";
+    document.getElementById("planWeeks").value = planDraft.weeks || 8;
+    document.getElementById("planDeload").value = planDraft.deloadWeek || 5;
+    document.getElementById("planNote").value = planDraft.note || "";
+    document.getElementById("planATitle").value = planDraft.daySchedule.A.title || "";
+    document.getElementById("planADesc").value = planDraft.daySchedule.A.desc || "";
+    document.getElementById("planBTitle").value = planDraft.daySchedule.B.title || "";
+    document.getElementById("planBDesc").value = planDraft.daySchedule.B.desc || "";
+
+    var list = document.getElementById("exEditList");
+    list.innerHTML = "";
+    planDraft.exercises.forEach(function (ex, i) {
+      var row = document.createElement("div");
+      row.className = "card ex-edit-row";
+      row.innerHTML =
+        '<div class="er-top"><input type="text" id="pe_name_' + i + '" value="' + escapeAttr(ex.name) + '" placeholder="種目名"></div>' +
+        '<div class="er-selects">' + daySelectHTML("pe_day_" + i, ex.day) + catSelectHTML("pe_cat_" + i, ex.category) + statusSelectHTML("pe_status_" + i, ex.status) +
+        unitSelectHTML("pe_unit_" + i, ex.unit, "onUnitChange(" + i + ")") + '</div>' +
+        qtyGroupHTML(i, "cur", "現状", ex.current, ex.unit) +
+        qtyGroupHTML(i, "goal", "目標", ex.goal, ex.unit) +
+        '<div class="er-bottom"><button type="button" class="remove-ex-btn" onclick="removeExerciseRow(' + i + ')">この種目を削除</button></div>';
+      list.appendChild(row);
+    });
+  }
+
+  window.onUnitChange = function (i) {
+    collectDraftFromInputs();
+    planDraft.exercises[i].unit = val("pe_unit_" + i);
+    renderPlanEditForm();
+  };
+
+  window.addSetRow = function (i, kind) {
+    collectDraftFromInputs();
+    var qty = kind === "cur" ? planDraft.exercises[i].current : planDraft.exercises[i].goal;
+    if (qty.sets.length < MAX_SETS) {
+      var last = qty.sets[qty.sets.length - 1] || { weight: 20, reps: 10 };
+      qty.sets.push({ weight: last.weight, reps: last.reps });
+    } else {
+      showToast("セット数の上限（" + MAX_SETS + "）に達しています");
+    }
+    renderPlanEditForm();
+  };
+
+  window.removeSetRow = function (i, kind, j) {
+    collectDraftFromInputs();
+    var qty = kind === "cur" ? planDraft.exercises[i].current : planDraft.exercises[i].goal;
+    if (qty.sets.length > 1) qty.sets.splice(j, 1);
+    renderPlanEditForm();
+  };
+
+  window.addExerciseRow = function () {
+    collectDraftFromInputs();
+    planDraft.exercises.push({
+      id: "ex_" + Date.now(), name: "", day: "both", category: "補助", unit: "kg", status: "ok",
+      current: { sets: mkSets(20, 10, 3) }, goal: { sets: mkSets(25, 10, 3) }
+    });
+    renderPlanEditForm();
+  };
+
+  window.removeExerciseRow = function (i) {
+    collectDraftFromInputs();
+    planDraft.exercises.splice(i, 1);
+    renderPlanEditForm();
+  };
+
+  window.savePlanEdit = function () {
+    collectDraftFromInputs();
+    if (!planDraft.exercises.length) {
+      showToast("種目を1つ以上残してください");
+      return;
+    }
+    plan = planDraft;
+    ensureDayOrder(plan);
+    persistPlan();
+    targetsEditMode = false;
+    buildExerciseFields();
+    renderTargets();
+    showToast("プランを保存しました");
+  };
+
+  window.cancelPlanEdit = function () {
+    targetsEditMode = false;
+    planDraft = null;
+    renderTargets();
+  };
+
+  function renderTargets() {
+    var btn = document.getElementById("targetEditBtn");
+    var viewEl = document.getElementById("targetsView");
+    var editEl = document.getElementById("targetsEdit");
+    if (targetsEditMode) {
+      btn.textContent = "閉じる";
+      btn.classList.add("on");
+      viewEl.style.display = "none";
+      editEl.style.display = "block";
+      document.getElementById("targetsSub").textContent = "種目・セットごとの重さ・スケジュールを編集できます";
+      renderPlanEditForm();
+    } else {
+      btn.textContent = "編集する";
+      btn.classList.remove("on");
+      viewEl.style.display = "block";
+      editEl.style.display = "none";
+      document.getElementById("targetsSub").textContent = "目標重量とプログラム設定";
+      renderTargetsView();
+    }
+  }
+
+  window.resetPlan = function () {
+    if (!confirm("プランを初期状態に戻します。よろしいですか？（記録は消えません）")) return;
+    plan = clone(DEFAULT_PLAN);
+    ensureDayOrder(plan);
+    persistPlan();
+    targetsEditMode = false;
+    buildExerciseFields();
+    renderHome();
+    renderTargets();
+    showToast("プランをリセットしました");
+  };
+
+  /* ---------- Settings: export / import / wipe ---------- */
+  window.doExport = function () {
+    document.getElementById("exportBox").value = JSON.stringify({ records: records, plan: plan });
+    showToast("最新の内容を表示しました");
+  };
+  window.copyExport = function () {
+    var box = document.getElementById("exportBox");
+    if (!box.value) doExport();
+    box.select();
+    try {
+      document.execCommand("copy");
+      showToast("コピーしました");
+    } catch (e) {
+      showToast("コピーできませんでした。手動で選択してください");
+    }
+  };
+  window.doImport = function () {
+    var raw = document.getElementById("importBox").value.trim();
+    if (!raw) { showToast("貼り付け欄が空です"); return; }
+    try {
+      var incoming = JSON.parse(raw);
+      var incomingRecords = Array.isArray(incoming) ? incoming : incoming.records;
+      var incomingPlan = Array.isArray(incoming) ? null : incoming.plan;
+      if (!Array.isArray(incomingRecords)) throw new Error("bad");
+      records = records.concat(incomingRecords);
+      records.sort(function (a, b) { return (a.date || "").localeCompare(b.date || ""); });
+      persistRecords();
+      if (incomingPlan && isValidPlanShape(incomingPlan)) {
+        plan = incomingPlan;
+        ensureDayOrder(plan);
+        persistPlan();
+      }
+      buildExerciseFields();
+      document.getElementById("importBox").value = "";
+      showToast(incomingRecords.length + "件を復元しました");
+    } catch (e) {
+      showToast("読み込みに失敗しました。形式を確認してください");
+    }
+  };
+  window.wipeAll = function () {
+    if (!confirm("すべての記録を削除します。よろしいですか？")) return;
+    records = [];
+    persistRecords();
+    showToast("すべて削除しました");
+    renderHome();
+  };
+
+  /* ---------- Utils ---------- */
+  function escapeHTML(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function escapeAttr(s) { return escapeHTML(s); }
+
+  /* ---------- Toast ---------- */
+  var toastTimer = null;
+  function showToast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
+  }
+
+  /* ---------- Init ---------- */
+  function init() {
+    loadRecords();
+    loadPlan();
+    document.getElementById("topbarDate").textContent = fmtDate(todayISO());
+    document.getElementById("inDate").value = todayISO();
+    buildExerciseFields();
+    setDay("A");
+    renderHome();
+  }
+  init();
+})();
+</script>

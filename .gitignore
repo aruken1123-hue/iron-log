@@ -1,0 +1,18 @@
+# OS / エディタが勝手に作るファイル
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# バックアップ・作業用ファイル
+*.bak
+*.tmp
+*~
+backup/
+_old/
+
+# 個人データ（アプリのエクスポートJSONなど、公開したくないもの）
+*.local.json
+my_data*.json
