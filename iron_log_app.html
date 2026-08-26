@@ -231,11 +231,28 @@
     text-transform: uppercase; letter-spacing: 0.07em; margin: 20px 2px 9px;
   }
 
-  .spark-card { padding: 14px; margin-bottom: 10px; }
-  .spark-card .row { display: flex; justify-content: space-between; align-items: baseline; }
-  .spark-card .name { font-weight: 600; font-size: 13.5px; }
-  .spark-card .now { font-family: var(--font-mono); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
-  .spark-card canvas { width: 100%; height: 40px; margin-top: 6px; display: block; }
+  .spark-card { padding: 9px 11px; margin-bottom: 6px; }
+  .spark-card .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .spark-card .name { font-weight: 600; font-size: 13px; min-width: 0; display: flex; align-items: baseline; gap: 6px; }
+  .spark-card .name .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .spark-card .now {
+    font-family: var(--font-mono); font-weight: 700; font-size: 14.5px; font-variant-numeric: tabular-nums;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .spark-card .now small { font-size: 10.5px; font-weight: 500; color: var(--text-muted); margin-left: 1px; }
+  .spark-card .now .delta { font-size: 11px; font-weight: 700; margin-left: 6px; }
+  .spark-card .delta.up { color: var(--success); }
+  .spark-card .delta.down { color: var(--danger); }
+  .spark-card .now.none {
+    color: var(--text-muted); font-size: 11.5px; font-weight: 500; font-family: var(--font-body);
+  }
+  .spark-card canvas { width: 100%; height: 30px; margin-top: 4px; display: block; }
+  .spark-foot {
+    display: flex; justify-content: space-between; gap: 8px; margin-top: 2px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+  }
+  .spark-card.is-empty { opacity: 0.6; }
+  .section-label.spark-group { margin-top: 16px; }
   .empty-hint { color: var(--text-muted); font-size: 12.5px; text-align: center; padding: 18px 10px; }
 
   /* ============ Forms (記録入力) ============ */
@@ -582,7 +599,7 @@
         <button class="go" onclick="startRecord()">記録する</button>
       </div>
 
-      <div class="section-label">主要種目の推移</div>
+      <div class="section-label">種目の推移</div>
       <div id="sparkList"></div>
     </section>
 
@@ -1203,31 +1220,89 @@
     document.getElementById("nextDesc").textContent = sched.desc;
     currentDay = next;
 
+    renderSparkList();
+  }
+
+  /* 全種目の推移。メイン→補助の順に並べ、記録が無い種目も存在がわかるよう出す。 */
+  function renderSparkList() {
     var sparkList = document.getElementById("sparkList");
     sparkList.innerHTML = "";
-    var mains = plan.exercises.filter(function (e) { return e.category === "メイン"; }).slice(0, 3);
-    if (!records.length || !mains.length) {
-      sparkList.innerHTML = '<div class="card empty-hint">記録を入力すると、ここに主要種目の推移が表示されます。</div>';
+    if (!plan.exercises.length) {
+      sparkList.innerHTML = '<div class="card empty-hint">種目が登録されていません。「プラン」タブで追加してください。</div>';
       return;
     }
-    mains.forEach(function (ex) {
-      var pts = [];
-      records.forEach(function (r) {
-        var v = r[ex.id];
-        if (!v) return;
-        var w = NaN;
-        if (typeof v === "string") w = parseFloat((v.match(/[\d.]+/) || [])[0]);
-        else if (isValidRecordEntry(v)) w = topWeight(v);
-        if (!isNaN(w)) pts.push(w);
+    if (!records.length) {
+      sparkList.innerHTML = '<div class="card empty-hint">記録を入力すると、ここに全種目の推移が表示されます。</div>';
+      return;
+    }
+    [
+      { label: "メイン種目", list: plan.exercises.filter(function (e) { return e.category === "メイン"; }) },
+      { label: "補助種目",   list: plan.exercises.filter(function (e) { return e.category !== "メイン"; }) }
+    ].forEach(function (group) {
+      if (!group.list.length) return;
+      var lab = document.createElement("div");
+      lab.className = "section-label spark-group";
+      lab.textContent = group.label + " " + group.list.length + "種目";
+      sparkList.appendChild(lab);
+      group.list.forEach(function (ex) {
+        var pts = seriesFor(ex);
+        var card = buildSparkCard(ex, pts);
+        sparkList.appendChild(card);
+        var cv = card.querySelector("canvas");
+        if (!cv) return;
+        if (pts.length >= 2) drawSpark(cv, pts.map(function (p) { return p.value; }));
+        else cv.style.display = "none";
       });
-      var card = document.createElement("div");
-      card.className = "card spark-card";
-      var nowVal = pts.length ? pts[pts.length - 1] + ex.unit : "-";
-      card.innerHTML = '<div class="row"><span class="name">' + escapeHTML(ex.name) + '</span><span class="now">' + nowVal + '</span></div><canvas></canvas>';
-      sparkList.appendChild(card);
-      if (pts.length >= 2) drawSpark(card.querySelector("canvas"), pts);
-      else card.querySelector("canvas").style.display = "none";
     });
+  }
+
+  /* その種目の各回の代表値（そのセッションでの最大重量）を古い順に返す */
+  function seriesFor(ex) {
+    var pts = [];
+    records.forEach(function (r) {
+      var v = r[ex.id];
+      if (!v) return;
+      var w = NaN;
+      if (typeof v === "string") w = parseFloat((v.match(/[\d.]+/) || [])[0]);
+      else if (isValidRecordEntry(v)) w = topWeight(v);
+      if (!isNaN(w)) pts.push({ date: r.date, value: w });
+    });
+    return pts;
+  }
+
+  function buildSparkCard(ex, pts) {
+    var card = document.createElement("div");
+    card.className = "card spark-card" + (pts.length ? "" : " is-empty");
+    var head = '<div class="row"><span class="name">' +
+      '<span class="nm">' + escapeHTML(ex.name) + '</span>' +
+      '<span class="day-chip">' + (ex.day === "both" ? "共通" : "Day " + ex.day) + '</span></span>';
+
+    if (!pts.length) {
+      card.innerHTML = head + '<span class="now none">まだ記録なし</span></div>';
+      return card;
+    }
+
+    var last = pts[pts.length - 1].value;
+    var deltaHTML = "";
+    if (pts.length >= 2) {
+      var diff = Math.round((last - pts[pts.length - 2].value) * 100) / 100;
+      if (diff !== 0) {
+        deltaHTML = '<span class="delta ' + (diff > 0 ? "up" : "down") + '">' +
+          (diff > 0 ? "+" : "") + diff + '</span>';
+      }
+    }
+    var goal = topWeight(ex.goal);
+    var goalText = goal
+      ? "目標 " + goal + ex.unit + "（" + Math.min(999, Math.round((last / goal) * 100)) + "%）"
+      : "目標未設定";
+
+    card.innerHTML = head +
+      '<span class="now">' + last + '<small>' + escapeHTML(ex.unit) + '</small>' + deltaHTML + '</span></div>' +
+      '<canvas></canvas>' +
+      '<div class="spark-foot"><span>' + pts.length + '回記録 ／ 最高 ' +
+      Math.max.apply(null, pts.map(function (p) { return p.value; })) + escapeHTML(ex.unit) + '</span>' +
+      '<span>' + escapeHTML(goalText) + '</span></div>';
+    return card;
   }
 
   function drawSpark(canvas, pts) {
@@ -1922,7 +1997,7 @@
     document.getElementById("inDate").value = todayISO();
     buildExerciseFields();
     setDay("A");
-    renderHome();
+    showScreen("home");     /* renderHome もこの中で呼ばれる */
     refreshBackupSummary();
     wireConfirmDialog();
   }
