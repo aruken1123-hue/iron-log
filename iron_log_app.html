@@ -264,14 +264,17 @@
   .ex-toggle-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .ex-prev { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   .ex-empty-body { padding-top: 4px; }
-  .ex-order { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; padding-top: 1px; }
+  .ex-order { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; padding-top: 1px; }
+  /* 指で確実に押せる大きさを確保する。以前は 24x17px しかなく、
+     ▲▼ の間隔も 2px だったため隣を誤タップしやすかった。 */
   .ex-order-btn {
-    width: 24px; height: 17px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted);
-    border-radius: 5px; font-size: 9px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+    width: 38px; height: 32px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+    border-radius: 8px; font-size: 11px; line-height: 1; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; padding: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
   .ex-order-btn:disabled { opacity: 0.25; cursor: default; }
   .ex-order-btn:active:not(:disabled) { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-  .ex-order-num { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text-muted); }
+  .ex-order-num { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text-muted); line-height: 1; }
 
   .btn-primary {
     width: 100%; background: var(--accent); color: var(--accent-ink); border: none; padding: 14px; border-radius: 12px;
@@ -391,9 +394,17 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .ee-sum-meta {
-    display: block; margin-top: 3px; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);
+    display: block; margin-top: 3px; font-size: 10.5px; color: var(--text-muted);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
+  /* 数値は絶対に省略しない。1行に入らなければ折り返す
+     （nowrap + ellipsis だと「37.5kg」の小数側から先に消えてしまう） */
+  .ee-sum-qty {
+    display: block; margin-top: 2px; font-family: var(--font-mono); font-size: 11px; line-height: 1.5;
+    color: var(--text); font-variant-numeric: tabular-nums; white-space: normal; overflow-wrap: anywhere;
+  }
+  .ee-sum-qty .ee-arrow { color: var(--text-muted); margin: 0 2px; }
+  .ee-sum-qty .ee-goal { color: var(--accent); }
   .ee-body { padding: 12px 14px 13px; display: flex; flex-direction: column; gap: 10px; }
   .ee-bulk { display: flex; gap: 8px; justify-content: flex-end; margin: -2px 2px 8px; }
   .ee-bulk button {
@@ -1431,12 +1442,13 @@
       row.dataset.exid = ex.id;
       row.open = !!planEditOpen[ex.id];
       var dayLabel = ex.day === "both" ? "共通" : "Day " + ex.day;
-      var summary = dayLabel + " · " + ex.category + "／" +
-        formatQty(ex.current, ex.unit) + " → " + formatQty(ex.goal, ex.unit);
       row.innerHTML =
         '<summary><span class="ee-caret">▶</span><span class="ee-sum">' +
         '<span class="ee-sum-name">' + (escapeHTML(ex.name) || "（名称未設定）") + '</span>' +
-        '<span class="ee-sum-meta">' + escapeHTML(summary) + '</span>' +
+        '<span class="ee-sum-meta">' + escapeHTML(dayLabel + " · " + ex.category) + '</span>' +
+        '<span class="ee-sum-qty">' + escapeHTML(formatQty(ex.current, ex.unit)) +
+        '<span class="ee-arrow">→</span>' +
+        '<span class="ee-goal">' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span></span>' +
         '</span></summary>' +
         '<div class="ee-body">' +
         '<div class="er-top"><input type="text" id="pe_name_' + i + '" value="' + escapeAttr(ex.name) + '" placeholder="種目名"></div>' +
