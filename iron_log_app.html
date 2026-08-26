@@ -1606,22 +1606,50 @@
     showToast("最新の内容を表示しました");
   };
 
-  window.downloadBackup = function () {
+  /* 通常のダウンロードリンクで保存する（ローカルのHTMLとして開いた場合） */
+  function saveFileViaLink(filename, text) {
     try {
-      var blob = new Blob([JSON.stringify(backupPayload(), null, 2)], { type: "application/json" });
+      var blob = new Blob([text], { type: "application/json" });
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
       a.href = url;
-      a.download = "ironlog_backup_" + todayISO() + ".json";
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-      showToast("ironlog_backup_" + todayISO() + ".json を保存しました");
+      showToast(filename + " を保存しました");
     } catch (e) {
-      doExport();
-      showToast("ファイル保存に失敗しました。テキストをコピーしてください");
+      fallbackToText();
     }
+  }
+
+  function fallbackToText() {
+    doExport();
+    showToast("ファイル保存が使えません。テキストをコピーしてください");
+  }
+
+  /* claude.ai の Artifact として開かれている場合、ページが直接ダウンロードを
+     開始することは許可されていない。downloads 機能が使えるならそれ経由で保存する。 */
+  function saveBackupFile(filename, text) {
+    if (!window.claude || typeof window.claude.use !== "function") {
+      saveFileViaLink(filename, text);
+      return;
+    }
+    window.claude.use("downloads").then(function (downloads) {
+      if (!downloads) { fallbackToText(); return; }
+      return downloads.save({ filename: filename, data: text }).then(function () {
+        showToast(filename + " を保存しました");
+      }, function (err) {
+        if (err && err.code === "declined") return;  // 利用者が保存をキャンセルしただけ
+        fallbackToText();
+      });
+    })["catch"](function () { fallbackToText(); });
+  }
+
+  window.downloadBackup = function () {
+    saveBackupFile("ironlog_backup_" + todayISO() + ".json",
+      JSON.stringify(backupPayload(), null, 2));
   };
 
   window.copyExport = function () {
