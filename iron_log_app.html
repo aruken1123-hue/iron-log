@@ -305,7 +305,12 @@
   }
   .hist-detail { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr; gap: 6px; }
   .hist-detail .kv { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; }
-  .hist-detail .kv .k { color: var(--text-muted); flex-shrink: 0; }
+  .hist-detail .kv .k { color: var(--text-muted); flex-shrink: 0; display: flex; align-items: center; gap: 7px; }
+  .hist-detail .kv .kv-idx {
+    width: 17px; height: 17px; border-radius: 50%; background: var(--surface-2); color: var(--text-muted);
+    font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
   .hist-detail .kv .v { font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
   .hist-actions { display: flex; gap: 8px; margin-top: 12px; }
   .hist-actions button {
@@ -518,6 +523,25 @@
     flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--surface-2); color: var(--text-muted);
     font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono);
   }
+
+  /* ============ Confirm dialog ============ */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.55);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-backdrop[hidden] { display: none; }
+  .modal-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 20px; width: 100%; max-width: 340px;
+  }
+  .modal-text { font-size: 14px; line-height: 1.75; color: var(--text); white-space: pre-line; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-actions button {
+    flex: 1; padding: 12px 8px; border-radius: 10px; font-size: 13.5px; font-weight: 700; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  }
+  .modal-actions button.go { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+  .modal-actions button.go.danger { border-color: var(--danger); background: var(--danger); color: #FFFFFF; }
 
   .screen { display: none; animation: fadein 0.18s ease; }
   .screen.active { display: block; }
@@ -754,6 +778,16 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="modal-backdrop" id="confirmModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmText">
+    <div class="modal-text" id="confirmText"></div>
+    <div class="modal-actions">
+      <button type="button" id="confirmCancel">キャンセル</button>
+      <button type="button" id="confirmOk" class="go">実行</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -1126,12 +1160,15 @@
 
   window.saveRecord = function () {
     var date = document.getElementById("inDate").value || todayISO();
-    var rec = { date: date, day: currentDay, other: document.getElementById("inOther").value.trim() };
+    var rec = { date: date, day: currentDay, other: document.getElementById("inOther").value.trim(), order: [] };
     var any = false;
-    plan.exercises.forEach(function (ex) {
+    /* 画面に並んでいる順（＝▲▼で決めた実施順）でたどる。
+       plan.exercises の定義順ではなく、この順序を記録側にも残しておく。 */
+    dayExerciseList(currentDay).forEach(function (ex) {
       var draft = recordDraft[ex.id];
       if (draft && draft.included && draft.sets.length) {
         rec[ex.id] = { sets: clone(draft.sets) };
+        rec.order.push(ex.id);
         any = true;
       }
     });
@@ -1222,6 +1259,24 @@
   }
 
   /* ---------- History ---------- */
+  /* その記録に含まれる種目を「実施した順」で返す。
+     rec.order があればそれを最優先（記録時点の順序）。
+     無い古い記録は現在の並び順 dayOrder で代用する。 */
+  function recordExerciseList(rec) {
+    var byId = {};
+    plan.exercises.forEach(function (ex) { byId[ex.id] = ex; });
+    var out = [], seen = {};
+    function push(id) {
+      if (seen[id] || !rec[id] || !byId[id]) return;
+      seen[id] = true;
+      out.push(byId[id]);
+    }
+    (rec.order || []).forEach(push);
+    ((plan.dayOrder && plan.dayOrder[rec.day]) || []).forEach(push);
+    plan.exercises.forEach(function (ex) { push(ex.id); });   // 取りこぼし防止
+    return out;
+  }
+
   function renderHistory() {
     var list = document.getElementById("historyList");
     list.innerHTML = "";
@@ -1232,7 +1287,7 @@
     var sorted = records.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
     sorted.forEach(function (rec) {
       var realIndex = records.indexOf(rec);
-      var summary = plan.exercises.filter(function (ex) { return rec[ex.id]; })
+      var summary = recordExerciseList(rec)
         .map(function (ex) { return ex.name + " " + displayValue(rec[ex.id], ex.unit); }).join(" ／ ");
       var card = document.createElement("div");
       card.className = "card hist-card";
@@ -1256,8 +1311,11 @@
   }
 
   function buildDetailHTML(rec, index) {
-    var rows = plan.exercises.filter(function (ex) { return rec[ex.id]; })
-      .map(function (ex) { return '<div class="kv"><span class="k">' + escapeHTML(ex.name) + '</span><span class="v">' + escapeHTML(displayValue(rec[ex.id], ex.unit)) + '</span></div>'; })
+    var rows = recordExerciseList(rec)
+      .map(function (ex, i) {
+        return '<div class="kv"><span class="k"><span class="kv-idx">' + (i + 1) + '</span>' + escapeHTML(ex.name) + '</span>' +
+          '<span class="v">' + escapeHTML(displayValue(rec[ex.id], ex.unit)) + '</span></div>';
+      })
       .join("");
     if (rec.other) rows += '<div class="kv"><span class="k">その他</span><span class="v">' + escapeHTML(rec.other) + '</span></div>';
     rows += '<div class="hist-actions"><button onclick="deleteRecord(' + index + ')" class="del">削除</button></div>';
@@ -1265,11 +1323,18 @@
   }
 
   window.deleteRecord = function (index) {
-    if (!confirm("この記録を削除しますか？")) return;
-    records.splice(index, 1);
-    persistRecords();
-    renderHistory();
-    showToast("削除しました");
+    var rec = records[index];
+    if (!rec) return;
+    askConfirm(fmtDate(rec.date) + "（Day " + rec.day + "）の記録を削除します。\n元に戻せません。", "削除する", true)
+      .then(function (ok) {
+        if (!ok) return;
+        records.splice(index, 1);
+        persistRecords();
+        renderHistory();
+        renderHome();
+        refreshBackupSummary();
+        showToast("削除しました");
+      });
   };
 
   /* ---------- Targets: view mode ---------- */
@@ -1571,15 +1636,18 @@
   }
 
   window.resetPlan = function () {
-    if (!confirm("プランを初期状態に戻します。よろしいですか？（記録は消えません）")) return;
-    plan = clone(DEFAULT_PLAN);
-    ensureDayOrder(plan);
-    persistPlan();
-    targetsEditMode = false;
-    buildExerciseFields();
-    renderHome();
-    renderTargets();
-    showToast("プランをリセットしました");
+    askConfirm("種目リストと目標重量を、はじめの8週間プログラムの内容に戻します。\n記録は消えません。", "リセットする", false)
+      .then(function (ok) {
+        if (!ok) return;
+        plan = clone(DEFAULT_PLAN);
+        ensureDayOrder(plan);
+        persistPlan();
+        targetsEditMode = false;
+        buildExerciseFields();
+        renderHome();
+        renderTargets();
+        showToast("プランをリセットしました");
+      });
   };
 
   /* ---------- Settings: export / import / wipe ---------- */
@@ -1686,7 +1754,9 @@
   window.doImport = function () {
     var raw = document.getElementById("importBox").value.trim();
     if (!raw) { showToast("貼り付け欄が空です"); return; }
-    if (applyImport(raw)) document.getElementById("importBox").value = "";
+    applyImport(raw).then(function (ok) {
+      if (ok) document.getElementById("importBox").value = "";
+    });
   };
 
   function currentImportMode() {
@@ -1695,42 +1765,53 @@
   }
 
   /* raw(JSON文字列) を取り込む。成功したら true */
+  /* raw(JSON文字列) を取り込む。Promise<boolean> を返す（true = 取り込んだ） */
   function applyImport(raw) {
     var incoming;
     try { incoming = JSON.parse(raw); } catch (e) {
       showToast("読み込めませんでした。JSONの形式を確認してください");
-      return false;
+      return Promise.resolve(false);
     }
     var isBareArray = Array.isArray(incoming);
     var incomingRecords = isBareArray ? incoming : (incoming && incoming.records);
     var incomingPlan = isBareArray ? null : (incoming && incoming.plan);
     if (!Array.isArray(incomingRecords)) {
       showToast("記録データが含まれていません");
-      return false;
+      return Promise.resolve(false);
     }
     var valid = incomingRecords.filter(function (r) { return r && typeof r === "object" && r.date; });
     if (!valid.length && !incomingPlan) {
       showToast("取り込める記録がありませんでした");
-      return false;
+      return Promise.resolve(false);
     }
 
     var mode = currentImportMode();
-    var added = 0, skipped = 0;
     if (mode === "replace") {
-      if (!confirm("今の記録 " + records.length + " 件をすべて破棄して、読み込んだ " + valid.length + " 件に置き換えます。よろしいですか？")) return false;
-      records = clone(valid);
-      added = valid.length;
-    } else {
-      var seen = {};
-      records.forEach(function (r) { seen[recordKey(r)] = true; });
-      valid.forEach(function (r) {
-        var k = recordKey(r);
-        if (seen[k]) { skipped++; return; }
-        seen[k] = true;
-        records.push(clone(r));
-        added++;
+      return askConfirm(
+        "今の記録 " + records.length + " 件をすべて破棄して、\n読み込んだ " + valid.length + " 件に置き換えます。",
+        "置き換える", true
+      ).then(function (ok) {
+        if (!ok) return false;
+        records = clone(valid);
+        finishImport(mode, valid.length, 0, incomingPlan);
+        return true;
       });
     }
+
+    var seen = {}, added = 0, skipped = 0;
+    records.forEach(function (r) { seen[recordKey(r)] = true; });
+    valid.forEach(function (r) {
+      var k = recordKey(r);
+      if (seen[k]) { skipped++; return; }
+      seen[k] = true;
+      records.push(clone(r));
+      added++;
+    });
+    finishImport(mode, added, skipped, incomingPlan);
+    return Promise.resolve(true);
+  }
+
+  function finishImport(mode, added, skipped, incomingPlan) {
     records.sort(function (a, b) { return (a.date || "").localeCompare(b.date || ""); });
     persistRecords();
 
@@ -1748,16 +1829,20 @@
     showToast(mode === "replace"
       ? added + "件に置き換えました"
       : added + "件を追加しました" + (skipped ? "（重複 " + skipped + "件はスキップ）" : ""));
-    return true;
   }
 
   window.wipeAll = function () {
-    if (!confirm("すべての記録を削除します。よろしいですか？")) return;
-    records = [];
-    persistRecords();
-    showToast("すべて削除しました");
-    renderHome();
-    refreshBackupSummary();
+    if (!records.length) { showToast("削除する記録がありません"); return; }
+    askConfirm("この端末に保存されている記録 " + records.length + " 件をすべて削除します。\n元に戻せません。", "すべて削除", true)
+      .then(function (ok) {
+        if (!ok) return;
+        records = [];
+        persistRecords();
+        showToast("すべて削除しました");
+        renderHome();
+        renderHistory();
+        refreshBackupSummary();
+      });
   };
 
   /* ---------- Utils ---------- */
@@ -1780,6 +1865,41 @@
       .replace(/</g, "&lt;") + "'";
   }
 
+  /* ---------- Confirm dialog ----------
+     Artifact のように sandbox された iframe では window.confirm() が
+     何も表示しないまま false を返すため、確認は自前のダイアログで行う。 */
+  var confirmResolve = null;
+
+  function askConfirm(message, okLabel, danger) {
+    return new Promise(function (resolve) {
+      if (confirmResolve) { resolve(false); return; }   // 二重表示を防ぐ
+      var ok = document.getElementById("confirmOk");
+      document.getElementById("confirmText").textContent = message;
+      ok.textContent = okLabel || "実行";
+      ok.className = "go" + (danger ? " danger" : "");
+      document.getElementById("confirmModal").hidden = false;
+      confirmResolve = resolve;
+      ok.focus();
+    });
+  }
+
+  function closeConfirm(result) {
+    document.getElementById("confirmModal").hidden = true;
+    var resolve = confirmResolve;
+    confirmResolve = null;
+    if (resolve) resolve(result);
+  }
+
+  function wireConfirmDialog() {
+    var modal = document.getElementById("confirmModal");
+    document.getElementById("confirmOk").addEventListener("click", function () { closeConfirm(true); });
+    document.getElementById("confirmCancel").addEventListener("click", function () { closeConfirm(false); });
+    modal.addEventListener("click", function (e) { if (e.target === modal) closeConfirm(false); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.hidden) closeConfirm(false);
+    });
+  }
+
   /* ---------- Toast ---------- */
   var toastTimer = null;
   function showToast(msg) {
@@ -1800,6 +1920,7 @@
     setDay("A");
     renderHome();
     refreshBackupSummary();
+    wireConfirmDialog();
   }
   init();
 })();
