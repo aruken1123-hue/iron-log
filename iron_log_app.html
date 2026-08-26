@@ -252,8 +252,8 @@
   }
   .day-toggle button.sel { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
-  .exercise-card { padding: 12px 14px; margin-bottom: 8px; }
-  .exercise-card .ex-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .exercise-card { padding: 10px 12px; margin-bottom: 6px; }
+  .exercise-card .ex-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 2px; }
   .exercise-card .ex-name-wrap { min-width: 0; flex: 1; }
   .exercise-card .ex-name { font-weight: 600; font-size: 13.5px; display: block; }
   .exercise-card .ex-target { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
@@ -262,7 +262,7 @@
     font-size: 11px; font-weight: 700; padding: 6px 11px; border-radius: 8px; cursor: pointer;
   }
   .ex-toggle-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .ex-prev { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .ex-prev { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   .ex-empty-body { padding-top: 4px; }
   .ex-order { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; padding-top: 1px; }
   /* 指で確実に押せる大きさを確保する。以前は 24x17px しかなく、
@@ -431,42 +431,45 @@
   .qty-group.goal .qg-label { color: var(--accent); }
   .qty-group .qg-count { font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 10.5px; color: var(--text-muted); }
 
-  .set-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+  .set-row { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
   .set-row:last-of-type { margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
   .set-idx {
-    width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
-    font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    margin-top: 27px; color: var(--text-muted); font-family: var(--font-mono);
+    width: 17px; height: 17px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
+    font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    margin-top: 24px; color: var(--text-muted); font-family: var(--font-mono);
   }
   /* 幅が足りないときは「重さ」と「回数」が自動的に縦に並ぶ。
      横1列に詰め込むと数字が枠に収まらず途中で切れてしまうため。 */
   .set-fields {
-    flex: 1; min-width: 0; display: grid; gap: 10px;
-    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    flex: 1; min-width: 0; display: grid; gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
   }
   .set-remove {
     background: none; border: none; color: var(--danger); font-size: 16px; line-height: 1; cursor: pointer;
-    padding: 4px 5px; flex-shrink: 0; margin-top: 25px;
+    padding: 2px 3px; flex-shrink: 0; margin-top: 22px;
   }
   .set-remove-spacer { width: 24px; flex-shrink: 0; }
   .add-set-btn {
     width: 100%; background: none; border: 1px dashed var(--border); color: var(--accent); font-size: 11.5px; font-weight: 700;
-    padding: 8px; border-radius: 8px; cursor: pointer; margin-top: 2px;
+    padding: 6px; border-radius: 8px; cursor: pointer; margin-top: 0;
   }
 
   /* ============ Numeric stepper (weight / reps) ============ */
   .qty-field { min-width: 0; }
-  .qf-label { font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px; }
-  .qf-stepper { display: flex; align-items: center; gap: 6px; }
+  .qf-label {
+    font-size: 10.5px; color: var(--text-muted); margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .qf-stepper { display: flex; align-items: center; gap: 3px; }
   .qf-btn {
-    width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2);
-    color: var(--text); font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; -webkit-user-select: none; user-select: none; line-height: 1; padding: 0;
   }
   .qf-btn:active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .qf-value-wrap {
-    flex: 1; min-width: 54px; display: flex; align-items: baseline; justify-content: center; gap: 3px;
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 6px;
+    flex: 1; min-width: 50px; display: flex; align-items: baseline; justify-content: center;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 5px 3px;
   }
   .qf-input {
     width: 100%; min-width: 0; background: none; border: none; text-align: center;
@@ -474,7 +477,6 @@
   }
   .qf-input::-webkit-outer-spin-button, .qf-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .qf-input { -moz-appearance: textfield; appearance: textfield; }
-  .qf-unit { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
 
   .er-bottom { display: flex; justify-content: flex-end; }
   .remove-ex-btn { color: var(--danger); background: none; border: none; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 2px; }
@@ -969,16 +971,18 @@
     var inputMode = (cfg.step % 1 !== 0) ? "decimal" : "numeric";
     var minusOnclick = "adjustQty('" + id + "'," + (-cfg.step) + "," + cfg.min + "," + cfg.max + ")";
     var plusOnclick = "adjustQty('" + id + "'," + cfg.step + "," + cfg.min + "," + cfg.max + ")";
+    /* 単位は数値の隣ではなくラベル側に出す。横に並べると数値の表示幅を
+       圧迫して桁が切れるため。「回数（回）」のように重複する場合は付けない。 */
+    var fullLabel = (suffix && label.indexOf(suffix) === -1) ? label + "（" + suffix + "）" : label;
     return '<div class="qty-field">' +
-      '<div class="qf-label">' + label + '</div>' +
+      '<div class="qf-label" title="' + escapeAttr(fullLabel) + '">' + escapeHTML(fullLabel) + '</div>' +
       '<div class="qf-stepper">' +
-      '<button type="button" class="qf-btn" onclick="' + minusOnclick + '" aria-label="' + label + 'を減らす">−</button>' +
+      '<button type="button" class="qf-btn" onclick="' + minusOnclick + '" aria-label="' + escapeAttr(fullLabel) + 'を減らす">−</button>' +
       '<div class="qf-value-wrap">' +
       '<input type="number" id="' + id + '" class="qf-input" value="' + value + '" step="' + cfg.step + '" min="' + cfg.min + '" max="' + cfg.max + '" inputmode="' + inputMode + '"' +
       (liveHandlerAttr ? ' oninput="' + liveHandlerAttr + '"' : '') + '>' +
-      '<span class="qf-unit">' + suffix + '</span>' +
       '</div>' +
-      '<button type="button" class="qf-btn" onclick="' + plusOnclick + '" aria-label="' + label + 'を増やす">＋</button>' +
+      '<button type="button" class="qf-btn" onclick="' + plusOnclick + '" aria-label="' + escapeAttr(fullLabel) + 'を増やす">＋</button>' +
       '</div></div>';
   }
 
