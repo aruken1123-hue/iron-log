@@ -369,10 +369,36 @@
     width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font-size: 13.5px; color: var(--text);
   }
   .plan-meta-card textarea { min-height: 60px; resize: vertical; font-family: var(--font-body); }
+  .day-edit-block textarea.day-desc {
+    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 10px; font-size: 13.5px; line-height: 1.6; color: var(--text);
+    font-family: var(--font-body); min-height: 54px; resize: vertical;
+  }
   .day-edit-block { display: flex; flex-direction: column; gap: 8px; padding: 12px; background: var(--surface-2); border-radius: 10px; }
   .day-edit-block .dlabel { font-family: var(--font-display); font-weight: 700; font-size: 12.5px; color: var(--accent); }
 
-  .ex-edit-row { padding: 13px 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+  details.ex-edit-row { padding: 0; margin-bottom: 10px; display: block; }
+  details.ex-edit-row > summary {
+    list-style: none; cursor: pointer; padding: 13px 14px; display: flex; align-items: center; gap: 10px;
+  }
+  details.ex-edit-row > summary::-webkit-details-marker { display: none; }
+  details.ex-edit-row[open] > summary { border-bottom: 1px solid var(--border); }
+  .ee-caret { flex-shrink: 0; font-size: 9px; color: var(--text-muted); transition: transform 0.15s ease; }
+  details.ex-edit-row[open] .ee-caret { transform: rotate(90deg); }
+  .ee-sum { flex: 1; min-width: 0; }
+  .ee-sum-name {
+    display: block; font-family: var(--font-display); font-weight: 700; font-size: 13.5px; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ee-sum-meta {
+    display: block; margin-top: 3px; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ee-body { padding: 12px 14px 13px; display: flex; flex-direction: column; gap: 10px; }
+  .ee-bulk { display: flex; gap: 8px; justify-content: flex-end; margin: -2px 2px 8px; }
+  .ee-bulk button {
+    background: none; border: none; color: var(--text-muted); font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 4px 2px;
+  }
   .ex-edit-row .er-top { display: flex; gap: 8px; }
   .ex-edit-row .er-top input[type="text"] {
     flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font-size: 13.5px; font-weight: 600; color: var(--text);
@@ -394,12 +420,17 @@
   .set-idx {
     width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
     font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    margin-top: 20px; color: var(--text-muted); font-family: var(--font-mono);
+    margin-top: 27px; color: var(--text-muted); font-family: var(--font-mono);
   }
-  .set-fields { flex: 1; display: flex; gap: 10px; min-width: 0; }
+  /* 幅が足りないときは「重さ」と「回数」が自動的に縦に並ぶ。
+     横1列に詰め込むと数字が枠に収まらず途中で切れてしまうため。 */
+  .set-fields {
+    flex: 1; min-width: 0; display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  }
   .set-remove {
     background: none; border: none; color: var(--danger); font-size: 16px; line-height: 1; cursor: pointer;
-    padding: 4px 5px; flex-shrink: 0; margin-top: 16px;
+    padding: 4px 5px; flex-shrink: 0; margin-top: 25px;
   }
   .set-remove-spacer { width: 24px; flex-shrink: 0; }
   .add-set-btn {
@@ -408,26 +439,26 @@
   }
 
   /* ============ Numeric stepper (weight / reps) ============ */
-  .qty-field { flex: 1; min-width: 0; }
+  .qty-field { min-width: 0; }
   .qf-label { font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px; }
   .qf-stepper { display: flex; align-items: center; gap: 6px; }
   .qf-btn {
-    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2);
+    width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2);
     color: var(--text); font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; -webkit-user-select: none; user-select: none; line-height: 1; padding: 0;
   }
   .qf-btn:active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .qf-value-wrap {
-    flex: 1; min-width: 0; display: flex; align-items: baseline; justify-content: center; gap: 3px;
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 2px;
+    flex: 1; min-width: 54px; display: flex; align-items: baseline; justify-content: center; gap: 3px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 6px;
   }
   .qf-input {
     width: 100%; min-width: 0; background: none; border: none; text-align: center;
-    font-family: var(--font-mono); font-size: 14.5px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums;
   }
   .qf-input::-webkit-outer-spin-button, .qf-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .qf-input { -moz-appearance: textfield; appearance: textfield; }
-  .qf-unit { font-size: 10.5px; color: var(--text-muted); flex-shrink: 0; }
+  .qf-unit { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
 
   .er-bottom { display: flex; justify-content: flex-end; }
   .remove-ex-btn { color: var(--danger); background: none; border: none; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 2px; }
@@ -590,17 +621,21 @@
           <div class="day-edit-block">
             <div class="dlabel">Day A</div>
             <input type="text" id="planATitle" placeholder="例：Day A · High Day">
-            <input type="text" id="planADesc" placeholder="種目を「／」区切りで入力">
+            <textarea id="planADesc" class="day-desc" placeholder="種目を「／」区切りで入力"></textarea>
           </div>
           <div class="day-edit-block">
             <div class="dlabel">Day B</div>
             <input type="text" id="planBTitle" placeholder="例：Day B · Volume Day">
-            <input type="text" id="planBDesc" placeholder="種目を「／」区切りで入力">
+            <textarea id="planBDesc" class="day-desc" placeholder="種目を「／」区切りで入力"></textarea>
           </div>
         </div>
 
         <div class="section-label">種目リスト</div>
-        <p class="page-sub" style="margin-top:-4px;">セットごとに重さ・回数を＋／－または直接入力で設定できます</p>
+        <p class="page-sub" style="margin-top:-4px;">種目名をタップすると開きます。セットごとに重さ・回数を＋／－または直接入力で設定できます</p>
+        <div class="ee-bulk">
+          <button type="button" onclick="toggleAllPlanRows(true)">すべて開く</button>
+          <button type="button" onclick="toggleAllPlanRows(false)">すべて閉じる</button>
+        </div>
         <div id="exEditList"></div>
         <button class="btn-secondary" onclick="addExerciseRow()">＋ 種目を追加</button>
 
@@ -1300,6 +1335,7 @@
 
   function collectDraftFromInputs() {
     if (!planDraft) return;
+    capturePlanEditOpen();
     planDraft.startDate = val("planStart") || planDraft.startDate;
     planDraft.weeks = parseInt(val("planWeeks"), 10) || planDraft.weeks;
     planDraft.deloadWeek = parseInt(val("planDeload"), 10) || planDraft.deloadWeek;
@@ -1390,18 +1426,47 @@
     var list = document.getElementById("exEditList");
     list.innerHTML = "";
     planDraft.exercises.forEach(function (ex, i) {
-      var row = document.createElement("div");
+      var row = document.createElement("details");
       row.className = "card ex-edit-row";
+      row.dataset.exid = ex.id;
+      row.open = !!planEditOpen[ex.id];
+      var dayLabel = ex.day === "both" ? "共通" : "Day " + ex.day;
+      var summary = dayLabel + " · " + ex.category + "／" +
+        formatQty(ex.current, ex.unit) + " → " + formatQty(ex.goal, ex.unit);
       row.innerHTML =
+        '<summary><span class="ee-caret">▶</span><span class="ee-sum">' +
+        '<span class="ee-sum-name">' + (escapeHTML(ex.name) || "（名称未設定）") + '</span>' +
+        '<span class="ee-sum-meta">' + escapeHTML(summary) + '</span>' +
+        '</span></summary>' +
+        '<div class="ee-body">' +
         '<div class="er-top"><input type="text" id="pe_name_' + i + '" value="' + escapeAttr(ex.name) + '" placeholder="種目名"></div>' +
         '<div class="er-selects">' + daySelectHTML("pe_day_" + i, ex.day) + catSelectHTML("pe_cat_" + i, ex.category) + statusSelectHTML("pe_status_" + i, ex.status) +
         unitSelectHTML("pe_unit_" + i, ex.unit, "onUnitChange(" + i + ")") + '</div>' +
         qtyGroupHTML(i, "cur", "現状", ex.current, ex.unit) +
         qtyGroupHTML(i, "goal", "目標", ex.goal, ex.unit) +
-        '<div class="er-bottom"><button type="button" class="remove-ex-btn" onclick="removeExerciseRow(' + i + ')">この種目を削除</button></div>';
+        '<div class="er-bottom"><button type="button" class="remove-ex-btn" onclick="removeExerciseRow(' + i + ')">この種目を削除</button></div>' +
+        '</div>';
       list.appendChild(row);
     });
   }
+
+  /* 種目ごとの開閉状態。再描画で全部閉じてしまわないよう種目IDで覚えておく */
+  var planEditOpen = {};
+
+  function capturePlanEditOpen() {
+    var list = document.getElementById("exEditList");
+    if (!list) return;
+    list.querySelectorAll("details.ex-edit-row").forEach(function (d) {
+      if (d.dataset.exid) planEditOpen[d.dataset.exid] = d.open;
+    });
+  }
+
+  window.toggleAllPlanRows = function (open) {
+    if (!planDraft) return;
+    collectDraftFromInputs();
+    planDraft.exercises.forEach(function (ex) { planEditOpen[ex.id] = open; });
+    renderPlanEditForm();
+  };
 
   window.onUnitChange = function (i) {
     collectDraftFromInputs();
@@ -1430,11 +1495,19 @@
 
   window.addExerciseRow = function () {
     collectDraftFromInputs();
+    var newId = "ex_" + Date.now();
     planDraft.exercises.push({
-      id: "ex_" + Date.now(), name: "", day: "both", category: "補助", unit: "kg", status: "ok",
+      id: newId, name: "", day: "both", category: "補助", unit: "kg", status: "ok",
       current: { sets: mkSets(20, 10, 3) }, goal: { sets: mkSets(25, 10, 3) }
     });
+    planEditOpen[newId] = true;
     renderPlanEditForm();
+    var added = document.querySelector('details.ex-edit-row[data-exid="' + newId + '"]');
+    if (added) {
+      added.scrollIntoView({ block: "center" });
+      var nameInput = added.querySelector('input[type="text"]');
+      if (nameInput) nameInput.focus();
+    }
   };
 
   window.removeExerciseRow = function (i) {
