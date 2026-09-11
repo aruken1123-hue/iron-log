@@ -474,6 +474,56 @@
     display: none;
   }
 
+  /* ============ Machine Tip & Plan Actions ============ */
+  .machine-chip {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .ex-machine-tip {
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: 2px;
+    display: block;
+    font-weight: 500;
+  }
+  .plan-actions-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .plan-act-btn {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow);
+  }
+  .plan-act-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  .plan-act-btn:active {
+    opacity: 0.85;
+  }
+
   /* ============ Quick chips ============ */
   .quick-chips-wrap {
     display: flex;
@@ -1030,6 +1080,9 @@
 
       <!-- view mode -->
       <div id="targetsView">
+        <div class="plan-actions-bar">
+          <button type="button" class="plan-act-btn primary" onclick="applyKasakakePlan()">🏢 笠懸店マシン 全身プランを適用（案1: 着実増量）</button>
+        </div>
         <div class="card prog-card" id="progCard"></div>
         <div class="sched-grid" id="schedGrid"></div>
         <div class="card phase-note" id="phaseNoteView"></div>
@@ -1160,6 +1213,14 @@
       </div>
 
       <div class="card settings-card">
+        <h3>🏢 アクロスプラザ笠懸店 全身マシンプラン</h3>
+        <p>エニタイムフィットネス アクロスプラザ笠懸店のマシンラインナップに最適化した全身2分割プログラム（案1: 着実増量）に切り替えます。最新の実績重量をもとに目標が設定されます。</p>
+        <div class="btn-row">
+          <button class="primary" onclick="applyKasakakePlan()">笠懸店マシンプランを適用</button>
+        </div>
+      </div>
+
+      <div class="card settings-card">
         <h3>プランを初期状態に戻す</h3>
         <p>種目リストや目標重量を、はじめの8週間プログラムの内容にリセットします。記録は消えません。</p>
         <div class="btn-row">
@@ -1263,6 +1324,37 @@
       { id: "pulldown", name: "ラットプルダウン",       day: "B",    category: "補助",   unit: "段階", status: "ok",    current: { sets: mkSets(8, 10, 3) },     goal: { sets: mkSets(10, 10, 3) } },
       { id: "legE",     name: "レッグエクステンション", day: "B",    category: "補助",   unit: "kg",   status: "ok",    current: { sets: mkSets(17.5, 15, 2) },  goal: { sets: mkSets(20, 15, 2) } },
       { id: "legC",     name: "レッグカール",           day: "B",    category: "補助",   unit: "kg",   status: "watch", current: { sets: mkSets(5, 10, 3) },     goal: { sets: mkSets(8, 10, 3) } }
+    ]
+  };
+
+  var KASAKAKE_PLAN = {
+    startDate: "2025-07-29",
+    weeks: 8,
+    deloadWeek: 5,
+    note: "【アクロスプラザ笠懸店 特化型全身2分割（案1: 着実増量）】\nエニタイム笠懸店のマシン・フリーウェイト設備に最適化したプログラムです。前回の成功重量から着実な+2.5kgアップ（過負荷の原則）を目指しましょう。",
+    daySchedule: {
+      A: { title: "Day A · High Day（上半身＆脚・背中・腕）", desc: "ベンチプレス／スクワット／ショルダープレス／デッドリフト／アームカール／カーフ" },
+      B: { title: "Day B · Volume Day（胸上部＆下半身・広背筋・体幹）", desc: "インクライン／レッグプレス／ラットプルダウン／レッグE／レッグC／ランジ" }
+    },
+    dayOrder: {
+      A: ["handG", "bPress", "squat", "sPress", "dLift", "armCurl", "calf"],
+      B: ["handG", "inBPress", "wSquat", "pulldown", "legE", "legC", "lunge", "bSquat"]
+    },
+    exercises: [
+      { id: "handG",    name: "ハンドグリップ",         day: "both", category: "補助",   unit: "秒",   status: "ok", machineTip: "ウォームアップ / 握力",            current: { sets: mkSets(30, 1, 2) },     goal: { sets: mkSets(30, 1, 2) } },
+      { id: "bPress",   name: "ベンチプレス",           day: "A",    category: "メイン", unit: "kg",   status: "ok", machineTip: "パワーラック / チェストプレス",    current: { sets: mkSets(60, 5, 1) },     goal: { sets: [{ weight: 62.5, reps: 5 }, { weight: 65, reps: 4 }] } },
+      { id: "squat",    name: "スクワット",             day: "A",    category: "メイン", unit: "kg",   status: "ok", machineTip: "パワーラック / Vスクワット",        current: { sets: mkSets(65, 3, 1) },     goal: { sets: [{ weight: 67.5, reps: 5 }, { weight: 70, reps: 4 }] } },
+      { id: "sPress",   name: "ショルダープレス",       day: "A",    category: "メイン", unit: "kg",   status: "ok", machineTip: "マシン ショルダープレス",          current: { sets: mkSets(32.5, 10, 3) }, goal: { sets: mkSets(35, 8, 3) } },
+      { id: "dLift",    name: "デッドリフト",           day: "A",    category: "メイン", unit: "kg",   status: "ok", machineTip: "ハーフラック / Tバーロウ",          current: { sets: mkSets(40, 5, 1) },     goal: { sets: mkSets(50, 5, 1) } },
+      { id: "armCurl",  name: "アームカール",           day: "both", category: "補助",   unit: "kg",   status: "ok", machineTip: "マシン バイセップスカール / ダンベル", current: { sets: mkSets(20, 10, 3) },    goal: { sets: mkSets(22.5, 10, 3) } },
+      { id: "calf",     name: "カーフレイズ",           day: "both", category: "補助",   unit: "kg",   status: "ok", machineTip: "スミスマシン / レッグプレス",      current: { sets: mkSets(60, 30, 3) },    goal: { sets: mkSets(70, 30, 3) } },
+      { id: "inBPress", name: "インクラインベンチ",     day: "B",    category: "メイン", unit: "kg",   status: "ok", machineTip: "アイソラテラル・インクラインプレス", current: { sets: mkSets(50, 10, 1) },    goal: { sets: [{ weight: 52.5, reps: 10 }, { weight: 55, reps: 8 }] } },
+      { id: "wSquat",   name: "ワイドスクワット",       day: "B",    category: "補助",   unit: "kg",   status: "ok", machineTip: "リニア・レッグプレス / Vスクワット", current: { sets: mkSets(55, 10, 2) },    goal: { sets: mkSets(65, 10, 2) } },
+      { id: "bSquat",   name: "ブルガリアンスクワット", day: "B",    category: "補助",   unit: "kg",   status: "ok", machineTip: "スミスマシン / ダンベル",          current: { sets: mkSets(0, 10, 2) },     goal: { sets: mkSets(30, 10, 2) } },
+      { id: "lunge",    name: "ランジ",                 day: "B",    category: "補助",   unit: "kg",   status: "ok", machineTip: "ダンベル / ヒップ・アブダクション", current: { sets: mkSets(40, 10, 2) },    goal: { sets: mkSets(42.5, 10, 2) } },
+      { id: "pulldown", name: "ラットプルダウン",       day: "B",    category: "補助",   unit: "段階", status: "ok", machineTip: "ラット・プルダウン / ワイドプルダウン", current: { sets: mkSets(8, 10, 3) }, goal: { sets: mkSets(9, 10, 3) } },
+      { id: "legE",     name: "レッグエクステンション", day: "B",    category: "補助",   unit: "kg",   status: "ok", machineTip: "マシン レッグ・エクステンション",  current: { sets: mkSets(17.5, 15, 2) },  goal: { sets: mkSets(20, 12, 2) } },
+      { id: "legC",     name: "レッグカール",           day: "B",    category: "補助",   unit: "kg",   status: "ok", machineTip: "マシン レッグ・カール",            current: { sets: mkSets(5, 10, 3) },     goal: { sets: mkSets(7.5, 10, 3) } }
     ]
   };
 
@@ -2133,7 +2225,9 @@
       '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + jsArg(ex.id) + ',1)"' + (isLast ? " disabled" : "") + ' aria-label="順番を下げる">▼</button>' +
       '</div>' +
       '<div class="ex-name-wrap"><span class="ex-name">' + escapeHTML(ex.name) + '</span>' +
-      '<span class="ex-target">目標 ' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span></div>' +
+      '<span class="ex-target">目標 ' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span>' +
+      (ex.machineTip ? '<span class="ex-machine-tip">📍 ' + escapeHTML(ex.machineTip) + '</span>' : '') +
+      '</div>' +
       '<button type="button" class="ex-toggle-btn ' + (draft.included ? "on" : "") + '" onclick="toggleRecInclude(' + jsArg(ex.id) + ')">' +
       (draft.included ? "実施" : "スキップ中") + '</button></div>';
 
@@ -2486,7 +2580,8 @@
     if (goalTop !== curTop) pct = goalTop === 0 ? 0 : Math.max(0, Math.min(100, (curTop / goalTop) * 100));
     return '<div class="target-row2">' +
       '<div class="tr2-top">' +
-        '<div class="tr2-name-wrap"><span class="tr2-name">' + escapeHTML(t.name) + '</span><span class="day-chip">' + dayLabel + '</span></div>' +
+        '<div class="tr2-name-wrap"><span class="tr2-name">' + escapeHTML(t.name) + '</span><span class="day-chip">' + dayLabel + '</span>' +
+        (t.machineTip ? '<span class="machine-chip">📍 ' + escapeHTML(t.machineTip) + '</span>' : '') + '</div>' +
         '<span class="t-status ' + (t.status === "watch" ? "watch" : "ok") + '">' + (t.status === "watch" ? "要てこ入れ" : "順調") + '</span>' +
       '</div>' +
       '<div class="tr2-progress">' +
@@ -2567,6 +2662,7 @@
       ex.category = val("pe_cat_" + i) || ex.category;
       ex.unit = val("pe_unit_" + i) || ex.unit;
       ex.status = val("pe_status_" + i) || ex.status;
+      ex.machineTip = (val("pe_tip_" + i) || "").trim() || (ex.machineTip || "");
       ["current", "goal"].forEach(function (kind) {
         var prefix = kind === "current" ? "cur" : "goal";
         ex[kind].sets = ex[kind].sets.map(function (s, j) {
@@ -2657,7 +2753,10 @@
         '<span class="ee-goal">' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span></span>' +
         '</span></summary>' +
         '<div class="ee-body">' +
-        '<div class="er-top"><input type="text" id="pe_name_' + i + '" value="' + escapeAttr(ex.name) + '" placeholder="種目名"></div>' +
+        '<div class="er-top" style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<input type="text" id="pe_name_' + i + '" value="' + escapeAttr(ex.name) + '" placeholder="種目名" style="flex:1;min-width:140px;">' +
+        '<input type="text" id="pe_tip_' + i + '" value="' + escapeAttr(ex.machineTip || "") + '" placeholder="店舗マシン・設備名（例: パワーラック）" style="flex:1;min-width:160px;font-size:12.5px;">' +
+        '</div>' +
         '<div class="er-selects">' + daySelectHTML("pe_day_" + i, ex.day) + catSelectHTML("pe_cat_" + i, ex.category) + statusSelectHTML("pe_status_" + i, ex.status) +
         unitSelectHTML("pe_unit_" + i, ex.unit, "onUnitChange(" + i + ")") + '</div>' +
         qtyGroupHTML(i, "cur", "現状", ex.current, ex.unit) +
@@ -2775,6 +2874,35 @@
       renderTargetsView();
     }
   }
+
+  window.applyKasakakePlan = function () {
+    askConfirm(
+      "エニタイムフィットネス アクロスプラザ笠懸店のマシンラインナップに最適化した全身プラン（案1: 着実増量）を適用します。\n\n※最新の実績重量をもとに目標が自動更新されます（過去の記録は消えません）。",
+      "笠懸店プランを適用",
+      false
+    ).then(function (ok) {
+      if (!ok) return;
+      var newPlan = clone(KASAKAKE_PLAN);
+      newPlan.startDate = todayISO();
+      
+      // 直近の記録があれば、current（現状）を最新実績で自動更新
+      newPlan.exercises.forEach(function (ex) {
+        var last = lastEntryFor(ex.id);
+        if (last && isValidRecordEntry(last)) {
+          ex.current = clone(last);
+        }
+      });
+      
+      plan = newPlan;
+      ensureDayOrder(plan);
+      persistPlan();
+      targetsEditMode = false;
+      buildExerciseFields();
+      renderHome();
+      renderTargets();
+      showToast("🏢 笠懸店マシン対応 全身プランを適用しました！");
+    });
+  };
 
   window.resetPlan = function () {
     askConfirm("種目リストと目標重量を、はじめの8週間プログラムの内容に戻します。\n記録は消えません。", "リセットする", false)
