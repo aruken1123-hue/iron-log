@@ -524,6 +524,243 @@
     opacity: 0.85;
   }
 
+  /* ============ Machine Modal & Preview ============ */
+  .ex-name.clickable, .tr2-name.clickable {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 4px;
+    transition: color 0.12s ease;
+  }
+  .ex-name.clickable:active, .tr2-name.clickable:active {
+    opacity: 0.8;
+  }
+  .photo-badge {
+    font-size: 11px;
+    opacity: 0.75;
+    vertical-align: middle;
+  }
+  .machine-chips-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 3px;
+  }
+  .machine-sub-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    font-family: inherit;
+  }
+  .machine-sub-chip.clickable {
+    cursor: pointer;
+    transition: all 0.12s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .machine-sub-chip.clickable:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .machine-sub-chip.clickable:active {
+    transform: scale(0.96);
+  }
+
+  .machine-modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+    padding: 0;
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .machine-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .machine-modal-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .machine-modal-title {
+    font-size: 15.5px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.3;
+  }
+  .machine-modal-area-badge {
+    font-size: 10.5px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    width: fit-content;
+  }
+  .machine-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+  }
+  .machine-modal-close:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+  .machine-modal-body {
+    padding: 14px 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .machine-visual-wrap {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .machine-visual-wrap svg {
+    width: 100%;
+    max-height: 190px;
+    height: auto;
+    display: block;
+  }
+  .machine-info-block {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .mib-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mib-text {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text);
+    margin: 0;
+  }
+  .mib-text.target-muscles {
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .machine-modal-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .machine-modal-nav button {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .machine-modal-foot {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .machine-modal-foot button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .machine-modal-foot button.primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+
+  /* マシン図鑑一覧カード */
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .catalog-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .catalog-card:hover, .catalog-card:active {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .catalog-card svg {
+    width: 100%;
+    height: 75px;
+    background: #0d1117;
+    border-radius: 6px;
+    margin-bottom: 5px;
+  }
+  .catalog-card-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .catalog-card-area {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
   /* ============ Quick chips ============ */
   .quick-chips-wrap {
     display: flex;
@@ -1082,6 +1319,7 @@
       <div id="targetsView">
         <div class="plan-actions-bar">
           <button type="button" class="plan-act-btn primary" onclick="applyKasakakePlan()">🏢 笠懸店マシン 全身プランを適用（案1: 着実増量）</button>
+          <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 笠懸店マシン図鑑・外観一覧（全14種）</button>
         </div>
         <div class="card prog-card" id="progCard"></div>
         <div class="sched-grid" id="schedGrid"></div>
@@ -1274,6 +1512,72 @@
   </div>
 </div>
 
+<!-- マシン外観詳細プレビューモーダル -->
+<div class="modal-backdrop" id="machineModal" hidden>
+  <div class="machine-modal-card" role="dialog" aria-modal="true" aria-labelledby="mmTitle">
+    <div class="machine-modal-head">
+      <div class="machine-modal-title-wrap">
+        <h3 id="mmTitle" class="machine-modal-title">チェストプレス</h3>
+        <span id="mmArea" class="machine-modal-area-badge">マシンエリア</span>
+      </div>
+      <button type="button" class="machine-modal-close" onclick="closeMachineModal()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="machine-modal-body">
+      <!-- 外観SVGビジュアル -->
+      <div id="mmVisual" class="machine-visual-wrap"></div>
+      
+      <!-- ジムでの見分け方・特徴 -->
+      <div class="machine-info-block">
+        <div class="mib-title">👀 ジム内での見分け方・外観の特徴</div>
+        <div id="mmFeatures" class="mib-text"></div>
+      </div>
+
+      <!-- シート調整・セッティング -->
+      <div class="machine-info-block">
+        <div class="mib-title">⚙️ シート・器具のセッティング方法</div>
+        <div id="mmSetting" class="mib-text"></div>
+      </div>
+
+      <!-- 対象部位 -->
+      <div class="machine-info-block">
+        <div class="mib-title">🎯 効かせる部位</div>
+        <div id="mmTarget" class="mib-text target-muscles"></div>
+      </div>
+
+      <!-- 前後のマシン切り替え -->
+      <div class="machine-modal-nav">
+        <button type="button" id="mmPrevBtn" onclick="navMachine(-1)">◀ 前のマシン</button>
+        <button type="button" id="mmNextBtn" onclick="navMachine(1)">次のマシン ▶</button>
+      </div>
+    </div>
+    <div class="machine-modal-foot">
+      <button type="button" onclick="openMachineListModal()">📖 全マシン図鑑一覧</button>
+      <button type="button" class="primary" onclick="closeMachineModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 笠懸店マシン図鑑一覧モーダル -->
+<div class="modal-backdrop" id="machineListModal" hidden>
+  <div class="machine-modal-card" role="dialog" aria-modal="true" aria-labelledby="mlmTitle">
+    <div class="machine-modal-head">
+      <div class="machine-modal-title-wrap">
+        <h3 id="mlmTitle" class="machine-modal-title">📖 笠懸店 マシン図鑑一覧</h3>
+        <span class="machine-modal-area-badge">全14種類</span>
+      </div>
+      <button type="button" class="machine-modal-close" onclick="closeMachineListModal()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="machine-modal-body">
+      <p style="font-size:12px;color:var(--text-muted);margin:0;">タップすると各マシンの外観・見分け方・セッティング解説が見られます。</p>
+      <div id="catalogGrid" class="catalog-grid"></div>
+    </div>
+    <div class="machine-modal-foot">
+      <span></span>
+      <button type="button" class="primary" onclick="closeMachineListModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   "use strict";
@@ -1357,6 +1661,297 @@
       { id: "legC",     name: "レッグカール",           day: "B",    category: "補助",   unit: "kg",   status: "ok", machineTip: "マシン レッグ・カール",            current: { sets: mkSets(5, 10, 3) },     goal: { sets: mkSets(7.5, 10, 3) } }
     ]
   };
+
+  /* ============ Machine Database (Anytime Kasakake Equipment) ============ */
+  var MACHINE_DB = {
+    chest_press: {
+      name: "チェストプレス (Chest Press)",
+      shortName: "チェストプレス",
+      area: "マシンエリア（ピン式ウェイト）",
+      target: "大胸筋（胸全体）・三角筋前部・上腕三頭筋",
+      features: "直立したシートに座り、胸の前にある左右のバーを前方へ押し出すマシン。背面に四角いウェイトタワー（スタック）があります。",
+      setting: "シート下の黄色いピンで座面高さを調整。バーを握ったとき、グリップが『胸トップ（乳頭）』の高さに来るように合わせます。肩甲骨を寄せて胸を張り、息を吐きながら前へ押し出します。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="50" y="45" width="45" height="130" fill="#161b22" stroke="#30363d" stroke-width="2" rx="4"/><rect x="56" y="70" width="33" height="95" fill="#f59e0b" opacity="0.8" rx="2"/><circle cx="72" cy="110" r="4" fill="#eab308"/><path d="M72 175 L220 175 M150 175 L150 90 L120 70 M180 175 L180 120" stroke="#475569" stroke-width="5" stroke-linecap="round"/><rect x="135" y="115" width="40" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/><rect x="145" y="65" width="14" height="52" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/><circle cx="155" cy="132" r="4" fill="#eab308"/><path d="M120 65 L175 60 L185 95" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/><line x1="180" y1="95" x2="205" y2="95" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/><circle cx="120" cy="65" r="5" fill="#eab308"/><path d="M195 85 L245 85 M235 78 L247 85 L235 92" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4,3"/><text x="220" y="115" fill="#38bdf8" font-size="11" font-weight="bold">前へプッシュ</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">CHEST PRESS</text></svg>'
+    },
+    power_rack: {
+      name: "パワーラック / ハーフラック",
+      shortName: "パワーラック",
+      area: "フリーウェイトエリア",
+      target: "全身（大胸筋・大腿四頭筋・背筋群・体幹）",
+      features: "4本（または2本）の極太スチール支柱で囲まれた巨大な檻状のラック。中央にフリーのオリンピックバーベル（20kg）と落下防止の安全バーがあります。",
+      setting: "安全バー（セーフティ）の高さを『万一力尽きても体に当たらないギリギリの位置』に必ずセット。バーベル受け具（Jフック）は肘が軽く曲がる高さに調整します。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="90" y="40" width="160" height="135" fill="none" stroke="#334155" stroke-width="4" rx="2"/><line x1="115" y1="40" x2="115" y2="175" stroke="#475569" stroke-width="6"/><line x1="225" y1="40" x2="225" y2="175" stroke="#475569" stroke-width="6"/><line x1="75" y1="42" x2="265" y2="42" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/><line x1="90" y1="125" x2="250" y2="125" stroke="#e2e8f0" stroke-width="4" stroke-dasharray="8,2"/><text x="255" y="129" fill="#94a3b8" font-size="9">安全バー</text><circle cx="115" cy="100" r="4" fill="#eab308"/><circle cx="225" cy="100" r="4" fill="#eab308"/><line x1="60" y1="100" x2="280" y2="100" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round"/><rect x="75" y="75" width="10" height="50" fill="#f59e0b" rx="2"/><rect x="86" y="80" width="8" height="40" fill="#ef4444" rx="2"/><rect x="255" y="75" width="10" height="50" fill="#f59e0b" rx="2"/><rect x="246" y="80" width="8" height="40" fill="#ef4444" rx="2"/><rect x="140" y="145" width="60" height="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><path d="M150 155 L150 175 M190 155 L190 175" stroke="#475569" stroke-width="4"/><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">POWER RACK</text></svg>'
+    },
+    v_squat: {
+      name: "Vスクワット (V-Squat)",
+      shortName: "Vスクワット",
+      area: "フリーウェイトエリア（プレートロード）",
+      target: "大腿四頭筋（前もも）・大臀筋（お尻）",
+      features: "斜め約45度のガイドフレーム、広い足置きステップ、上部に肩当てクッションパッドがついた大型プレートロードマシン。プレートを左右のバーに差します。",
+      setting: "肩パッドに肩を預け、背中をパッドに密着。足を肩幅でステップに乗せたら、黄色い安全レバーを外して深くしゃがみ込みます。腰に優しく安全に高重量スクワットが可能です。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><line x1="80" y1="175" x2="245" y2="55" stroke="#334155" stroke-width="7" stroke-linecap="round"/><line x1="120" y1="175" x2="260" y2="70" stroke="#475569" stroke-width="5" stroke-linecap="round"/><line x1="240" y1="65" x2="270" y2="175" stroke="#475569" stroke-width="5"/><polygon points="65,175 125,175 110,145 60,165" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><g transform="translate(165, 80) rotate(-40)"><rect x="-10" y="-15" width="70" height="20" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><rect x="40" y="-28" width="22" height="15" fill="#38bdf8" rx="4"/><line x1="15" y1="-5" x2="15" y2="35" stroke="#94a3b8" stroke-width="4"/><rect x="5" y="10" width="20" height="35" fill="#f59e0b" rx="3"/></g><circle cx="215" cy="115" r="5" fill="#eab308"/><path d="M150 120 L195 85 M182 82 L197 83 L192 98" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4,3"/><text x="145" y="60" fill="#38bdf8" font-size="11" font-weight="bold">45°スクワット</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">V-SQUAT (PLATE LOAD)</text></svg>'
+    },
+    shoulder_press: {
+      name: "マシン ショルダープレス",
+      shortName: "ショルダープレス",
+      area: "マシンエリア（ピン式ウェイト）",
+      target: "三角筋（肩全体・前部・中部）・上腕三頭筋",
+      features: "垂直なシートに深く座り、耳の高さにある2本のグリップを『真上（天井）』へ押し上げるマシンです。",
+      setting: "シートの高さを調整し、スタート時にグリップが耳〜肩の高さに来るようにします。腰が反らないよう背もたれに腰・背中を密着させ、息を吐きながら天井へ押し上げます。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="55" y="45" width="40" height="130" fill="#161b22" stroke="#30363d" stroke-width="2" rx="4"/><rect x="61" y="70" width="28" height="95" fill="#f59e0b" opacity="0.8" rx="2"/><circle cx="75" cy="105" r="4" fill="#eab308"/><path d="M75 175 L210 175 M150 175 L150 95" stroke="#475569" stroke-width="5" stroke-linecap="round"/><rect x="135" y="125" width="38" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/><rect x="142" y="75" width="12" height="52" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/><circle cx="152" cy="142" r="4" fill="#eab308"/><circle cx="150" cy="100" r="5" fill="#eab308"/><path d="M150 100 L180 75 L180 55" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/><line x1="170" y1="55" x2="195" y2="55" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/><path d="M185 50 L185 20 M178 28 L185 18 L192 28" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4,3"/><text x="210" y="40" fill="#38bdf8" font-size="11" font-weight="bold">真上へプッシュ</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">SHOULDER PRESS</text></svg>'
+    },
+    incline_press: {
+      name: "アイソラテラル・インクラインプレス",
+      shortName: "インクラインプレス",
+      area: "フリーウェイトエリア（Hammer Strength プレートロード）",
+      target: "大胸筋上部（鎖骨下）・三角筋前部",
+      features: "シートが約30〜45度倒れており、左右独立した黄色と黒の極太アームを斜め上前方へ押し出すHammer Strengthの看板マシンです。",
+      setting: "座面高さを調整し、シートに深く座って胸を張ります。左右が独立して動くため左右差の是正に最適。肘を斜め下に降ろし、押し切った時に胸上部の収縮を意識します。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><path d="M70 175 L250 175 M120 175 L120 115 M180 175 L210 110" stroke="#334155" stroke-width="5"/><g transform="translate(130, 140) rotate(-35)"><rect x="-10" y="-12" width="30" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><rect x="-10" y="-65" width="12" height="55" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/></g><circle cx="105" cy="115" r="5" fill="#eab308"/><path d="M105 115 L160 85 L180 75" fill="none" stroke="#eab308" stroke-width="5" stroke-linecap="round"/><line x1="175" y1="70" x2="190" y2="82" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/><line x1="135" y1="100" x2="135" y2="65" stroke="#94a3b8" stroke-width="4"/><circle cx="135" cy="78" r="18" fill="#f59e0b" opacity="0.9"/><path d="M185 70 L235 40 M222 40 L237 38 L230 52" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4,3"/><text x="205" y="75" fill="#38bdf8" font-size="11" font-weight="bold">斜め上へプッシュ</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">INCLINE PRESS (HAMMER)</text></svg>'
+    },
+    linear_leg_press: {
+      name: "リニア・レッグ・プレス (Linear Leg Press)",
+      shortName: "レッグプレス",
+      area: "フリーウェイトエリア / マシンエリア",
+      target: "大腿四頭筋・大臀筋・ハムストリングス（下半身全体）",
+      features: "45度後傾シートに深く寝そべり、頭上の斜め45度にある巨大フットプレートを両足で押し上げる超大型マシン。左右に黄色い安全ハンドルがあります。",
+      setting: "シートに深く腰掛け、足を肩幅でプレート中央〜やや上部に置きます。プレートを押し上げたら左右の安全ストッパーハンドルを外してスタート。膝を完全に伸ばしきらないのが安全のコツです。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><line x1="70" y1="165" x2="250" y2="45" stroke="#334155" stroke-width="8" stroke-linecap="round"/><line x1="100" y1="175" x2="230" y2="60" stroke="#475569" stroke-width="5"/><g transform="translate(85, 150) rotate(-45)"><rect x="-10" y="-12" width="35" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><rect x="-10" y="-65" width="12" height="55" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/></g><g transform="translate(175, 95) rotate(-45)"><rect x="-5" y="-30" width="10" height="60" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="2"/><line x1="10" y1="0" x2="40" y2="0" stroke="#94a3b8" stroke-width="5"/><circle cx="25" cy="0" r="22" fill="#f59e0b" opacity="0.9"/></g><circle cx="115" cy="140" r="5" fill="#eab308"/><path d="M140 120 L195 80 M182 78 L197 78 L192 92" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4,3"/><text x="175" y="55" fill="#38bdf8" font-size="11" font-weight="bold">両足で斜め上に押す</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">LINEAR LEG PRESS (45°)</text></svg>'
+    },
+    lat_pulldown: {
+      name: "ラット・プルダウン / ワイドプルダウン",
+      shortName: "ラットプルダウン",
+      area: "マシンエリア / フリーウェイト",
+      target: "広背筋・大円筋・僧帽筋下部（背中の広がり・逆三角形）",
+      features: "頭上高い位置から横長のバーがケーブルで吊り下がっており、シート前方に太ももを押さえる円柱パッドがあります。",
+      setting: "太ももが浮かないように前方のクッションパッドの高さを合わせます。バーを肩幅の1.5倍で握り、少し胸を張って上体をわずかに後傾させ、鎖骨に向かってバーを引き下ろします。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="235" y="45" width="40" height="130" fill="#161b22" stroke="#30363d" stroke-width="2" rx="4"/><rect x="241" y="70" width="28" height="95" fill="#f59e0b" opacity="0.8" rx="2"/><circle cx="255" cy="110" r="4" fill="#eab308"/><path d="M255 45 L255 35 L140 35 L140 50" fill="none" stroke="#475569" stroke-width="5"/><circle cx="140" cy="50" r="6" fill="#334155" stroke="#94a3b8" stroke-width="2"/><line x1="140" y1="56" x2="140" y2="78" stroke="#cbd5e1" stroke-width="2"/><path d="M85 82 L140 78 L195 82" fill="none" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/><rect x="120" y="135" width="38" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><circle cx="155" cy="118" r="7" fill="#38bdf8" stroke="#1e293b" stroke-width="2"/><text x="168" y="122" fill="#94a3b8" font-size="9">大腿押さえ</text><path d="M140 85 L140 115 M134 105 L140 117 L146 105" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4,3"/><text x="60" y="110" fill="#38bdf8" font-size="11" font-weight="bold">胸へ引き下ろす</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">LAT PULLDOWN</text></svg>'
+    },
+    leg_extension: {
+      name: "レッグ・エクステンション",
+      shortName: "レッグエクステンション",
+      area: "マシンエリア（ピン式ウェイト）",
+      target: "大腿四頭筋（前もも・膝上）",
+      features: "シートに座り、足首の前（すね側）に円柱パッドを当てて膝を前へまっすぐ伸ばすマシン。横に握り手グリップがあります。",
+      setting: "背もたれを調整し、膝の関節とマシンの回転軸（黄色い丸）の高さを一致させます。すねの下部にパッドを当て、反動を使わずに膝を伸ばしきった位置で1秒キープします。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="55" y="45" width="40" height="130" fill="#161b22" stroke="#30363d" stroke-width="2" rx="4"/><rect x="61" y="70" width="28" height="95" fill="#f59e0b" opacity="0.8" rx="2"/><path d="M75 175 L210 175 M150 175 L150 115" stroke="#475569" stroke-width="5"/><rect x="140" y="115" width="45" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><rect x="135" y="70" width="12" height="50" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><circle cx="185" cy="120" r="6" fill="#eab308"/><line x1="185" y1="120" x2="195" y2="155" stroke="#94a3b8" stroke-width="4"/><rect x="185" y="150" width="18" height="14" fill="#38bdf8" stroke="#1e293b" stroke-width="2" rx="4"/><text x="208" y="162" fill="#94a3b8" font-size="9">すねの前に当てる</text><path d="M198 145 C215 140 225 125 225 105" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="4,3"/><path d="M218 108 L225 103 L229 113" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/><text x="215" y="90" fill="#38bdf8" font-size="11" font-weight="bold">膝を伸ばす</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">LEG EXTENSION</text></svg>'
+    },
+    leg_curl: {
+      name: "レッグ・カール (Leg Curl)",
+      shortName: "レッグカール",
+      area: "マシンエリア（ピン式ウェイト）",
+      target: "ハムストリングス（太もも裏）",
+      features: "シートに座り、足首の後ろ（アキレス腱側）に円柱パッドを当てて膝を曲げてかかとをお尻へ引き寄せるマシンです。",
+      setting: "回転軸と膝の位置を合わせ、足首の後ろにパッドが当たるように調整。太もも固定レバーを下ろしたら、かかとをお尻に引き込むように曲げて太もも裏の収縮を意識します。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="55" y="45" width="40" height="130" fill="#161b22" stroke="#30363d" stroke-width="2" rx="4"/><rect x="61" y="70" width="28" height="95" fill="#f59e0b" opacity="0.8" rx="2"/><path d="M75 175 L210 175 M150 175 L150 115" stroke="#475569" stroke-width="5"/><rect x="140" y="115" width="45" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><rect x="135" y="70" width="12" height="50" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><circle cx="185" cy="120" r="6" fill="#eab308"/><line x1="185" y1="120" x2="225" y2="125" stroke="#94a3b8" stroke-width="4"/><rect x="220" y="128" width="18" height="14" fill="#38bdf8" stroke="#1e293b" stroke-width="2" rx="4"/><text x="208" y="158" fill="#94a3b8" font-size="9">かかと裏に当てる</text><path d="M228 142 C225 158 205 168 185 165" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="4,3"/><path d="M192 160 L183 165 L190 172" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/><text x="180" y="90" fill="#38bdf8" font-size="11" font-weight="bold">かかとを引く</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">LEG CURL</text></svg>'
+    },
+    smith_machine: {
+      name: "スミスマシン (Smith Machine)",
+      shortName: "スミスマシン",
+      area: "フリーウェイトエリア",
+      target: "全身（カーフレイズ・ブルガリアンSQ・インクライン等）",
+      features: "バーベルが左右の垂直ガイドレールに固定されており、レールに沿って上下にのみスライドするマシン。手首をひねるだけでフックに掛けられます。",
+      setting: "下部の安全ストッパー（赤/黄ピン）を万一潰れても安全な高さに必ずセット。バーベルの軌道がブレないため、カーフレイズやかかと上げ運動に最適です。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="105" y="35" width="130" height="140" fill="none" stroke="#334155" stroke-width="4" rx="2"/><line x1="125" y1="35" x2="125" y2="175" stroke="#cbd5e1" stroke-width="4"/><line x1="215" y1="35" x2="215" y2="175" stroke="#cbd5e1" stroke-width="4"/><line x1="75" y1="95" x2="265" y2="95" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/><circle cx="125" cy="95" r="7" fill="#1e293b" stroke="#eab308" stroke-width="2"/><circle cx="215" cy="95" r="7" fill="#1e293b" stroke="#eab308" stroke-width="2"/><rect x="90" y="75" width="10" height="40" fill="#f59e0b" rx="2"/><rect x="240" y="75" width="10" height="40" fill="#f59e0b" rx="2"/><circle cx="125" cy="145" r="5" fill="#ef4444"/><circle cx="215" cy="145" r="5" fill="#ef4444"/><text x="230" y="150" fill="#94a3b8" font-size="9">安全停止ピン</text><path d="M170 70 L170 120 M165 77 L170 68 L175 77 M165 113 L170 122 L175 113" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/><text x="145" y="60" fill="#38bdf8" font-size="10" font-weight="bold">レール上を昇降</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">SMITH MACHINE</text></svg>'
+    },
+    biceps_curl: {
+      name: "マシン バイセップスカール",
+      shortName: "バイセップスカール",
+      area: "マシンエリア",
+      target: "上腕二頭筋（力こぶ）",
+      features: "胸の前に斜めの肘置きパッド（プリチャー台）があり、両肘を乗せて固定した状態で下からハンドルを巻き上げるマシンです。",
+      setting: "シート高さを調整し、脇の下がパッド上端に軽く触れるように座ります。肘をパッドにぴったり付けたまま、手首を返さずに二頭筋を収縮させてハンドルを引き上げます。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="50" y="45" width="40" height="130" fill="#161b22" stroke="#30363d" stroke-width="2" rx="4"/><rect x="56" y="70" width="28" height="95" fill="#f59e0b" opacity="0.8" rx="2"/><path d="M70 175 L220 175 M130 175 L130 110 M180 175 L180 110" stroke="#475569" stroke-width="5"/><rect x="115" y="115" width="35" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><polygon points="160,115 195,95 200,105 165,125" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="145" y="90" fill="#94a3b8" font-size="9">肘を置く台</text><circle cx="205" cy="115" r="5" fill="#eab308"/><path d="M205 115 L220 145" stroke="#94a3b8" stroke-width="4"/><line x1="215" y1="145" x2="230" y2="145" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/><path d="M225 140 C235 125 235 105 220 90" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="4,3"/><path d="M228 92 L218 88 L220 98" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/><text x="215" y="75" fill="#38bdf8" font-size="11" font-weight="bold">顔へ巻き上げる</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">BICEPS CURL MACHINE</text></svg>'
+    },
+    seated_row: {
+      name: "シーテッド・ロー / Tバーロウ",
+      shortName: "シーテッドロー",
+      area: "マシンエリア / フリーウェイト",
+      target: "広背筋・僧帽筋・菱形筋（背中の厚み）",
+      features: "胸当てパッドに胸を当てて座り、前方の左右ハンドルをお腹・みぞおちに向かって水平に引き寄せるマシンです。",
+      setting: "胸当ての位置を合わせ、腕を伸ばした時にウェイトが浮く位置にします。足をステップで踏ん張り、肩甲骨を中央に寄せながら肘を後ろに引きます。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="235" y="45" width="40" height="130" fill="#161b22" stroke="#30363d" stroke-width="2" rx="4"/><rect x="241" y="70" width="28" height="95" fill="#f59e0b" opacity="0.8" rx="2"/><path d="M80 175 L235 175 M120 175 L120 115 M170 175 L170 100" stroke="#475569" stroke-width="5"/><rect x="105" y="115" width="38" height="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><rect x="165" y="75" width="12" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="3"/><text x="145" y="65" fill="#94a3b8" font-size="9">胸当て</text><polygon points="190,140 205,155 195,160" fill="#38bdf8"/><line x1="180" y1="95" x2="210" y2="95" stroke="#94a3b8" stroke-width="4"/><line x1="180" y1="85" x2="180" y2="105" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/><path d="M175 95 L130 95 M142 88 L128 95 L142 102" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4,3"/><text x="80" y="85" fill="#38bdf8" font-size="11" font-weight="bold">お腹へ引く</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">SEATED ROW / T-BAR</text></svg>'
+    },
+    hip_abductor: {
+      name: "ヒップ・アブダクション / アダクション",
+      shortName: "ヒップアブダクション",
+      area: "マシンエリア",
+      target: "臀中筋（お尻の外側）・内転筋（内もも）",
+      features: "シートに座り、膝の外側にパッドを当てて両脚を外側に開く（または閉じる）運動を行うマシンです。",
+      setting: "レバーでパッドの向きを外向きにセット。膝を閉じた状態から大きく外側へ押し開き、お尻の外側の筋肉を刺激します。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><rect x="145" y="70" width="50" height="65" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/><rect x="135" y="130" width="70" height="20" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/><circle cx="140" cy="155" r="5" fill="#eab308"/><circle cx="200" cy="155" r="5" fill="#eab308"/><rect x="95" y="120" width="18" height="30" fill="#38bdf8" stroke="#1e293b" stroke-width="2" rx="4"/><rect x="227" y="120" width="18" height="30" fill="#38bdf8" stroke="#1e293b" stroke-width="2" rx="4"/><line x1="140" y1="155" x2="110" y2="145" stroke="#94a3b8" stroke-width="4"/><line x1="200" y1="155" x2="230" y2="145" stroke="#94a3b8" stroke-width="4"/><path d="M100 110 L65 110 M75 103 L63 110 L75 117" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/><path d="M240 110 L275 110 M265 103 L277 110 L265 117" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/><text x="135" y="55" fill="#38bdf8" font-size="11" font-weight="bold">脚を外に開く</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">HIP ABDUCTOR</text></svg>'
+    },
+    dumbbell_bench: {
+      name: "アジャスタブル・ベンチ ＆ ダンベル",
+      shortName: "ダンベル＆ベンチ",
+      area: "フリーウェイトエリア",
+      target: "胸・肩・腕・体幹（ダンベル種目全般）",
+      features: "背もたれ角度をフラット（0度）から斜め、直立まで自由に変えられるベンチと、1kg〜40kgまで並んだダンベルラックです。",
+      setting: "ベンチ下の黄色いピンを引いて好みの角度（フラット/インクライン）にセット。ダンベルを持ち運ぶ際は両手で扱い、使用後は元の位置に戻します。",
+      svg: '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#0d1117" rx="8"/><line x1="20" y1="175" x2="320" y2="175" stroke="#21262d" stroke-width="2"/><path d="M80 175 L80 145 L180 145 L180 175" stroke="#475569" stroke-width="5"/><rect x="85" y="140" width="30" height="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="2"/><g transform="translate(118, 145) rotate(-35)"><rect x="0" y="-8" width="70" height="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="2"/></g><circle cx="120" cy="148" r="4" fill="#eab308"/><text x="90" y="125" fill="#94a3b8" font-size="9">角度可変ピン</text><line x1="220" y1="110" x2="290" y2="110" stroke="#475569" stroke-width="4"/><line x1="220" y1="145" x2="290" y2="145" stroke="#475569" stroke-width="4"/><line x1="225" y1="110" x2="215" y2="175" stroke="#334155" stroke-width="4"/><line x1="285" y1="110" x2="295" y2="175" stroke="#334155" stroke-width="4"/><rect x="235" y="98" width="6" height="18" fill="#e2e8f0" rx="1"/><rect x="255" y="98" width="6" height="18" fill="#e2e8f0" rx="1"/><line x1="240" y1="107" x2="256" y2="107" stroke="#cbd5e1" stroke-width="3"/><text x="210" y="85" fill="#38bdf8" font-size="11" font-weight="bold">1〜40kg ダンベル</text><text x="25" y="30" fill="#94a3b8" font-size="12" font-weight="bold">ADJUSTABLE BENCH &amp; DUMBBELLS</text></svg>'
+    }
+  };
+
+  var MACHINE_KEYS = [
+    "chest_press", "power_rack", "v_squat", "shoulder_press", "incline_press",
+    "linear_leg_press", "lat_pulldown", "leg_extension", "leg_curl", "smith_machine",
+    "biceps_curl", "seated_row", "hip_abductor", "dumbbell_bench"
+  ];
+  var currentMachineIndex = 0;
+
+  function resolveMachineKey(str) {
+    if (!str) return null;
+    var s = String(str).toLowerCase();
+    if (s.indexOf("チェスト") >= 0) return "chest_press";
+    if (s.indexOf("パワーラック") >= 0 || s.indexOf("ハーフラック") >= 0) return "power_rack";
+    if (s.indexOf("vスクワット") >= 0 || s.indexOf("v-squat") >= 0) return "v_squat";
+    if (s.indexOf("ショルダー") >= 0) return "shoulder_press";
+    if (s.indexOf("インクライン") >= 0) return "incline_press";
+    if (s.indexOf("リニア") >= 0 || s.indexOf("レッグプレス") >= 0 || s.indexOf("レッグ・プレス") >= 0) return "linear_leg_press";
+    if (s.indexOf("プルダウン") >= 0 || s.indexOf("ラット") >= 0) return "lat_pulldown";
+    if (s.indexOf("エクステンション") >= 0) return "leg_extension";
+    if (s.indexOf("レッグカール") >= 0 || s.indexOf("レッグ・カール") >= 0) return "leg_curl";
+    if (s.indexOf("スミス") >= 0) return "smith_machine";
+    if (s.indexOf("バイセップス") >= 0 || s.indexOf("アームカール") >= 0) return "biceps_curl";
+    if (s.indexOf("ロー") >= 0 || s.indexOf("tバー") >= 0) return "seated_row";
+    if (s.indexOf("アブダクション") >= 0 || s.indexOf("アダクション") >= 0) return "hip_abductor";
+    if (s.indexOf("ダンベル") >= 0 || s.indexOf("ベンチ") >= 0) return "dumbbell_bench";
+    if (s.indexOf("ラック") >= 0) return "power_rack";
+    return null;
+  }
+
+  function resolveMachineByExName(name) {
+    if (!name) return null;
+    var s = String(name).toLowerCase();
+    if (s.indexOf("ベンチプレス") >= 0) return "power_rack";
+    if (s.indexOf("スクワット") >= 0 && s.indexOf("ブルガリアン") < 0 && s.indexOf("ワイド") < 0) return "power_rack";
+    if (s.indexOf("デッドリフト") >= 0) return "power_rack";
+    if (s.indexOf("ショルダー") >= 0) return "shoulder_press";
+    if (s.indexOf("インクライン") >= 0) return "incline_press";
+    if (s.indexOf("ワイドスクワット") >= 0) return "linear_leg_press";
+    if (s.indexOf("ブルガリアン") >= 0) return "smith_machine";
+    if (s.indexOf("ランジ") >= 0) return "dumbbell_bench";
+    if (s.indexOf("アームカール") >= 0) return "biceps_curl";
+    if (s.indexOf("カーフ") >= 0) return "smith_machine";
+    if (s.indexOf("プルダウン") >= 0 || s.indexOf("ラット") >= 0) return "lat_pulldown";
+    if (s.indexOf("レッグエクステンション") >= 0 || s.indexOf("エクステンション") >= 0) return "leg_extension";
+    if (s.indexOf("レッグカール") >= 0) return "leg_curl";
+    return null;
+  }
+
+  function renderMachineTipsHTML(tipStr, exName) {
+    var str = (tipStr || "").trim();
+    if (!str) {
+      var fallbackKey = resolveMachineByExName(exName);
+      if (fallbackKey && MACHINE_DB[fallbackKey]) {
+        return '<div class="machine-chips-group">' +
+          '<button type="button" class="machine-sub-chip clickable" onclick="openMachineModal(' + jsArg(fallbackKey) + ')" title="マシンの見た目を表示">' +
+          '📍 ' + escapeHTML(MACHINE_DB[fallbackKey].shortName || MACHINE_DB[fallbackKey].name) + ' 🔍</button></div>';
+      }
+      return "";
+    }
+    var parts = str.split("/").map(function (p) { return p.trim(); }).filter(Boolean);
+    if (parts.length === 0) return "";
+    var html = '<div class="machine-chips-group">';
+    parts.forEach(function (part) {
+      var key = resolveMachineKey(part) || resolveMachineByExName(exName);
+      if (key && MACHINE_DB[key]) {
+        html += '<button type="button" class="machine-sub-chip clickable" onclick="openMachineModal(' + jsArg(key) + ')" title="マシンの外観・使い方を見る">' +
+          '📍 ' + escapeHTML(part) + ' 🔍</button>';
+      } else {
+        html += '<span class="machine-sub-chip">📍 ' + escapeHTML(part) + '</span>';
+      }
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function openMachineModal(key) {
+    var m = MACHINE_DB[key];
+    if (!m) return;
+    var idx = MACHINE_KEYS.indexOf(key);
+    currentMachineIndex = idx >= 0 ? idx : 0;
+    
+    document.getElementById("mmTitle").textContent = m.name;
+    document.getElementById("mmArea").textContent = m.area;
+    document.getElementById("mmVisual").innerHTML = m.svg;
+    document.getElementById("mmFeatures").textContent = m.features;
+    document.getElementById("mmSetting").textContent = m.setting;
+    document.getElementById("mmTarget").textContent = m.target;
+    
+    document.getElementById("machineModal").hidden = false;
+    var mlm = document.getElementById("machineListModal");
+    if (mlm && !mlm.hidden) mlm.hidden = true;
+  }
+
+  function openMachineByName(name, tip) {
+    var key = resolveMachineKey(tip) || resolveMachineByExName(name) || resolveMachineKey(name);
+    if (key && MACHINE_DB[key]) {
+      openMachineModal(key);
+    } else {
+      openMachineListModal();
+    }
+  }
+
+  function closeMachineModal() {
+    document.getElementById("machineModal").hidden = true;
+  }
+
+  function navMachine(offset) {
+    var nextIdx = (currentMachineIndex + offset + MACHINE_KEYS.length) % MACHINE_KEYS.length;
+    openMachineModal(MACHINE_KEYS[nextIdx]);
+  }
+
+  function openMachineListModal() {
+    var grid = document.getElementById("catalogGrid");
+    if (grid && !grid.innerHTML) {
+      var html = "";
+      MACHINE_KEYS.forEach(function (k) {
+        var m = MACHINE_DB[k];
+        html += '<div class="catalog-card" onclick="openMachineModal(' + jsArg(k) + ')">' +
+          m.svg +
+          '<div class="catalog-card-name">' + escapeHTML(m.shortName || m.name) + '</div>' +
+          '<div class="catalog-card-area">' + escapeHTML(m.area.split("（")[0]) + '</div>' +
+          '</div>';
+      });
+      grid.innerHTML = html;
+    }
+    var mm = document.getElementById("machineModal");
+    if (mm) mm.hidden = true;
+    document.getElementById("machineListModal").hidden = false;
+  }
+
+  function closeMachineListModal() {
+    document.getElementById("machineListModal").hidden = true;
+  }
+
+  function wireMachineModals() {
+    var mm = document.getElementById("machineModal");
+    var mlm = document.getElementById("machineListModal");
+    if (mm) {
+      mm.addEventListener("click", function (e) {
+        if (e.target === mm) closeMachineModal();
+      });
+    }
+    if (mlm) {
+      mlm.addEventListener("click", function (e) {
+        if (e.target === mlm) closeMachineListModal();
+      });
+    }
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        if (mm && !mm.hidden) closeMachineModal();
+        if (mlm && !mlm.hidden) closeMachineListModal();
+      }
+    });
+  }
+
+  window.openMachineModal = openMachineModal;
+  window.openMachineByName = openMachineByName;
+  window.closeMachineModal = closeMachineModal;
+  window.openMachineListModal = openMachineListModal;
+  window.closeMachineListModal = closeMachineListModal;
+  window.navMachine = navMachine;
 
   var INITIAL_RECORDS = [
     {
@@ -2117,7 +2712,7 @@
   }
 
   /* ---------- Navigation ---------- */
-  window.showScreen = function (name) {
+  function showScreen(name) {
     document.querySelectorAll(".screen").forEach(function (s) { s.classList.remove("active"); });
     document.getElementById("screen-" + name).classList.add("active");
     document.querySelectorAll(".tab-btn").forEach(function (b) {
@@ -2128,7 +2723,8 @@
     if (name === "targets") { targetsEditMode = false; renderTargets(); }
     if (name === "settings") refreshBackupSummary();
     window.scrollTo(0, 0);
-  };
+  }
+  window.showScreen = showScreen;
 
   window.startRecord = function () {
     setDay(currentDay);
@@ -2224,9 +2820,10 @@
       '<span class="ex-order-num">' + (idx + 1) + '</span>' +
       '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + jsArg(ex.id) + ',1)"' + (isLast ? " disabled" : "") + ' aria-label="順番を下げる">▼</button>' +
       '</div>' +
-      '<div class="ex-name-wrap"><span class="ex-name">' + escapeHTML(ex.name) + '</span>' +
+      '<div class="ex-name-wrap">' +
+      '<span class="ex-name clickable" onclick="openMachineByName(' + jsArg(ex.name) + ',' + jsArg(ex.machineTip || "") + ')" title="タップしてマシンの外観・使い方を見る">' + escapeHTML(ex.name) + ' <span class="photo-badge">📷</span></span>' +
       '<span class="ex-target">目標 ' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span>' +
-      (ex.machineTip ? '<span class="ex-machine-tip">📍 ' + escapeHTML(ex.machineTip) + '</span>' : '') +
+      renderMachineTipsHTML(ex.machineTip, ex.name) +
       '</div>' +
       '<button type="button" class="ex-toggle-btn ' + (draft.included ? "on" : "") + '" onclick="toggleRecInclude(' + jsArg(ex.id) + ')">' +
       (draft.included ? "実施" : "スキップ中") + '</button></div>';
@@ -2301,14 +2898,15 @@
     renderExerciseCard(list[idx], idx, list.length);
   };
 
-  window.setDay = function (d) {
+  function setDay(d) {
     currentDay = d;
     document.querySelectorAll("#dayToggle button").forEach(function (b) {
       b.classList.toggle("sel", b.dataset.day === d);
     });
     applyDayInclusion(d);
     renderDayExerciseCards();
-  };
+  }
+  window.setDay = setDay;
 
   window.clearForm = function () {
     document.getElementById("inDate").value = todayISO();
@@ -2580,8 +3178,11 @@
     if (goalTop !== curTop) pct = goalTop === 0 ? 0 : Math.max(0, Math.min(100, (curTop / goalTop) * 100));
     return '<div class="target-row2">' +
       '<div class="tr2-top">' +
-        '<div class="tr2-name-wrap"><span class="tr2-name">' + escapeHTML(t.name) + '</span><span class="day-chip">' + dayLabel + '</span>' +
-        (t.machineTip ? '<span class="machine-chip">📍 ' + escapeHTML(t.machineTip) + '</span>' : '') + '</div>' +
+        '<div class="tr2-name-wrap">' +
+        '<span class="tr2-name clickable" onclick="openMachineByName(' + jsArg(t.name) + ',' + jsArg(t.machineTip || "") + ')" title="タップしてマシンの外観・使い方を見る">' + escapeHTML(t.name) + ' <span class="photo-badge">📷</span></span>' +
+        '<span class="day-chip">' + dayLabel + '</span>' +
+        renderMachineTipsHTML(t.machineTip, t.name) +
+        '</div>' +
         '<span class="t-status ' + (t.status === "watch" ? "watch" : "ok") + '">' + (t.status === "watch" ? "要てこ入れ" : "順調") + '</span>' +
       '</div>' +
       '<div class="tr2-progress">' +
@@ -3191,6 +3792,7 @@
     showScreen("home");     /* renderHome もこの中で呼ばれる */
     refreshBackupSummary();
     wireConfirmDialog();
+    wireMachineModals();
     updateRepeatBtnText();
     registerServiceWorker();
   }
