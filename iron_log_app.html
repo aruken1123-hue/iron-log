@@ -761,6 +761,121 @@
     color: var(--text-muted);
   }
 
+  /* ============ Floor Map Styles ============ */
+  .floor-map-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+    padding: 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .floor-map-filter-bar {
+    display: flex;
+    gap: 6px;
+    padding: 8px 16px 12px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .map-filter-btn {
+    flex: 1;
+    padding: 6px 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .map-filter-btn.active {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+  .floor-map-body {
+    padding: 12px 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .floor-map-wrap {
+    width: 100%;
+    background: #090d14;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  .floor-map-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .map-machine-node {
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .map-machine-node:hover rect, .map-machine-node:active rect {
+    stroke: #38bdf8 !important;
+    stroke-width: 2.5px !important;
+  }
+  .map-machine-node.dimmed {
+    opacity: 0.28;
+  }
+  .map-machine-node.highlighted rect {
+    stroke: #38bdf8 !important;
+    stroke-width: 2.5px !important;
+    fill: #1e293b !important;
+  }
+  .map-machine-node.highlighted text {
+    fill: #38bdf8 !important;
+    font-weight: bold;
+  }
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+  .mm-floor-loc-wrap {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #090d14;
+    border: 1px solid var(--border);
+    margin-top: 4px;
+  }
+  .mm-floor-loc-wrap svg {
+    width: 100%;
+    max-height: 140px;
+    display: block;
+  }
+
   /* ============ Quick chips ============ */
   .quick-chips-wrap {
     display: flex;
@@ -1244,6 +1359,11 @@
         <button type="button" class="wakelock-btn" id="wakeLockBtn" onclick="toggleWakeLock()">常時点灯: OFF</button>
       </div>
 
+      <div class="plan-actions-bar" style="margin-bottom:12px;">
+        <button type="button" class="plan-act-btn" onclick="openFloorMapModal('TODAY')">🗺️ 本日の器具フロアマップ（配置図）</button>
+        <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 マシン図鑑</button>
+      </div>
+
       <div id="exerciseFields"></div>
 
       <div class="field" style="margin-top:8px;">
@@ -1319,6 +1439,7 @@
       <div id="targetsView">
         <div class="plan-actions-bar">
           <button type="button" class="plan-act-btn primary" onclick="applyKasakakePlan()">🏢 笠懸店マシン 全身プランを適用（案1: 着実増量）</button>
+          <button type="button" class="plan-act-btn" onclick="openFloorMapModal()">🗺️ 笠懸店フロアマップ（配置図）</button>
           <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 笠懸店マシン図鑑・外観一覧（全14種）</button>
         </div>
         <div class="card prog-card" id="progCard"></div>
@@ -1544,6 +1665,15 @@
         <div id="mmTarget" class="mib-text target-muscles"></div>
       </div>
 
+      <!-- 店舗での位置（ミニフロアマップ） -->
+      <div class="machine-info-block">
+        <div class="mib-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>🗺️ 店舗での位置（笠懸店フロア）</span>
+          <button type="button" style="font-size:11px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--accent);cursor:pointer;" onclick="openFloorMapModal()">全体マップ ↗</button>
+        </div>
+        <div id="mmFloorLoc" class="mm-floor-loc-wrap"></div>
+      </div>
+
       <!-- 前後のマシン切り替え -->
       <div class="machine-modal-nav">
         <button type="button" id="mmPrevBtn" onclick="navMachine(-1)">◀ 前のマシン</button>
@@ -1551,7 +1681,8 @@
       </div>
     </div>
     <div class="machine-modal-foot">
-      <button type="button" onclick="openMachineListModal()">📖 全マシン図鑑一覧</button>
+      <button type="button" onclick="openFloorMapModal()">🗺️ 全体マップで見る</button>
+      <button type="button" onclick="openMachineListModal()">📖 全マシン図鑑</button>
       <button type="button" class="primary" onclick="closeMachineModal()">閉じる</button>
     </div>
   </div>
@@ -1572,8 +1703,42 @@
       <div id="catalogGrid" class="catalog-grid"></div>
     </div>
     <div class="machine-modal-foot">
-      <span></span>
+      <button type="button" onclick="openFloorMapModal()">🗺️ 笠懸店フロアマップ</button>
       <button type="button" class="primary" onclick="closeMachineListModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 笠懸店フロアマップ（配置図・ゾーン案内）モーダル -->
+<div class="modal-backdrop" id="floorMapModal" hidden>
+  <div class="floor-map-card" role="dialog" aria-modal="true" aria-labelledby="fmmTitle">
+    <div class="machine-modal-head">
+      <div class="machine-modal-title-wrap">
+        <h3 id="fmmTitle" class="machine-modal-title">🗺️ 笠懸店 フロアマップ</h3>
+        <span class="machine-modal-area-badge">ゾーン＆配置図</span>
+      </div>
+      <button type="button" class="machine-modal-close" onclick="closeFloorMapModal()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="floor-map-filter-bar">
+      <button type="button" class="map-filter-btn active" id="fmfAll" onclick="setFloorMapFilter('ALL')">全体表示</button>
+      <button type="button" class="map-filter-btn" id="fmfA" onclick="setFloorMapFilter('A')">Day A の器具</button>
+      <button type="button" class="map-filter-btn" id="fmfB" onclick="setFloorMapFilter('B')">Day B の器具</button>
+    </div>
+    <div class="floor-map-body">
+      <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 4px;">各マシンをタップすると外観図解とセッティング解説が表示されます。</p>
+      <div id="floorMapContainer" class="floor-map-wrap">
+        <!-- SVG will be injected here -->
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span><span>フリーウェイト (最奥)</span></div>
+        <div class="legend-item"><span class="legend-color" style="background:#818cf8;"></span><span>マシンエリア (中央)</span></div>
+        <div class="legend-item"><span class="legend-color" style="background:#34d399;"></span><span>有酸素 (手前左)</span></div>
+        <div class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span><span>ストレッチ (手前右)</span></div>
+      </div>
+    </div>
+    <div class="machine-modal-foot">
+      <button type="button" onclick="openMachineListModal()">📖 全マシン図鑑一覧</button>
+      <button type="button" class="primary" onclick="closeFloorMapModal()">閉じる</button>
     </div>
   </div>
 </div>
@@ -1878,10 +2043,16 @@
     document.getElementById("mmFeatures").textContent = m.features;
     document.getElementById("mmSetting").textContent = m.setting;
     document.getElementById("mmTarget").textContent = m.target;
+    var floorLoc = document.getElementById("mmFloorLoc");
+    if (floorLoc) {
+      floorLoc.innerHTML = renderMiniFloorMapSVG(key);
+    }
     
     document.getElementById("machineModal").hidden = false;
     var mlm = document.getElementById("machineListModal");
     if (mlm && !mlm.hidden) mlm.hidden = true;
+    var fmm = document.getElementById("floorMapModal");
+    if (fmm && !fmm.hidden) fmm.hidden = true;
   }
 
   function openMachineByName(name, tip) {
@@ -1918,6 +2089,8 @@
     }
     var mm = document.getElementById("machineModal");
     if (mm) mm.hidden = true;
+    var fmm = document.getElementById("floorMapModal");
+    if (fmm) fmm.hidden = true;
     document.getElementById("machineListModal").hidden = false;
   }
 
@@ -1925,9 +2098,261 @@
     document.getElementById("machineListModal").hidden = true;
   }
 
+  /* ============ Floor Map Rendering & Logic ============ */
+  var FLOOR_MAP_MACHINES = [
+    // 最奥列 (y: 42)
+    { key: "power_rack", name: "パワーラック", sub: "ベンチ/スクワット", day: "A", x: 20, y: 42, w: 98, h: 36, zone: "free" },
+    { key: "smith_machine", name: "スミスマシン", sub: "カーフレイズ", day: "A", x: 131, y: 42, w: 98, h: 36, zone: "free" },
+    { key: "seated_row", name: "Tバーロウ / 背中", sub: "プレートロード", day: "B", x: 242, y: 42, w: 98, h: 36, zone: "free" },
+
+    // フリーウェイト中列 (y: 86)
+    { key: "v_squat", name: "Vスクワット", sub: "45°大腿四頭筋", day: "B", x: 20, y: 86, w: 98, h: 36, zone: "free" },
+    { key: "linear_leg_press", name: "レッグプレス", sub: "45°脚・臀部", day: "B", x: 131, y: 86, w: 98, h: 36, zone: "free" },
+    { key: "incline_press", name: "インクライン", sub: "胸上部・ハンマー", day: "B", x: 242, y: 86, w: 98, h: 36, zone: "free" },
+
+    // フリーウェイト手前列 (y: 130)
+    { key: "dumbbell_bench", name: "ダンベルラック(1〜40kg) ＆ 可変ベンチ", sub: "ランジ / ベンチ種目全般", day: "B", x: 20, y: 130, w: 209, h: 48, zone: "free" },
+    { key: null, name: "ケーブルマシン", sub: "デュアルプーリー", day: null, x: 242, y: 130, w: 98, h: 48, zone: "free" },
+
+    // 中央マシン列1 (y: 228)
+    { key: "chest_press", name: "チェスト", sub: "大胸筋", day: null, x: 20, y: 228, w: 73, h: 36, zone: "machine" },
+    { key: "shoulder_press", name: "ショルダー", sub: "肩・三角筋", day: "A", x: 101, y: 228, w: 73, h: 36, zone: "machine" },
+    { key: "lat_pulldown", name: "ラットプル", sub: "背中・広背筋", day: "B", x: 182, y: 228, w: 73, h: 36, zone: "machine" },
+    { key: "biceps_curl", name: "アームカール", sub: "上腕二頭筋", day: "A", x: 263, y: 228, w: 77, h: 36, zone: "machine" },
+
+    // 中央マシン列2 (y: 272)
+    { key: "leg_extension", name: "レッグEx", sub: "大腿四頭筋", day: "B", x: 20, y: 272, w: 73, h: 36, zone: "machine" },
+    { key: "leg_curl", name: "レッグカール", sub: "ハムストリング", day: "B", x: 101, y: 272, w: 73, h: 36, zone: "machine" },
+    { key: "hip_abductor", name: "アブダクション", sub: "臀中筋/内転筋", day: "B", x: 182, y: 272, w: 73, h: 36, zone: "machine" },
+    { key: null, name: "アシスト懸垂", sub: "チン/ディップス", day: null, x: 263, y: 272, w: 77, h: 36, zone: "machine" }
+  ];
+
+  var MACHINE_LOCATIONS = {
+    power_rack: { areaName: "最奥フリーウェイト（奥壁・左）", hint: "店舗一番奥の左側。極太スチール支柱のパワーラック＆ハーフラック", pinX: 60, pinY: 22, zone: "free" },
+    smith_machine: { areaName: "最奥フリーウェイト（奥壁・中央）", hint: "店舗一番奥の中央。レール固定バーベルのスミスマシン", pinX: 170, pinY: 22, zone: "free" },
+    seated_row: { areaName: "最奥フリーウェイト（奥壁・右）", hint: "店舗奥の右側。Tバーロウ＆シーテッドロー", pinX: 275, pinY: 22, zone: "free" },
+    v_squat: { areaName: "最奥フリーウェイト（中列・左）", hint: "フリーウェイト中列の左側。45度傾斜のVスクワット", pinX: 60, pinY: 34, zone: "free" },
+    linear_leg_press: { areaName: "最奥フリーウェイト（中列・中央）", hint: "フリーウェイト中列の中央。45度リニアレッグプレス", pinX: 170, pinY: 34, zone: "free" },
+    incline_press: { areaName: "最奥フリーウェイト（中列・右）", hint: "フリーウェイト中列の右側。黄色アームのHammer Strengthインクライン", pinX: 275, pinY: 34, zone: "free" },
+    dumbbell_bench: { areaName: "最奥フリーウェイト（手前・鏡前）", hint: "フリーウェイト手前の大型ミラー前。1〜40kgダンベルラック＆可変ベンチ", pinX: 110, pinY: 44, zone: "free" },
+    chest_press: { areaName: "中央マシンエリア（奥列・左端）", hint: "ピン式マシン列の1列目左端。チェストプレスマシン", pinX: 45, pinY: 66, zone: "machine" },
+    shoulder_press: { areaName: "中央マシンエリア（奥列・中央左）", hint: "ピン式マシン列の1列目左から2番目。垂直押しショルダープレス", pinX: 125, pinY: 66, zone: "machine" },
+    lat_pulldown: { areaName: "中央マシンエリア（奥列・中央右）", hint: "ピン式マシン列の1列目右から2番目。ラットプルダウン", pinX: 205, pinY: 66, zone: "machine" },
+    biceps_curl: { areaName: "中央マシンエリア（奥列・右端）", hint: "ピン式マシン列の1列目右端。バイセップスカール（アームカール）", pinX: 285, pinY: 66, zone: "machine" },
+    leg_extension: { areaName: "中央マシンエリア（手前列・左端）", hint: "ピン式マシン列の2列目左端。座って膝を伸ばすレッグエクステンション", pinX: 45, pinY: 78, zone: "machine" },
+    leg_curl: { areaName: "中央マシンエリア（手前列・中央左）", hint: "ピン式マシン列の2列目左から2番目。座って膝を曲げるレッグカール", pinX: 125, pinY: 78, zone: "machine" },
+    hip_abductor: { areaName: "中央マシンエリア（手前列・中央右）", hint: "ピン式マシン列の2列目右から2番目。両脚を開くヒップアブダクション", pinX: 205, pinY: 78, zone: "machine" }
+  };
+
+  function renderFloorMapSVG(filterDay) {
+    var normDay = (filterDay === "A" || filterDay === "B") ? filterDay : null;
+    var svg = '<svg viewBox="0 0 360 490" xmlns="http://www.w3.org/2000/svg">';
+    
+    // Base background & outer walls
+    svg += '<rect width="360" height="490" fill="#090d14" rx="10"/>';
+    svg += '<rect x="6" y="6" width="348" height="478" fill="none" stroke="#21262d" stroke-width="2" rx="8"/>';
+
+    // Zone 1: 最奥 フリーウェイトエリア
+    svg += '<rect x="12" y="14" width="336" height="174" fill="#0c1322" stroke="#1e293b" stroke-width="1.5" rx="6"/>';
+    svg += '<rect x="12" y="14" width="336" height="22" fill="#1e293b" rx="6 6 0 0"/>';
+    svg += '<text x="20" y="29" fill="#38bdf8" font-size="10.5" font-weight="bold">🏋️ 最奥：フリーウェイトエリア（重量ゴムマット）</text>';
+
+    // Zone 2: 中央 マシンエリア
+    svg += '<rect x="12" y="198" width="336" height="122" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" rx="6"/>';
+    svg += '<rect x="12" y="198" width="336" height="22" fill="#1e293b" rx="6 6 0 0"/>';
+    svg += '<text x="20" y="213" fill="#818cf8" font-size="10.5" font-weight="bold">⚙️ 中央：マシンエリア（ピン式ウェイトスタック）</text>';
+
+    // Aisle indicator
+    svg += '<line x1="20" y1="192" x2="340" y2="192" stroke="#334155" stroke-width="1" stroke-dasharray="4,4"/>';
+    svg += '<text x="180" y="194" fill="#64748b" font-size="8" text-anchor="middle">通路（AISLE）</text>';
+
+    // Zone 3: 手前左 有酸素エリア
+    svg += '<rect x="12" y="328" width="162" height="150" fill="#062e24" stroke="#065f46" stroke-width="1.5" rx="6"/>';
+    svg += '<rect x="12" y="328" width="162" height="20" fill="#064e3b" rx="6 6 0 0"/>';
+    svg += '<text x="18" y="342" fill="#34d399" font-size="10" font-weight="bold">🏃 有酸素エリア（窓側）</text>';
+    
+    // Treadmills & bikes
+    svg += '<rect x="18" y="354" width="70" height="116" fill="#0d3b30" stroke="#059669" stroke-width="1" rx="4"/>';
+    svg += '<text x="53" y="375" fill="#a7f3d0" font-size="9" font-weight="bold" text-anchor="middle">トレッドミル</text>';
+    svg += '<text x="53" y="390" fill="#6ee7b7" font-size="7.5" text-anchor="middle">ランニングマシン</text>';
+    svg += '<text x="53" y="403" fill="#6ee7b7" font-size="7.5" text-anchor="middle">（8台・窓側）</text>';
+
+    svg += '<rect x="94" y="354" width="74" height="116" fill="#0d3b30" stroke="#059669" stroke-width="1" rx="4"/>';
+    svg += '<text x="131" y="375" fill="#a7f3d0" font-size="9" font-weight="bold" text-anchor="middle">バイク / クロス</text>';
+    svg += '<text x="131" y="390" fill="#6ee7b7" font-size="7.5" text-anchor="middle">有酸素バイク列</text>';
+
+    // Zone 4: 手前右 ストレッチ & 受付
+    svg += '<rect x="182" y="328" width="166" height="72" fill="#2d1b06" stroke="#92400e" stroke-width="1.5" rx="6"/>';
+    svg += '<rect x="182" y="328" width="166" height="20" fill="#78350f" rx="6 6 0 0"/>';
+    svg += '<text x="188" y="342" fill="#fbbf24" font-size="10" font-weight="bold">🧘 ストレッチエリア</text>';
+    svg += '<text x="265" y="365" fill="#fde68a" font-size="8.5" text-anchor="middle">ストレッチマット</text>';
+    svg += '<text x="265" y="379" fill="#fde68a" font-size="8" text-anchor="middle">フォームローラー / ポール</text>';
+
+    // Reception & Lockers
+    svg += '<rect x="182" y="406" width="166" height="72" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>';
+    svg += '<text x="265" y="425" fill="#94a3b8" font-size="9" text-anchor="middle">🚿 更衣室・シャワー・ロッカー</text>';
+    svg += '<rect x="194" y="438" width="142" height="32" fill="#0f172a" stroke="#475569" stroke-width="1" rx="4"/>';
+    svg += '<text x="265" y="458" fill="#e2e8f0" font-size="10" font-weight="bold" text-anchor="middle">🚪 エントランス・受付</text>';
+
+    // Machine nodes
+    FLOOR_MAP_MACHINES.forEach(function (m) {
+      var isHighlighted = normDay ? (m.day === normDay) : false;
+      var isDimmed = normDay ? (m.day !== normDay) : false;
+
+      var stroke = "#334155";
+      var fill = "#161e2e";
+      var textFill = "#cbd5e1";
+      var subFill = "#94a3b8";
+
+      if (m.zone === "free") {
+        stroke = "#1e3a5f";
+        fill = "#0f172a";
+      } else if (m.zone === "machine") {
+        stroke = "#2e1065";
+        fill = "#131b2e";
+      }
+
+      if (normDay) {
+        if (isHighlighted) {
+          stroke = normDay === "A" ? "#38bdf8" : "#34d399";
+          fill = normDay === "A" ? "#172554" : "#064e3b";
+          textFill = "#ffffff";
+          subFill = normDay === "A" ? "#93c5fd" : "#a7f3d0";
+        }
+      }
+
+      var cx = m.x + m.w / 2;
+      var cy1 = m.y + (m.h > 40 ? 17 : 14);
+      var cy2 = m.y + (m.h > 40 ? 32 : 27);
+
+      var clickAttr = m.key ? ' onclick="openMachineModal(' + jsArg(m.key) + ')"' : '';
+      var cursorStyle = m.key ? 'cursor:pointer;' : 'cursor:default;';
+      var opacityStyle = isDimmed ? 'opacity:0.25;' : 'opacity:1;';
+      var nodeClass = "map-machine-node" + (isDimmed ? " dimmed" : "") + (isHighlighted ? " highlighted" : "");
+
+      svg += '<g class="' + nodeClass + '" style="' + cursorStyle + opacityStyle + '"' + clickAttr + '>';
+      svg += '<rect x="' + m.x + '" y="' + m.y + '" width="' + m.w + '" height="' + m.h + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (isHighlighted ? "2" : "1.2") + '" rx="4"/>';
+      
+      // Day badge
+      if (m.day) {
+        var badgeBg = m.day === "A" ? "#0284c7" : "#059669";
+        var badgeText = "Day " + m.day;
+        var bx = m.x + m.w - 32;
+        var by = m.y + 2;
+        svg += '<rect x="' + bx + '" y="' + by + '" width="30" height="11" fill="' + badgeBg + '" rx="2"/>';
+        svg += '<text x="' + (bx + 15) + '" y="' + (by + 8.5) + '" fill="#ffffff" font-size="7" font-weight="bold" text-anchor="middle">' + badgeText + '</text>';
+      }
+
+      // Tap icon
+      if (m.key) {
+        svg += '<text x="' + (m.x + 8) + '" y="' + (m.y + 11) + '" fill="#38bdf8" font-size="8">🔍</text>';
+      }
+
+      svg += '<text x="' + cx + '" y="' + cy1 + '" fill="' + textFill + '" font-size="9" font-weight="bold" text-anchor="middle">' + escapeHTML(m.name) + '</text>';
+      svg += '<text x="' + cx + '" y="' + cy2 + '" fill="' + subFill + '" font-size="7" text-anchor="middle">' + escapeHTML(m.sub) + '</text>';
+      svg += '</g>';
+    });
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  function renderMiniFloorMapSVG(key) {
+    var info = MACHINE_LOCATIONS[key];
+    var isFree = info && info.zone === "free";
+    var isMach = info && info.zone === "machine";
+    
+    var pinX = info ? info.pinX : 170;
+    var pinY = info ? info.pinY : 30;
+    var areaLabel = info ? info.areaName : "笠懸店フロア";
+    var hintText = info ? info.hint : "店舗内の配置図";
+
+    var svg = '<svg viewBox="0 0 340 135" xmlns="http://www.w3.org/2000/svg" style="cursor:pointer;" onclick="openFloorMapModal()">';
+    svg += '<rect width="340" height="135" fill="#090d14" rx="8"/>';
+    svg += '<rect x="4" y="4" width="332" height="127" fill="none" stroke="#21262d" stroke-width="1.5" rx="6"/>';
+
+    // Zone 1: Free weight
+    var freeStroke = isFree ? "#38bdf8" : "#1e293b";
+    var freeFill = isFree ? "#0c1f38" : "#0c1322";
+    var freeStrokeW = isFree ? "2" : "1";
+    svg += '<rect x="10" y="8" width="320" height="42" fill="' + freeFill + '" stroke="' + freeStroke + '" stroke-width="' + freeStrokeW + '" rx="4"/>';
+    svg += '<text x="18" y="20" fill="' + (isFree ? "#38bdf8" : "#64748b") + '" font-size="8.5" font-weight="bold">🏋️ 最奥：フリーウェイトエリア</text>';
+
+    // Zone 2: Machine area
+    var machStroke = isMach ? "#818cf8" : "#1e293b";
+    var machFill = isMach ? "#1e1b4b" : "#0f172a";
+    var machStrokeW = isMach ? "2" : "1";
+    svg += '<rect x="10" y="54" width="320" height="34" fill="' + machFill + '" stroke="' + machStroke + '" stroke-width="' + machStrokeW + '" rx="4"/>';
+    svg += '<text x="18" y="66" fill="' + (isMach ? "#a5b4fc" : "#64748b") + '" font-size="8.5" font-weight="bold">⚙️ 中央：マシンエリア（ピン式）</text>';
+
+    // Zone 3: Cardio (bottom left)
+    svg += '<rect x="10" y="92" width="154" height="34" fill="#062e24" stroke="#065f46" stroke-width="1" rx="4"/>';
+    svg += '<text x="18" y="105" fill="#34d399" font-size="8" font-weight="bold">🏃 有酸素（窓側）</text>';
+    svg += '<text x="18" y="118" fill="#6ee7b7" font-size="7">トレッドミル/バイク</text>';
+
+    // Zone 4: Stretch & Entrance (bottom right)
+    svg += '<rect x="172" y="92" width="158" height="34" fill="#1e293b" stroke="#334155" stroke-width="1" rx="4"/>';
+    svg += '<text x="180" y="105" fill="#fbbf24" font-size="8" font-weight="bold">🧘 ストレッチ / 🚪 受付</text>';
+    svg += '<text x="180" y="118" fill="#94a3b8" font-size="7">更衣室・シャワー・ロッカー</text>';
+
+    // Pin marker on exact spot
+    svg += '<g transform="translate(' + pinX + ',' + pinY + ')">';
+    svg += '<circle cx="0" cy="0" r="10" fill="#38bdf8" opacity="0.3"/>';
+    svg += '<circle cx="0" cy="0" r="6" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>';
+    svg += '<circle cx="0" cy="0" r="2.5" fill="#ffffff"/>';
+    svg += '<text x="9" y="3" fill="#38bdf8" font-size="8.5" font-weight="bold">📍 ここ</text>';
+    svg += '</g>';
+
+    svg += '</svg>';
+    
+    var guideHtml = '<div style="margin-top:6px;padding:8px 10px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);font-size:11.5px;line-height:1.45;">' +
+      '<div style="font-weight:700;color:var(--accent);margin-bottom:2px;">📍 ' + escapeHTML(areaLabel) + '</div>' +
+      '<div style="color:var(--text-muted);font-size:11px;">' + escapeHTML(hintText) + '</div>' +
+      '</div>';
+
+    return svg + guideHtml;
+  }
+
+  var currentMapFilter = "ALL";
+
+  function setFloorMapFilter(day) {
+    currentMapFilter = (day === "A" || day === "B" || day === "ALL") ? day : "ALL";
+    var btnAll = document.getElementById("fmfAll");
+    var btnA = document.getElementById("fmfA");
+    var btnB = document.getElementById("fmfB");
+    if (btnAll) btnAll.classList.toggle("active", currentMapFilter === "ALL");
+    if (btnA) btnA.classList.toggle("active", currentMapFilter === "A");
+    if (btnB) btnB.classList.toggle("active", currentMapFilter === "B");
+    var container = document.getElementById("floorMapContainer");
+    if (container) {
+      container.innerHTML = renderFloorMapSVG(currentMapFilter);
+    }
+  }
+
+  function openFloorMapModal(day) {
+    var d = day;
+    if (d === "TODAY") {
+      d = (typeof currentDay !== "undefined" && currentDay) ? currentDay : "ALL";
+    } else if (d !== "A" && d !== "B" && d !== "ALL") {
+      d = "ALL";
+    }
+    setFloorMapFilter(d);
+    document.getElementById("floorMapModal").hidden = false;
+    var mm = document.getElementById("machineModal");
+    if (mm && !mm.hidden) mm.hidden = true;
+    var mlm = document.getElementById("machineListModal");
+    if (mlm && !mlm.hidden) mlm.hidden = true;
+  }
+
+  function closeFloorMapModal() {
+    var fmm = document.getElementById("floorMapModal");
+    if (fmm) fmm.hidden = true;
+  }
+
   function wireMachineModals() {
     var mm = document.getElementById("machineModal");
     var mlm = document.getElementById("machineListModal");
+    var fmm = document.getElementById("floorMapModal");
     if (mm) {
       mm.addEventListener("click", function (e) {
         if (e.target === mm) closeMachineModal();
@@ -1938,10 +2363,16 @@
         if (e.target === mlm) closeMachineListModal();
       });
     }
+    if (fmm) {
+      fmm.addEventListener("click", function (e) {
+        if (e.target === fmm) closeFloorMapModal();
+      });
+    }
     window.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
         if (mm && !mm.hidden) closeMachineModal();
         if (mlm && !mlm.hidden) closeMachineListModal();
+        if (fmm && !fmm.hidden) closeFloorMapModal();
       }
     });
   }
@@ -1952,6 +2383,9 @@
   window.openMachineListModal = openMachineListModal;
   window.closeMachineListModal = closeMachineListModal;
   window.navMachine = navMachine;
+  window.openFloorMapModal = openFloorMapModal;
+  window.closeFloorMapModal = closeFloorMapModal;
+  window.setFloorMapFilter = setFloorMapFilter;
 
   var INITIAL_RECORDS = [
     {
