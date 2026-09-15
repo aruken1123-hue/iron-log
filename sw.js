@@ -1,5 +1,5 @@
 // IRON LOG Service Worker
-const CACHE_NAME = 'ironlog-v6';
+const CACHE_NAME = 'ironlog-v7';
 const ASSETS = [
   './',
   './index.html',
