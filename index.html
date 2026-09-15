@@ -804,6 +804,25 @@
     border-radius: 8px; padding: 8px 10px; margin: 0 0 10px;
   }
   .sheet-env-note a { color: var(--accent); word-break: break-all; }
+  .update-banner {
+    position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 10px); transform: translateX(-50%);
+    z-index: 95; width: calc(100% - 24px); max-width: 456px; box-sizing: border-box;
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px;
+    background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow); font-size: 12.5px; line-height: 1.45;
+  }
+  .update-banner[hidden] { display: none; }
+  .update-banner .ub-text { flex: 1; min-width: 0; }
+  .update-banner .ub-text small { display: block; opacity: 0.85; font-size: 10.5px; }
+  .update-banner button {
+    flex-shrink: 0; border: none; border-radius: 8px; padding: 8px 12px; font-size: 12.5px; font-weight: 700;
+    background: var(--accent-ink); color: var(--accent); cursor: pointer;
+  }
+  .update-banner .ub-close { background: transparent; color: var(--accent-ink); padding: 6px; font-size: 16px; }
+  .app-version-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px;
+    padding-top: 10px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--text); }
+  .app-version-row small { display: block; color: var(--text-muted); font-size: 10.5px; }
+  .app-version-row button { flex-shrink: 0; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer; }
   .sheet-status { font-size: 11.5px; margin: 8px 0 0; line-height: 1.5; color: var(--text-muted); overflow-wrap: anywhere; }
   .sheet-status.ok { color: var(--success); }
   .sheet-status.ng { color: var(--danger); }
@@ -1591,6 +1610,10 @@
           <li><span class="num">2</span>「ホーム画面に追加」を選択</li>
           <li><span class="num">3</span>「追加」をタップすると完了</li>
         </ol>
+        <div class="app-version-row">
+          <div>このアプリのバージョン：<b id="appVersionText">-</b><small id="appVersionSub"></small></div>
+          <button type="button" onclick="checkAppUpdate()">更新を確認</button>
+        </div>
       </div>
 
       <div class="card settings-card">
@@ -1725,6 +1748,12 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="update-banner" id="updateBanner" role="status" hidden>
+  <div class="ub-text">新しいバージョンが届きました<small>記録を入力中なら、保存してから更新してください</small></div>
+  <button type="button" onclick="applyAppUpdate()">今すぐ更新</button>
+  <button type="button" class="ub-close" onclick="dismissUpdateBanner()" aria-label="閉じる">✕</button>
+</div>
 
 <div class="modal-backdrop" id="confirmModal" hidden>
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmText">
@@ -5285,13 +5314,67 @@
     registerServiceWorker();
   }
 
-  function registerServiceWorker() {
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./sw.js").catch(function () {});
-      });
+  /* sw.js の APP_VERSION と合わせる */
+  var APP_VERSION = "v9";
+  var APP_BUILD_DATE = "2026-09-16";
+  var swRegistration = null;
+
+  function renderAppVersion(offlineCacheName) {
+    var main = document.getElementById("appVersionText");
+    var sub = document.getElementById("appVersionSub");
+    if (main) main.textContent = APP_VERSION + "（" + APP_BUILD_DATE + "）";
+    if (!sub) return;
+    if (IS_ARTIFACT_HOST) sub.textContent = "Artifact版：開くたびに最新版が表示されます";
+    else if (!("serviceWorker" in navigator)) sub.textContent = "このブラウザではオフライン保存に対応していません";
+    else sub.textContent = offlineCacheName ? "オフライン用データ：" + offlineCacheName : "オフライン用データを準備中…";
+  }
+
+  function askServiceWorkerVersion() {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage("GET_VERSION");
     }
   }
+
+  /* ホーム画面アプリ（PWA）は起動したまま残りやすいので、
+     画面に戻るたびに更新を確認し、新しい版が有効になったら案内を出す。
+     入力中の記録が消えないよう、自動では再読み込みしない。 */
+  function registerServiceWorker() {
+    renderAppVersion(null);
+    if (!("serviceWorker" in navigator) || IS_ARTIFACT_HOST) return;
+    var hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (hadController) document.getElementById("updateBanner").hidden = false;   // 初回インストールでは出さない
+      hadController = true;
+      askServiceWorkerVersion();
+    });
+    navigator.serviceWorker.addEventListener("message", function (e) {
+      if (e.data && e.data.type === "SW_VERSION") renderAppVersion(e.data.cache);
+    });
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("./sw.js").then(function (reg) {
+        swRegistration = reg;
+        askServiceWorkerVersion();
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "visible") reg.update().catch(function () {});
+        });
+      }).catch(function () {});
+    });
+  }
+
+  window.applyAppUpdate = function () { location.reload(); };
+  window.dismissUpdateBanner = function () { document.getElementById("updateBanner").hidden = true; };
+
+  window.checkAppUpdate = function () {
+    if (IS_ARTIFACT_HOST) { showToast("Artifact版は開くたびに最新版です"); return; }
+    if (!swRegistration) { showToast("この画面では更新の確認ができません"); return; }
+    showToast("更新を確認中…", 8000);
+    swRegistration.update().then(function () {
+      setTimeout(function () {
+        if (!document.getElementById("updateBanner").hidden) { showToast("新しいバージョンがあります。上の「今すぐ更新」を押してください", 5000); return; }
+        showToast("最新版です（" + APP_VERSION + "）");
+      }, 3000);
+    }).catch(function () { showToast("確認できませんでした。通信を確認してください"); });
+  };
   init();
 })();
 </script>
