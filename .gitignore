@@ -19,3 +19,7 @@ my_data*.json
 
 # バックアップJSON（記録が入るのでコミットしない）
 ironlog_backup_*.json
+
+# 手書き日誌の写真などの個人的な画像（公開リポジトリに含めない）
+筋トレメニュー.jpg
+private/

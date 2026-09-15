@@ -770,6 +770,46 @@
   }
   .exercise-card.just-added { outline: 2px solid var(--accent); outline-offset: 1px; }
   .map-disclaimer { font-size: 10.5px; color: var(--text-muted); margin: 0 0 6px; line-height: 1.5; }
+  #confirmModal { z-index: 90; }   /* 他のモーダルの上から確認できるように */
+  .floor-map-filter-bar.editing .map-filter-btn:not(#fmfEdit) { opacity: 0.35; pointer-events: none; }
+  #fmfEdit.active { background: #f59e0b; border-color: #f59e0b; color: #1a1200; }
+  .floor-edit-panel {
+    display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 1px solid #f59e0b;
+    border-radius: 10px; background: var(--surface-2);
+  }
+  .floor-edit-panel[hidden] { display: none; }
+  .fep-title { font-size: 12.5px; font-weight: 700; color: #f59e0b; }
+  .fep-help, .fep-unplaced { font-size: 11px; color: var(--text-muted); line-height: 1.55; margin: 0; }
+  .fep-row { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text); }
+  .fep-row select, .fep-labels input {
+    width: 100%; box-sizing: border-box; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px; font-size: 16px; color: var(--text);
+  }
+  .fep-labels { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; }
+  .fep-labels label { display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: var(--text-muted); min-width: 0; }
+  .fep-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fep-actions button {
+    flex: 1 1 90px; padding: 9px 6px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  }
+  .fep-actions button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .mini-map-note, .mini-map-guide {
+    margin-top: 6px; padding: 8px 10px; background: var(--surface-2); border-radius: 6px; border: 1px solid var(--border);
+    font-size: 11.5px; line-height: 1.5; color: var(--text-muted);
+  }
+  .mini-map-guide b { color: var(--accent); }
+  .mini-map-tentative { color: #f59e0b; margin-left: 4px; }
+  .sheet-env-note {
+    font-size: 11.5px; line-height: 1.6; color: var(--text); background: var(--danger-bg); border: 1px solid var(--danger);
+    border-radius: 8px; padding: 8px 10px; margin: 0 0 10px;
+  }
+  .sheet-env-note a { color: var(--accent); word-break: break-all; }
+  .sheet-status { font-size: 11.5px; margin: 8px 0 0; line-height: 1.5; color: var(--text-muted); overflow-wrap: anywhere; }
+  .sheet-status.ok { color: var(--success); }
+  .sheet-status.ng { color: var(--danger); }
+  .sheet-manual { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }
+  .sheet-manual-title { font-size: 12px; font-weight: 700; color: var(--text); }
+  .sheet-manual-help { font-size: 11px; color: var(--text-muted); margin: 2px 0 0; line-height: 1.5; }
 
   /* マシン図鑑一覧カード */
   .catalog-grid {
@@ -922,7 +962,7 @@
   }
   .mm-floor-loc-wrap svg {
     width: 100%;
-    max-height: 140px;
+    max-height: 200px;
     display: block;
   }
 
@@ -1593,24 +1633,37 @@
       </div>
 
       <div class="card settings-card">
-        <h3>Googleスプレッドシート自動連携</h3>
-        <p>記録の保存時に、手書き用紙と同じ列フォーマットでGoogleスプレッドシートへ自動追記します。</p>
-        <div class="switch-row">
-          <span class="switch-label">自動同期を有効にする</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="sheetAutoSync" onchange="toggleSheetSync(this.checked)">
-            <span class="toggle-slider"></span>
-          </label>
+        <h3>Googleスプレッドシート連携</h3>
+        <p>記録の保存時に、手書き用紙と同じ列フォーマットでGoogleスプレッドシートへ書き込みます。同じ記録を何度送っても行は増えず、上書きされます。</p>
+        <div class="sheet-env-note" id="sheetEnvNote" hidden></div>
+        <div id="sheetOnlineControls">
+          <div class="switch-row">
+            <span class="switch-label">保存時に自動で送る</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="sheetAutoSync" onchange="toggleSheetSync(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="field" style="margin-bottom:10px;">
+            <label>GAS Web App URL</label>
+            <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:16px;color:var(--text);font-family:var(--font-mono);" onchange="saveGasUrl(this.value)">
+          </div>
+          <div class="btn-row">
+            <button onclick="testSheetConnection()">接続テスト</button>
+            <button class="primary" onclick="syncAllToSheets()">全記録を同期</button>
+          </div>
+          <p class="sheet-status" id="sheetStatus"></p>
         </div>
-        <div class="field" style="margin-bottom:10px;">
-          <label>GAS Web App URL</label>
-          <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:16px;color:var(--text);font-family:var(--font-mono);" onchange="saveGasUrl(this.value)">
+        <div class="sheet-manual">
+          <div class="sheet-manual-title">手動でシートに反映する</div>
+          <p class="sheet-manual-help">通信できない環境向け。空のシートのA1セルを選んで貼り付けると、同じ列で並びます。</p>
+          <div class="btn-row">
+            <button onclick="copySheetTSV()">貼り付け用にコピー</button>
+            <button onclick="saveSheetCSV()">CSVファイルで保存</button>
+          </div>
+          <textarea class="data-box" id="sheetTsvBox" readonly hidden></textarea>
         </div>
-        <div class="btn-row">
-          <button onclick="testSheetConnection()">接続テスト送信</button>
-          <button class="primary" onclick="syncAllToSheets()">全記録を一括同期</button>
-        </div>
-        <p style="font-size:11.5px;color:var(--text-muted);margin-top:8px;margin-bottom:0;">※セットアップ手順は <code>gas/README.md</code> をご覧ください。</p>
+        <p style="font-size:11.5px;color:var(--text-muted);margin-top:8px;margin-bottom:0;">※セットアップ手順は <code>gas/README.md</code>。重複防止を使うには、<code>gas/Code.gs</code> を最新版に貼り直して再デプロイしてください。</p>
       </div>
 
       <div class="card settings-card">
@@ -1792,26 +1845,47 @@
     <div class="machine-modal-head">
       <div class="machine-modal-title-wrap">
         <h3 id="fmmTitle" class="machine-modal-title">🗺️ 笠懸店 フロアマップ</h3>
-        <span class="machine-modal-area-badge">ゾーン＆配置図</span>
+        <span class="machine-modal-area-badge" id="fmmBadge">仮の配置（要確認）</span>
       </div>
       <button type="button" class="machine-modal-close" onclick="closeFloorMapModal()" aria-label="閉じる">✕</button>
     </div>
     <div class="floor-map-filter-bar">
-      <button type="button" class="map-filter-btn active" id="fmfAll" onclick="setFloorMapFilter('ALL')">全体表示</button>
-      <button type="button" class="map-filter-btn" id="fmfA" onclick="setFloorMapFilter('A')">Day A の器具</button>
-      <button type="button" class="map-filter-btn" id="fmfB" onclick="setFloorMapFilter('B')">Day B の器具</button>
+      <button type="button" class="map-filter-btn active" id="fmfAll" onclick="setFloorMapFilter('ALL')">全体</button>
+      <button type="button" class="map-filter-btn" id="fmfA" onclick="setFloorMapFilter('A')">Day A</button>
+      <button type="button" class="map-filter-btn" id="fmfB" onclick="setFloorMapFilter('B')">Day B</button>
+      <button type="button" class="map-filter-btn" id="fmfEdit" onclick="toggleFloorEdit()">✏️ 編集</button>
     </div>
     <div class="floor-map-body">
       <p style="font-size:11.5px;color:var(--text-muted);margin:0 0 4px;">各マシンをタップすると使い方・効く部位の解説が表示されます。</p>
-      <p class="map-disclaimer">※公式サイトには配置図が公開されていないため、この配置は目安です。実際の店内と異なる場合があります。</p>
+      <p class="map-disclaimer" id="floorMapNote"></p>
       <div id="floorMapContainer" class="floor-map-wrap">
         <!-- SVG will be injected here -->
       </div>
+      <div id="floorEditPanel" class="floor-edit-panel" hidden>
+        <div class="fep-title">✏️ 配置を編集中（確定するまで保存されません）</div>
+        <p class="fep-help">マップの枠をタップして選び、そこに置くマシンを選んでください。別の枠に置いてあるマシンを選ぶと、そこから移動します。</p>
+        <label class="fep-row"><span id="floorEditSlotLabel">マップの枠をタップしてください</span>
+          <select id="floorEditSelect" onchange="assignFloorSlot(this.value)" disabled></select></label>
+        <p class="fep-unplaced" id="floorEditUnplaced"></p>
+        <div class="fep-help">エリア名（実際の店内に合わせて変えられます）</div>
+        <div class="fep-labels">
+          <label>フリーウェイト側<input type="text" data-zone="free" maxlength="30" oninput="onFloorLabelInput(this)"></label>
+          <label>マシン側<input type="text" data-zone="machine" maxlength="30" oninput="onFloorLabelInput(this)"></label>
+          <label>有酸素側<input type="text" data-zone="cardio" maxlength="30" oninput="onFloorLabelInput(this)"></label>
+          <label>右下の区画（上）<input type="text" data-zone="other1" maxlength="30" oninput="onFloorLabelInput(this)"></label>
+          <label>右下の区画（下）<input type="text" data-zone="other2" maxlength="30" oninput="onFloorLabelInput(this)"></label>
+        </div>
+        <div class="fep-actions">
+          <button type="button" onclick="resetFloorLayoutDraft()">仮の配置に戻す</button>
+          <button type="button" onclick="cancelFloorEdit()">やめる</button>
+          <button type="button" class="primary" onclick="confirmFloorEdit()">この配置で確定</button>
+        </div>
+      </div>
       <div class="map-legend">
-        <div class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span><span>フリーウェイト (最奥)</span></div>
-        <div class="legend-item"><span class="legend-color" style="background:#818cf8;"></span><span>マシンエリア (中央)</span></div>
-        <div class="legend-item"><span class="legend-color" style="background:#34d399;"></span><span>有酸素 (手前左)</span></div>
-        <div class="legend-item"><span class="legend-color" style="background:#fbbf24;"></span><span>ストレッチ (手前右)</span></div>
+        <div class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span><span>フリーウェイト</span></div>
+        <div class="legend-item"><span class="legend-color" style="background:#818cf8;"></span><span>マシン</span></div>
+        <div class="legend-item"><span class="legend-color" style="background:#34d399;"></span><span>有酸素</span></div>
+        <div class="legend-item"><span style="font-weight:700;color:var(--text);">A / B</span><span>＝今のプランで使う日</span></div>
       </div>
     </div>
     <div class="machine-modal-foot">
@@ -2795,160 +2869,179 @@
     document.getElementById("machineListModal").hidden = true;
   }
 
-  /* ============ Floor Map Rendering & Logic ============ */
-  var FLOOR_MAP_MACHINES = [
-    // 最奥列 (y: 42)
-    { key: "power_rack", name: "パワーラック", sub: "ベンチ/スクワット", day: "A", x: 20, y: 42, w: 98, h: 36, zone: "free" },
-    { key: "smith_machine", name: "スミスマシン", sub: "カーフレイズ", day: "A", x: 131, y: 42, w: 98, h: 36, zone: "free" },
-    { key: "tbar_row", name: "Tバーロウ / 背中", sub: "プレートロード", day: "B", x: 242, y: 42, w: 98, h: 36, zone: "free" },
+  /* ============ Floor Map Rendering & Logic ============
+     公式サイトに店内の配置図は公開されていない。初期状態は「公式の区分ごとにマシンを並べただけの
+     仮の配置」で、位置の意味はない。利用者が実際の店内に合わせて編集・確定できる。 */
+  var FLOOR_LAYOUT_KEY = "ironlog_floor_layout_v1";
 
-    // フリーウェイト中列 (y: 86)
-    { key: "v_squat", name: "Vスクワット", sub: "45°大腿四頭筋", day: "B", x: 20, y: 86, w: 98, h: 36, zone: "free" },
-    { key: "linear_leg_press", name: "レッグプレス", sub: "45°脚・臀部", day: "B", x: 131, y: 86, w: 98, h: 36, zone: "free" },
-    { key: "incline_press", name: "インクライン", sub: "胸上部・ハンマー", day: "B", x: 242, y: 86, w: 98, h: 36, zone: "free" },
+  function buildFloorSlots() {
+    var slots = [], i;
+    for (i = 0; i < 16; i++) {
+      slots.push({ id: "f" + (i + 1), zone: "free", row: Math.floor(i / 4) + 1, col: i % 4 + 1,
+        x: 18 + (i % 4) * 83, y: 42 + Math.floor(i / 4) * 43, w: 76, h: 40 });
+    }
+    for (i = 0; i < 16; i++) {
+      slots.push({ id: "m" + (i + 1), zone: "machine", row: Math.floor(i / 4) + 1, col: i % 4 + 1,
+        x: 18 + (i % 4) * 83, y: 256 + Math.floor(i / 4) * 43, w: 76, h: 40 });
+    }
+    for (i = 0; i < 6; i++) {
+      slots.push({ id: "c" + (i + 1), zone: "cardio", row: Math.floor(i / 3) + 1, col: i % 3 + 1,
+        x: 18 + (i % 3) * 70, y: 466 + Math.floor(i / 3) * 40, w: 66, h: 36 });
+    }
+    return slots;
+  }
+  var FLOOR_SLOTS = buildFloorSlots();
 
-    // フリーウェイト手前列 (y: 130)
-    { key: "dumbbell_bench", name: "ダンベルラック(1〜40kg) ＆ 可変ベンチ", sub: "ランジ / ベンチ種目全般", day: "B", x: 20, y: 130, w: 209, h: 48, zone: "free" },
-    { key: "dual_pulley", name: "ケーブルマシン", sub: "デュアルプーリー", day: null, x: 242, y: 130, w: 98, h: 48, zone: "free" },
-
-    // 中央マシン列1 (y: 228)
-    { key: "chest_press", name: "チェスト", sub: "大胸筋", day: null, x: 20, y: 228, w: 73, h: 36, zone: "machine" },
-    { key: "shoulder_press", name: "ショルダー", sub: "肩・三角筋", day: "A", x: 101, y: 228, w: 73, h: 36, zone: "machine" },
-    { key: "lat_pulldown", name: "ラットプル", sub: "背中・広背筋", day: "B", x: 182, y: 228, w: 73, h: 36, zone: "machine" },
-    { key: "biceps_curl", name: "アームカール", sub: "上腕二頭筋", day: "A", x: 263, y: 228, w: 77, h: 36, zone: "machine" },
-
-    // 中央マシン列2 (y: 272)
-    { key: "leg_extension", name: "レッグEx", sub: "大腿四頭筋", day: "B", x: 20, y: 272, w: 73, h: 36, zone: "machine" },
-    { key: "leg_curl", name: "レッグカール", sub: "ハムストリング", day: "B", x: 101, y: 272, w: 73, h: 36, zone: "machine" },
-    { key: "hip_abductor", name: "アブダクション", sub: "臀中筋/内転筋", day: "B", x: 182, y: 272, w: 73, h: 36, zone: "machine" },
-    { key: "assist_dip_chin", name: "アシスト懸垂", sub: "チン/ディップス", day: null, x: 263, y: 272, w: 77, h: 36, zone: "machine" }
-  ];
-
-  var MACHINE_LOCATIONS = {
-    power_rack: { areaName: "最奥フリーウェイト（奥壁・左）", hint: "店舗一番奥の左側。極太スチール支柱のパワーラック＆ハーフラック", pinX: 60, pinY: 22, zone: "free" },
-    smith_machine: { areaName: "最奥フリーウェイト（奥壁・中央）", hint: "店舗一番奥の中央。レール固定バーベルのスミスマシン", pinX: 170, pinY: 22, zone: "free" },
-    tbar_row: { areaName: "最奥フリーウェイト（奥壁・右）", hint: "店舗奥の右側。Tバーロウ", pinX: 275, pinY: 22, zone: "free" },
-    dual_pulley: { areaName: "最奥フリーウェイト（手前・右）", hint: "フリーウェイト手前の右側。左右2本柱のケーブルマシン", pinX: 285, pinY: 44, zone: "free" },
-    assist_dip_chin: { areaName: "中央マシンエリア（手前列・右端）", hint: "ピン式マシン列の2列目右端。膝をのせて補助する懸垂・ディップ", pinX: 285, pinY: 78, zone: "machine" },
-    v_squat: { areaName: "最奥フリーウェイト（中列・左）", hint: "フリーウェイト中列の左側。45度傾斜のVスクワット", pinX: 60, pinY: 34, zone: "free" },
-    linear_leg_press: { areaName: "最奥フリーウェイト（中列・中央）", hint: "フリーウェイト中列の中央。45度リニアレッグプレス", pinX: 170, pinY: 34, zone: "free" },
-    incline_press: { areaName: "最奥フリーウェイト（中列・右）", hint: "フリーウェイト中列の右側。黄色アームのHammer Strengthインクライン", pinX: 275, pinY: 34, zone: "free" },
-    dumbbell_bench: { areaName: "最奥フリーウェイト（手前・鏡前）", hint: "フリーウェイト手前の大型ミラー前。1〜40kgダンベルラック＆可変ベンチ", pinX: 110, pinY: 44, zone: "free" },
-    chest_press: { areaName: "中央マシンエリア（奥列・左端）", hint: "ピン式マシン列の1列目左端。チェストプレスマシン", pinX: 45, pinY: 66, zone: "machine" },
-    shoulder_press: { areaName: "中央マシンエリア（奥列・中央左）", hint: "ピン式マシン列の1列目左から2番目。垂直押しショルダープレス", pinX: 125, pinY: 66, zone: "machine" },
-    lat_pulldown: { areaName: "中央マシンエリア（奥列・中央右）", hint: "ピン式マシン列の1列目右から2番目。ラットプルダウン", pinX: 205, pinY: 66, zone: "machine" },
-    biceps_curl: { areaName: "中央マシンエリア（奥列・右端）", hint: "ピン式マシン列の1列目右端。バイセップスカール（アームカール）", pinX: 285, pinY: 66, zone: "machine" },
-    leg_extension: { areaName: "中央マシンエリア（手前列・左端）", hint: "ピン式マシン列の2列目左端。座って膝を伸ばすレッグエクステンション", pinX: 45, pinY: 78, zone: "machine" },
-    leg_curl: { areaName: "中央マシンエリア（手前列・中央左）", hint: "ピン式マシン列の2列目左から2番目。座って膝を曲げるレッグカール", pinX: 125, pinY: 78, zone: "machine" },
-    hip_abductor: { areaName: "中央マシンエリア（手前列・中央右）", hint: "ピン式マシン列の2列目右から2番目。両脚を開くヒップアブダクション", pinX: 205, pinY: 78, zone: "machine" }
+  var FLOOR_ZONE_RECTS = {
+    free:    { x: 12, y: 14,  w: 336, h: 202, color: "#38bdf8", fill: "#0c1322", head: "#1e293b", icon: "🏋️" },
+    machine: { x: 12, y: 228, w: 336, h: 202, color: "#818cf8", fill: "#0f172a", head: "#1e293b", icon: "⚙️" },
+    cardio:  { x: 12, y: 438, w: 216, h: 110, color: "#34d399", fill: "#062e24", head: "#064e3b", icon: "🏃" }
   };
 
-  function renderFloorMapSVG(filterDay) {
-    var normDay = (filterDay === "A" || filterDay === "B") ? filterDay : null;
-    var svg = '<svg viewBox="0 0 360 490" xmlns="http://www.w3.org/2000/svg">';
-    
-    // Base background & outer walls
-    svg += '<rect width="360" height="490" fill="#090d14" rx="10"/>';
-    svg += '<rect x="6" y="6" width="348" height="478" fill="none" stroke="#21262d" stroke-width="2" rx="8"/>';
+  /* マップの枠に収まる短い表示名 */
+  var MAP_LABELS = {
+    chest_press: "チェスト", shoulder_press: "ショルダー", lat_pulldown: "ラットプル", pec_fly: "ペクフライ",
+    torso_rotation: "トーソ回旋", ab_crunch: "腹筋クランチ", seated_row: "シーテッドロー", leg_press: "レッグプレス",
+    leg_extension: "レッグEx", leg_curl: "レッグカール", hip_abductor: "外転/内転", decline_bench: "腹筋台",
+    back_extension: "背筋Ex", assist_dip_chin: "アシスト懸垂", biceps_curl: "二頭カール",
+    treadmill: "トレッドミル", cross_trainer: "クロストレ", upright_bike: "バイク", recumbent_bike: "リカンベント",
+    powermill_climber: "パワーミル", power_rack: "パワーラック", half_rack: "ハーフラック", smith_machine: "スミス",
+    dual_pulley: "ケーブル", v_squat: "Vスクワット", incline_press: "インクライン", wide_pulldown: "ワイドプル",
+    seated_arm_curl: "座アームカール", linear_leg_press: "リニアLP", multi_bench: "ベンチ", dumbbell_bench: "ダンベル",
+    multi_jungle: "ジャングル", decline_press: "デクライン", tbar_row: "Tバーロウ"
+  };
 
-    // Zone 1: 最奥 フリーウェイトエリア
-    svg += '<rect x="12" y="14" width="336" height="174" fill="#0c1322" stroke="#1e293b" stroke-width="1.5" rx="6"/>';
-    svg += '<rect x="12" y="14" width="336" height="22" fill="#1e293b" rx="6"/>';
-    svg += '<text x="20" y="29" fill="#38bdf8" font-size="10.5" font-weight="bold">🏋️ 最奥：フリーウェイトエリア（重量ゴムマット）</text>';
+  /* 仮の配置：公式ページの掲載順に、公式の区分の枠へ詰めて並べただけ */
+  var DEFAULT_FLOOR_SLOTS = {
+    f1: "power_rack", f2: "half_rack", f3: "smith_machine", f4: "dual_pulley", f5: "v_squat", f6: "incline_press",
+    f7: "wide_pulldown", f8: "seated_arm_curl", f9: "linear_leg_press", f10: "multi_bench", f11: "dumbbell_bench",
+    f12: "multi_jungle", f13: "decline_press", f14: "tbar_row",
+    m1: "chest_press", m2: "shoulder_press", m3: "lat_pulldown", m4: "pec_fly", m5: "torso_rotation", m6: "ab_crunch",
+    m7: "seated_row", m8: "leg_press", m9: "leg_extension", m10: "leg_curl", m11: "hip_abductor", m12: "decline_bench",
+    m13: "back_extension", m14: "assist_dip_chin", m15: "biceps_curl",
+    c1: "treadmill", c2: "cross_trainer", c3: "upright_bike", c4: "recumbent_bike", c5: "powermill_climber"
+  };
+  var DEFAULT_ZONE_LABELS = {
+    free: "フリーウェイトエリア", machine: "マシンエリア", cardio: "有酸素マシンエリア",
+    other1: "その他のスペース", other2: "入口など"
+  };
 
-    // Zone 2: 中央 マシンエリア
-    svg += '<rect x="12" y="198" width="336" height="122" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" rx="6"/>';
-    svg += '<rect x="12" y="198" width="336" height="22" fill="#1e293b" rx="6"/>';
-    svg += '<text x="20" y="213" fill="#818cf8" font-size="10.5" font-weight="bold">⚙️ 中央：マシンエリア（ピン式ウェイトスタック）</text>';
+  var floorLayout = null;       // 保存済みの配置
+  var floorEditDraft = null;    // 編集中の配置（確定まで保存しない）
+  var floorEditSelected = null; // 編集中に選んだ枠のID
 
-    // Aisle indicator
-    svg += '<line x1="20" y1="192" x2="340" y2="192" stroke="#334155" stroke-width="1" stroke-dasharray="4,4"/>';
-    svg += '<text x="180" y="194" fill="#64748b" font-size="8" text-anchor="middle">通路（AISLE）</text>';
+  function defaultFloorLayout() {
+    return { slots: clone(DEFAULT_FLOOR_SLOTS), labels: clone(DEFAULT_ZONE_LABELS), confirmedAt: null };
+  }
 
-    // Zone 3: 手前左 有酸素エリア
-    svg += '<rect x="12" y="328" width="162" height="150" fill="#062e24" stroke="#065f46" stroke-width="1.5" rx="6"/>';
-    svg += '<rect x="12" y="328" width="162" height="20" fill="#064e3b" rx="6"/>';
-    svg += '<text x="18" y="342" fill="#34d399" font-size="10" font-weight="bold">🏃 有酸素エリア（窓側）</text>';
-    
-    // Treadmills & bikes
-    svg += '<rect x="18" y="354" width="70" height="116" fill="#0d3b30" stroke="#059669" stroke-width="1" rx="4"/>';
-    svg += '<text x="53" y="375" fill="#a7f3d0" font-size="9" font-weight="bold" text-anchor="middle">トレッドミル</text>';
-    svg += '<text x="53" y="390" fill="#6ee7b7" font-size="7.5" text-anchor="middle">ランニングマシン</text>';
-    svg += '<text x="53" y="403" fill="#6ee7b7" font-size="7.5" text-anchor="middle">（8台・窓側）</text>';
+  /* 保存データを検証して整える（存在しないマシン・二重配置・長すぎる名前を除く） */
+  function normalizeFloorLayout(v) {
+    if (!v || typeof v !== "object" || !v.slots || typeof v.slots !== "object") return defaultFloorLayout();
+    var out = { slots: {}, labels: clone(DEFAULT_ZONE_LABELS), confirmedAt: typeof v.confirmedAt === "string" ? v.confirmedAt : null };
+    var used = {};
+    FLOOR_SLOTS.forEach(function (slot) {
+      var k = v.slots[slot.id];
+      if (k && MACHINE_DB[k] && !used[k]) { out.slots[slot.id] = k; used[k] = true; }
+    });
+    Object.keys(DEFAULT_ZONE_LABELS).forEach(function (z) {
+      var label = v.labels && typeof v.labels[z] === "string" ? v.labels[z].trim() : "";
+      if (label) out.labels[z] = label.slice(0, 30);
+    });
+    return out;
+  }
 
-    svg += '<rect x="94" y="354" width="74" height="116" fill="#0d3b30" stroke="#059669" stroke-width="1" rx="4"/>';
-    svg += '<text x="131" y="375" fill="#a7f3d0" font-size="9" font-weight="bold" text-anchor="middle">バイク / クロス</text>';
-    svg += '<text x="131" y="390" fill="#6ee7b7" font-size="7.5" text-anchor="middle">有酸素バイク列</text>';
+  function loadFloorLayout() {
+    try { floorLayout = normalizeFloorLayout(JSON.parse(localStorage.getItem(FLOOR_LAYOUT_KEY) || "null")); }
+    catch (e) { floorLayout = defaultFloorLayout(); }
+  }
+  function persistFloorLayout() {
+    try { localStorage.setItem(FLOOR_LAYOUT_KEY, JSON.stringify(floorLayout)); } catch (e) {}
+  }
+  function savedFloorLayout() { return floorLayout || (floorLayout = defaultFloorLayout()); }
+  function visibleFloorLayout() { return floorEditDraft || savedFloorLayout(); }
 
-    // Zone 4: 手前右 ストレッチ & 受付
-    svg += '<rect x="182" y="328" width="166" height="72" fill="#2d1b06" stroke="#92400e" stroke-width="1.5" rx="6"/>';
-    svg += '<rect x="182" y="328" width="166" height="20" fill="#78350f" rx="6"/>';
-    svg += '<text x="188" y="342" fill="#fbbf24" font-size="10" font-weight="bold">🧘 ストレッチエリア</text>';
-    svg += '<text x="265" y="365" fill="#fde68a" font-size="8.5" text-anchor="middle">ストレッチマット</text>';
-    svg += '<text x="265" y="379" fill="#fde68a" font-size="8" text-anchor="middle">フォームローラー / ポール</text>';
+  function slotById(id) {
+    return FLOOR_SLOTS.filter(function (slot) { return slot.id === id; })[0] || null;
+  }
+  function slotOfMachine(layout, key) {
+    for (var i = 0; i < FLOOR_SLOTS.length; i++) {
+      if (layout.slots[FLOOR_SLOTS[i].id] === key) return FLOOR_SLOTS[i];
+    }
+    return null;
+  }
+  function slotPositionText(layout, slot) {
+    return layout.labels[slot.zone] + "：上から" + slot.row + "段目・左から" + slot.col + "番目";
+  }
 
-    // Reception & Lockers
-    svg += '<rect x="182" y="406" width="166" height="72" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>';
-    svg += '<text x="265" y="425" fill="#94a3b8" font-size="9" text-anchor="middle">🚿 更衣室・シャワー・ロッカー</text>';
-    svg += '<rect x="194" y="438" width="142" height="32" fill="#0f172a" stroke="#475569" stroke-width="1" rx="4"/>';
-    svg += '<text x="265" y="458" fill="#e2e8f0" font-size="10" font-weight="bold" text-anchor="middle">🚪 エントランス・受付</text>';
+  /* 今のプランでそのマシンを使う日（{A:true, B:true}） */
+  function planDaysForMachine(key) {
+    var days = {};
+    plan.exercises.forEach(function (ex) {
+      if (machineKeysForExercise(ex).indexOf(key) === -1) return;
+      if (ex.day === "both") { days.A = true; days.B = true; }
+      else if (ex.day === "A" || ex.day === "B") days[ex.day] = true;
+    });
+    return days;
+  }
 
-    // Machine nodes
-    FLOOR_MAP_MACHINES.forEach(function (m) {
-      var isHighlighted = normDay ? (m.day === normDay) : false;
-      var isDimmed = normDay ? (m.day !== normDay) : false;
+  /* opts: editing（編集表示）, focusKey（強調するマシン）, viewBox（切り抜き）, noClick（タップ無効） */
+  function renderFloorMapSVG(filterDay, opts) {
+    opts = opts || {};
+    var layout = opts.layout || visibleFloorLayout();
+    var editing = !!opts.editing;
+    var normDay = (!editing && (filterDay === "A" || filterDay === "B")) ? filterDay : null;
+    var svg = '<svg viewBox="' + (opts.viewBox || "0 0 360 556") + '" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<rect x="0" y="0" width="360" height="556" fill="#090d14" rx="10"/>';
 
-      var stroke = "#334155";
-      var fill = "#161e2e";
-      var textFill = "#cbd5e1";
-      var subFill = "#94a3b8";
+    Object.keys(FLOOR_ZONE_RECTS).forEach(function (z) {
+      var r = FLOOR_ZONE_RECTS[z];
+      svg += '<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" fill="' + r.fill + '" stroke="#1e293b" stroke-width="1.5" rx="6"/>';
+      svg += '<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="22" fill="' + r.head + '" rx="6"/>';
+      svg += '<text x="' + (r.x + 8) + '" y="' + (r.y + 15) + '" fill="' + r.color + '" font-size="10.5" font-weight="bold">' +
+        r.icon + ' ' + escapeHTML(layout.labels[z]) + '</text>';
+    });
+    svg += '<rect x="236" y="438" width="112" height="53" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>';
+    svg += '<text x="292" y="468" fill="#fbbf24" font-size="9.5" font-weight="bold" text-anchor="middle">' + escapeHTML(layout.labels.other1) + '</text>';
+    svg += '<rect x="236" y="495" width="112" height="53" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>';
+    svg += '<text x="292" y="525" fill="#e2e8f0" font-size="9.5" font-weight="bold" text-anchor="middle">' + escapeHTML(layout.labels.other2) + '</text>';
 
-      if (m.zone === "free") {
-        stroke = "#1e3a5f";
-        fill = "#0f172a";
-      } else if (m.zone === "machine") {
-        stroke = "#2e1065";
-        fill = "#131b2e";
+    FLOOR_SLOTS.forEach(function (slot) {
+      var key = layout.slots[slot.id] || null;
+      var m = key ? MACHINE_DB[key] : null;
+      if (!m && !editing) return;   // 通常表示では空いている枠を描かない
+      var zone = FLOOR_ZONE_RECTS[slot.zone];
+      var selected = editing && floorEditSelected === slot.id;
+      var focused = !!(opts.focusKey && key === opts.focusKey);
+      var days = m ? planDaysForMachine(key) : {};
+      var hit = normDay ? !!days[normDay] : false;
+      var dim = (normDay && !hit) || (opts.focusKey && !focused);
+      var stroke = selected ? "#f59e0b" : ((hit || focused) ? zone.color : "#334155");
+      var fill = m ? ((hit || focused) ? "#172554" : "#131b2e") : "#0b1220";
+      var action = "";
+      if (!opts.noClick) {
+        if (editing) action = "selectFloorSlot(" + jsArg(slot.id) + ")";
+        else if (m) action = "openMachineModal(" + jsArg(key) + ")";
       }
-
-      if (normDay) {
-        if (isHighlighted) {
-          stroke = normDay === "A" ? "#38bdf8" : "#34d399";
-          fill = normDay === "A" ? "#172554" : "#064e3b";
-          textFill = "#ffffff";
-          subFill = normDay === "A" ? "#93c5fd" : "#a7f3d0";
+      var cx = slot.x + slot.w / 2, cy = slot.y + slot.h / 2;
+      svg += '<g class="map-machine-node' + (dim ? " dimmed" : "") + '"' + (action ? ' onclick="' + action + '"' : '') +
+        ' style="cursor:' + (action ? "pointer" : "default") + ';">';
+      svg += '<rect x="' + slot.x + '" y="' + slot.y + '" width="' + slot.w + '" height="' + slot.h + '" fill="' + fill +
+        '" stroke="' + stroke + '" stroke-width="' + ((selected || focused || hit) ? 2.2 : 1.2) + '"' +
+        (m ? '' : ' stroke-dasharray="3,3"') + ' rx="4"/>';
+      if (m) {
+        var sub = String(m.target).split(/[・（／(]/)[0];
+        svg += '<text x="' + cx + '" y="' + (cy - 1) + '" fill="#e2e8f0" font-size="8.5" font-weight="bold" text-anchor="middle">' +
+          escapeHTML(MAP_LABELS[key] || m.shortName) + '</text>';
+        svg += '<text x="' + cx + '" y="' + (cy + 10) + '" fill="#94a3b8" font-size="6.5" text-anchor="middle">' + escapeHTML(sub) + '</text>';
+        var badge = (days.A ? "A" : "") + (days.B ? "B" : "");
+        if (badge) {
+          var bw = badge.length === 2 ? 17 : 11;
+          svg += '<rect x="' + (slot.x + slot.w - bw - 2) + '" y="' + (slot.y + 2) + '" width="' + bw + '" height="10" fill="#0284c7" rx="2"/>';
+          svg += '<text x="' + (slot.x + slot.w - bw / 2 - 2) + '" y="' + (slot.y + 9.5) + '" fill="#ffffff" font-size="7" font-weight="bold" text-anchor="middle">' + badge + '</text>';
         }
+      } else {
+        svg += '<text x="' + cx + '" y="' + (cy + 4) + '" fill="#64748b" font-size="12" text-anchor="middle">＋</text>';
       }
-
-      var cx = m.x + m.w / 2;
-      var cy1 = m.y + (m.h > 40 ? 17 : 14);
-      var cy2 = m.y + (m.h > 40 ? 32 : 27);
-
-      var clickAttr = m.key ? ' onclick="openMachineModal(' + jsArg(m.key) + ')"' : '';
-      var cursorStyle = m.key ? 'cursor:pointer;' : 'cursor:default;';
-      var opacityStyle = isDimmed ? 'opacity:0.25;' : 'opacity:1;';
-      var nodeClass = "map-machine-node" + (isDimmed ? " dimmed" : "") + (isHighlighted ? " highlighted" : "");
-
-      svg += '<g class="' + nodeClass + '" style="' + cursorStyle + opacityStyle + '"' + clickAttr + '>';
-      svg += '<rect x="' + m.x + '" y="' + m.y + '" width="' + m.w + '" height="' + m.h + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (isHighlighted ? "2" : "1.2") + '" rx="4"/>';
-      
-      // Day badge
-      if (m.day) {
-        var badgeBg = m.day === "A" ? "#0284c7" : "#059669";
-        var badgeText = "Day " + m.day;
-        var bx = m.x + m.w - 32;
-        var by = m.y + 2;
-        svg += '<rect x="' + bx + '" y="' + by + '" width="30" height="11" fill="' + badgeBg + '" rx="2"/>';
-        svg += '<text x="' + (bx + 15) + '" y="' + (by + 8.5) + '" fill="#ffffff" font-size="7" font-weight="bold" text-anchor="middle">' + badgeText + '</text>';
-      }
-
-      // Tap icon
-      if (m.key) {
-        svg += '<text x="' + (m.x + 8) + '" y="' + (m.y + 11) + '" fill="#38bdf8" font-size="8">🔍</text>';
-      }
-
-      svg += '<text x="' + cx + '" y="' + cy1 + '" fill="' + textFill + '" font-size="9" font-weight="bold" text-anchor="middle">' + escapeHTML(m.name) + '</text>';
-      svg += '<text x="' + cx + '" y="' + cy2 + '" fill="' + subFill + '" font-size="7" text-anchor="middle">' + escapeHTML(m.sub) + '</text>';
       svg += '</g>';
     });
 
@@ -2956,67 +3049,138 @@
     return svg;
   }
 
+  /* マシン詳細の「店舗での位置」：保存済みの配置で、そのマシンのエリアだけを切り抜いて表示 */
   function renderMiniFloorMapSVG(key) {
-    var info = MACHINE_LOCATIONS[key];
-    if (!info) {
-      return '<div style="padding:8px 10px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);font-size:11.5px;line-height:1.5;color:var(--text-muted);">' +
-        'この器具は配置図に未登録です。エリア：' + escapeHTML((MACHINE_DB[key] || {}).area || "-") + '</div>';
+    var layout = savedFloorLayout();
+    var slot = slotOfMachine(layout, key);
+    if (!slot) {
+      return '<div class="mini-map-note">配置図にはまだ置かれていません。「全体マップ ↗」を開き「✏️ 編集」で置けます。</div>';
     }
-    var isFree = info && info.zone === "free";
-    var isMach = info && info.zone === "machine";
-    
-    var pinX = info ? info.pinX : 170;
-    var pinY = info ? info.pinY : 30;
-    var areaLabel = info ? info.areaName : "笠懸店フロア";
-    var hintText = info ? info.hint : "店舗内の配置図";
-
-    var svg = '<svg viewBox="0 0 340 135" xmlns="http://www.w3.org/2000/svg" style="cursor:pointer;" onclick="openFloorMapModal()">';
-    svg += '<rect width="340" height="135" fill="#090d14" rx="8"/>';
-    svg += '<rect x="4" y="4" width="332" height="127" fill="none" stroke="#21262d" stroke-width="1.5" rx="6"/>';
-
-    // Zone 1: Free weight
-    var freeStroke = isFree ? "#38bdf8" : "#1e293b";
-    var freeFill = isFree ? "#0c1f38" : "#0c1322";
-    var freeStrokeW = isFree ? "2" : "1";
-    svg += '<rect x="10" y="8" width="320" height="42" fill="' + freeFill + '" stroke="' + freeStroke + '" stroke-width="' + freeStrokeW + '" rx="4"/>';
-    svg += '<text x="18" y="20" fill="' + (isFree ? "#38bdf8" : "#64748b") + '" font-size="8.5" font-weight="bold">🏋️ 最奥：フリーウェイトエリア</text>';
-
-    // Zone 2: Machine area
-    var machStroke = isMach ? "#818cf8" : "#1e293b";
-    var machFill = isMach ? "#1e1b4b" : "#0f172a";
-    var machStrokeW = isMach ? "2" : "1";
-    svg += '<rect x="10" y="54" width="320" height="34" fill="' + machFill + '" stroke="' + machStroke + '" stroke-width="' + machStrokeW + '" rx="4"/>';
-    svg += '<text x="18" y="66" fill="' + (isMach ? "#a5b4fc" : "#64748b") + '" font-size="8.5" font-weight="bold">⚙️ 中央：マシンエリア（ピン式）</text>';
-
-    // Zone 3: Cardio (bottom left)
-    svg += '<rect x="10" y="92" width="154" height="34" fill="#062e24" stroke="#065f46" stroke-width="1" rx="4"/>';
-    svg += '<text x="18" y="105" fill="#34d399" font-size="8" font-weight="bold">🏃 有酸素（窓側）</text>';
-    svg += '<text x="18" y="118" fill="#6ee7b7" font-size="7">トレッドミル/バイク</text>';
-
-    // Zone 4: Stretch & Entrance (bottom right)
-    svg += '<rect x="172" y="92" width="158" height="34" fill="#1e293b" stroke="#334155" stroke-width="1" rx="4"/>';
-    svg += '<text x="180" y="105" fill="#fbbf24" font-size="8" font-weight="bold">🧘 ストレッチ / 🚪 受付</text>';
-    svg += '<text x="180" y="118" fill="#94a3b8" font-size="7">更衣室・シャワー・ロッカー</text>';
-
-    // Pin marker on exact spot
-    svg += '<g transform="translate(' + pinX + ',' + pinY + ')">';
-    svg += '<circle cx="0" cy="0" r="10" fill="#38bdf8" opacity="0.3"/>';
-    svg += '<circle cx="0" cy="0" r="6" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>';
-    svg += '<circle cx="0" cy="0" r="2.5" fill="#ffffff"/>';
-    svg += '<text x="9" y="3" fill="#38bdf8" font-size="8.5" font-weight="bold">📍 ここ</text>';
-    svg += '</g>';
-
-    svg += '</svg>';
-    
-    var guideHtml = '<div style="margin-top:6px;padding:8px 10px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);font-size:11.5px;line-height:1.45;">' +
-      '<div style="font-weight:700;color:var(--accent);margin-bottom:2px;">📍 ' + escapeHTML(areaLabel) + '</div>' +
-      '<div style="color:var(--text-muted);font-size:11px;">' + escapeHTML(hintText) + '（配置は目安）</div>' +
-      '</div>';
-
-    return svg + guideHtml;
+    var zone = FLOOR_ZONE_RECTS[slot.zone];
+    var viewBox = "8 " + (zone.y - 4) + " 344 " + (zone.h + 8);
+    return '<div onclick="openFloorMapModal()" style="cursor:pointer;">' +
+      renderFloorMapSVG("ALL", { layout: layout, focusKey: key, viewBox: viewBox, noClick: true }) + '</div>' +
+      '<div class="mini-map-guide"><b>📍 ' + escapeHTML(slotPositionText(layout, slot)) + '</b>' +
+      (layout.confirmedAt ? '' : '<span class="mini-map-tentative">（仮の配置・未確認）</span>') + '</div>';
   }
 
   var currentMapFilter = "ALL";
+
+  function refreshFloorMap() {
+    var container = document.getElementById("floorMapContainer");
+    if (container) container.innerHTML = renderFloorMapSVG(currentMapFilter, { editing: !!floorEditDraft });
+    var saved = savedFloorLayout();
+    var note = document.getElementById("floorMapNote");
+    if (note) {
+      note.textContent = floorEditDraft
+        ? "編集中です。「この配置で確定」を押すまで保存されません。"
+        : (saved.confirmedAt
+          ? "✓ " + fmtDate(saved.confirmedAt) + " に自分で確認して確定した配置です。"
+          : "※公式サイトに店内の配置図は公開されていません。これは公式の区分ごとにマシンを並べただけの仮の配置で、実際の位置とは関係ありません。「✏️ 編集」で実際の店内に合わせてください。");
+    }
+    var badge = document.getElementById("fmmBadge");
+    if (badge) badge.textContent = saved.confirmedAt ? "確認済みの配置" : "仮の配置（要確認）";
+    var bar = document.querySelector(".floor-map-filter-bar");
+    if (bar) bar.classList.toggle("editing", !!floorEditDraft);
+    var editBtn = document.getElementById("fmfEdit");
+    if (editBtn) {
+      editBtn.classList.toggle("active", !!floorEditDraft);
+      editBtn.textContent = floorEditDraft ? "✏️ 編集中" : "✏️ 編集";
+    }
+    var panel = document.getElementById("floorEditPanel");
+    if (panel) panel.hidden = !floorEditDraft;
+    if (floorEditDraft) renderFloorEditPanel();
+  }
+
+  function renderFloorEditPanel() {
+    var slot = floorEditSelected ? slotById(floorEditSelected) : null;
+    document.getElementById("floorEditSlotLabel").textContent = slot
+      ? "選択中の枠 → " + slotPositionText(floorEditDraft, slot)
+      : "マップの枠をタップしてください";
+    var select = document.getElementById("floorEditSelect");
+    select.disabled = !slot;
+    var current = slot ? (floorEditDraft.slots[slot.id] || "") : "";
+    var html = '<option value="">（空き）</option>';
+    MACHINE_ZONES.forEach(function (z) {
+      html += '<optgroup label="' + escapeAttr(z.label) + '">';
+      MACHINE_KEYS.filter(function (k) { return MACHINE_DB[k].zone === z.zone; }).forEach(function (k) {
+        var placed = slotOfMachine(floorEditDraft, k);
+        var suffix = !placed ? "（未配置）" : (slot && placed.id === slot.id ? "" : "（別の枠から移動）");
+        html += '<option value="' + k + '"' + (k === current ? " selected" : "") + '>' + escapeHTML(MACHINE_DB[k].shortName + suffix) + '</option>';
+      });
+      html += '</optgroup>';
+    });
+    select.innerHTML = html;
+    document.querySelectorAll("#floorEditPanel input[data-zone]").forEach(function (input) {
+      if (document.activeElement !== input) input.value = floorEditDraft.labels[input.getAttribute("data-zone")];
+    });
+    var unplaced = MACHINE_KEYS.filter(function (k) { return !slotOfMachine(floorEditDraft, k); });
+    document.getElementById("floorEditUnplaced").textContent = unplaced.length
+      ? "未配置（" + unplaced.length + "）：" + unplaced.map(function (k) { return MACHINE_DB[k].shortName; }).join("、")
+      : "34種すべて配置済み";
+  }
+
+  window.toggleFloorEdit = function () {
+    if (floorEditDraft) { cancelFloorEdit(); return; }
+    floorEditDraft = clone(savedFloorLayout());
+    floorEditSelected = null;
+    refreshFloorMap();
+  };
+
+  window.selectFloorSlot = function (slotId) {
+    if (!floorEditDraft) return;
+    floorEditSelected = slotId;
+    refreshFloorMap();
+  };
+
+  window.assignFloorSlot = function (key) {
+    if (!floorEditDraft || !floorEditSelected) return;
+    if (key) {
+      var previous = slotOfMachine(floorEditDraft, key);
+      if (previous) delete floorEditDraft.slots[previous.id];
+      floorEditDraft.slots[floorEditSelected] = key;
+    } else {
+      delete floorEditDraft.slots[floorEditSelected];
+    }
+    refreshFloorMap();
+  };
+
+  window.onFloorLabelInput = function (input) {
+    if (!floorEditDraft) return;
+    var zone = input.getAttribute("data-zone");
+    var value = input.value.trim();
+    floorEditDraft.labels[zone] = value ? value.slice(0, 30) : DEFAULT_ZONE_LABELS[zone];
+    var container = document.getElementById("floorMapContainer");
+    if (container) container.innerHTML = renderFloorMapSVG(currentMapFilter, { editing: true });
+  };
+
+  window.confirmFloorEdit = function () {
+    if (!floorEditDraft) return;
+    floorEditDraft.confirmedAt = todayISO();
+    floorLayout = normalizeFloorLayout(floorEditDraft);
+    floorEditDraft = null;
+    floorEditSelected = null;
+    persistFloorLayout();
+    refreshFloorMap();
+    showToast("配置を保存しました");
+  };
+
+  function cancelFloorEdit() {
+    floorEditDraft = null;
+    floorEditSelected = null;
+    refreshFloorMap();
+  }
+  window.cancelFloorEdit = cancelFloorEdit;
+
+  window.resetFloorLayoutDraft = function () {
+    askConfirm("配置を初期の「仮の配置」（公式の区分ごとの並び）に戻します。\n「この配置で確定」を押すまで保存されません。", "仮の配置に戻す", false)
+      .then(function (ok) {
+        if (!ok || !floorEditDraft) return;
+        floorEditDraft = defaultFloorLayout();
+        floorEditSelected = null;
+        refreshFloorMap();
+      });
+  };
 
   function setFloorMapFilter(day) {
     currentMapFilter = (day === "A" || day === "B" || day === "ALL") ? day : "ALL";
@@ -3026,10 +3190,7 @@
     if (btnAll) btnAll.classList.toggle("active", currentMapFilter === "ALL");
     if (btnA) btnA.classList.toggle("active", currentMapFilter === "A");
     if (btnB) btnB.classList.toggle("active", currentMapFilter === "B");
-    var container = document.getElementById("floorMapContainer");
-    if (container) {
-      container.innerHTML = renderFloorMapSVG(currentMapFilter);
-    }
+    refreshFloorMap();
   }
 
   function openFloorMapModal(day) {
@@ -3699,6 +3860,22 @@
   /* ---------- Google Sheets Sync (GAS連携) ---------- */
   var GAS_URL_KEY = "ironlog_gas_url";
   var GAS_AUTO_SYNC_KEY = "ironlog_gas_auto_sync";
+  var GAS_STATUS_KEY = "ironlog_gas_last_status";
+  var SHEET_TIMEOUT_MS = 20000;
+  var PAGES_APP_URL = "https://aruken1123-hue.github.io/iron-log/iron_log_app.html";
+  /* claude.ai の Artifact 版では、外部サイトへの通信がセキュリティ制限でブロックされる */
+  var IS_ARTIFACT_HOST = !!(window.claude && typeof window.claude.use === "function");
+  var SHEET_EX_KEYS = [
+    "handG", "armCurl", "sPress", "bPress", "inBPress",
+    "pulldown", "calf", "squat", "wSquat", "bSquat",
+    "lunge", "legE", "legC", "dLift"
+  ];
+  var SHEET_COLUMNS = [
+    "年", "月", "日", "曜",
+    "ハンドG", "アームカール", "Sプレス", "Bプレス", "インBプレス",
+    "プルダウン", "カーフレイズ", "スクワット", "Wスクワット", "Bスクワット",
+    "ランジ", "レッグE", "レッグC", "Dリフト", "その他", "ID"
+  ];
   var gasUrl = "";
   var gasAutoSync = false;
 
@@ -3711,7 +3888,138 @@
       if (urlIn) urlIn.value = gasUrl;
       if (checkIn) checkIn.checked = gasAutoSync;
     } catch (e) {}
+    applySheetEnvironment();
+    renderSheetStatus();
   }
+
+  function applySheetEnvironment() {
+    var note = document.getElementById("sheetEnvNote");
+    var controls = document.getElementById("sheetOnlineControls");
+    if (!note || !controls) return;
+    note.hidden = !IS_ARTIFACT_HOST;
+    controls.hidden = IS_ARTIFACT_HOST;
+    if (IS_ARTIFACT_HOST) {
+      note.innerHTML = "この画面は claude.ai の Artifact 版のため、セキュリティ制限でGoogleへ送信できません。" +
+        "自動連携は GitHub Pages 版で使えます：<br><a href=\"" + PAGES_APP_URL + "\" target=\"_blank\" rel=\"noopener\">" + PAGES_APP_URL + "</a><br>" +
+        "（記録は画面ごとに別々に保存されます。移すときは「バックアップ」を使ってください）。ここでは下の「手動でシートに反映する」を使えます。";
+    }
+  }
+
+  /* 同じ記録を識別するID。同じ日・同じ区分の何回目か、で決める */
+  function sheetRecordKey(rec) {
+    var n = 0;
+    for (var i = 0; i < records.length; i++) {
+      if (records[i].date === rec.date && records[i].day === rec.day) {
+        n++;
+        if (records[i] === rec) break;
+      }
+    }
+    return rec.date + "_" + (rec.day || "-") + "_" + (n || 1);
+  }
+
+  function renderSheetStatus() {
+    var el = document.getElementById("sheetStatus");
+    if (!el) return;
+    var st = null;
+    try { st = JSON.parse(localStorage.getItem(GAS_STATUS_KEY) || "null"); } catch (e) {}
+    if (!st) { el.textContent = "まだ送信していません"; el.className = "sheet-status"; return; }
+    var d = new Date(st.at);
+    var when = isNaN(d) ? "" : (d.getMonth() + 1) + "/" + d.getDate() + " " +
+      String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    el.textContent = "最終送信 " + when + "　" + (st.ok ? "✅ " : "❌ ") + st.message;
+    el.className = "sheet-status " + (st.ok ? "ok" : "ng");
+  }
+
+  function recordSheetStatus(ok, message) {
+    try { localStorage.setItem(GAS_STATUS_KEY, JSON.stringify({ ok: ok, at: new Date().toISOString(), message: message })); } catch (e) {}
+    renderSheetStatus();
+  }
+
+  function describeSheetResult(json) {
+    var msg = typeof json.added === "number"
+      ? "追加" + json.added + "件・更新" + (json.updated || 0) + "件・変更なし" + (json.unchanged || 0) + "件"
+      : (json.message || "送信しました");
+    if (!json.version) msg += "（GASが旧版のため重複防止なし。Code.gs を更新してください）";
+    return msg;
+  }
+
+  /* GAS Web アプリへの通信。応答（JSON）を読んで成否を判定する。
+     以前は mode:"no-cors" だったため応答を読めず、失敗しても成功と表示していた。 */
+  function sheetRequest(url, options) {
+    if (IS_ARTIFACT_HOST) return Promise.reject(new Error("Artifact版からは外部へ通信できません"));
+    if (!gasUrl) return Promise.reject(new Error("GAS Web App URL が未設定です"));
+    var controller = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, SHEET_TIMEOUT_MS);
+    if (controller) options.signal = controller.signal;
+    return fetch(url, options).then(function (res) {
+      clearTimeout(timer);
+      if (!res.ok) throw new Error("GASがエラー（HTTP " + res.status + "）を返しました");
+      return res.text();
+    }, function (err) {
+      clearTimeout(timer);
+      if (err && err.name === "AbortError") throw new Error("応答がありません（" + (SHEET_TIMEOUT_MS / 1000) + "秒でタイムアウト）");
+      throw new Error("通信できませんでした。URL・デプロイの「アクセスできるユーザー：全員」・ネット接続を確認してください");
+    }).then(function (text) {
+      try { return JSON.parse(text); }
+      catch (e) { throw new Error("GASの応答を読み取れませんでした。「/exec」で終わるウェブアプリのURLか確認してください"); }
+    });
+  }
+
+  function sendToSheets(payload) {
+    return sheetRequest(gasUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },   // 事前確認（プリフライト）が発生しない形式
+      body: JSON.stringify(payload)
+    }).then(function (json) {
+      if (!json || json.status !== "success") throw new Error((json && json.message) || "GASがエラーを返しました");
+      return json;
+    });
+  }
+
+  function pingSheets() {
+    var sep = gasUrl.indexOf("?") === -1 ? "?" : "&";
+    return sheetRequest(gasUrl + sep + "action=ping&t=" + Date.now(), { method: "GET" });
+  }
+
+  function sheetRowsForExport() {
+    return records.map(function (rec) {
+      var p = formatRecForSheets(rec);
+      var d = new Date(rec.date + "T00:00:00");
+      var valid = !isNaN(d.getTime());
+      return [
+        valid ? d.getFullYear() : "", valid ? d.getMonth() + 1 : "", valid ? d.getDate() : "",
+        valid ? "日月火水木金土".charAt(d.getDay()) : ""
+      ].concat(SHEET_EX_KEYS.map(function (k) { return p[k] || ""; })).concat([p.other || "", p.key]);
+    });
+  }
+
+  window.copySheetTSV = function () {
+    if (!records.length) { showToast("記録がありません"); return; }
+    var tsv = [SHEET_COLUMNS].concat(sheetRowsForExport()).map(function (row) {
+      return row.map(function (v) { return String(v).replace(/[\t\r\n]+/g, " "); }).join("\t");
+    }).join("\n");
+    var box = document.getElementById("sheetTsvBox");
+    box.hidden = false;
+    box.value = tsv;
+    box.focus();
+    box.select();
+    var copied = false;
+    try { copied = document.execCommand("copy"); } catch (e) {}
+    showToast(copied ? "コピーしました。空のシートのA1セルに貼り付けてください" : "下の欄を全選択してコピーしてください", 4000);
+  };
+
+  window.saveSheetCSV = function () {
+    if (!records.length) { showToast("記録がありません"); return; }
+    var csv = "\uFEFF" + [SHEET_COLUMNS].concat(sheetRowsForExport()).map(function (row) {
+      return row.map(function (v) {
+        var cell = String(v);
+        return /[",\r\n]/.test(cell) ? '"' + cell.replace(/"/g, '""') + '"' : cell;
+      }).join(",");
+    }).join("\r\n");
+    saveTextFile("ironlog_sheet_" + todayISO() + ".csv", csv, "text/csv", function () {
+      window.copySheetTSV();
+    });
+  };
 
   window.saveGasUrl = function (val) {
     gasUrl = (val || "").trim();
@@ -3728,6 +4036,7 @@
   function formatRecForSheets(rec) {
     var payload = {
       action: "record",
+      key: sheetRecordKey(rec),
       date: rec.date,
       day: rec.day,
       other: rec.other || ""
@@ -3768,39 +4077,24 @@
     return payload;
   }
 
-  function sendToSheets(payload) {
-    if (!gasUrl) return Promise.reject(new Error("URL未設定"));
-    return fetch(gasUrl, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify(payload)
-    });
-  }
-
   window.testSheetConnection = function () {
-    if (!gasUrl) {
-      showToast("先にGAS Web App URLを入力してください");
-      return;
-    }
-    showToast("接続テスト中...");
-    var dummy = {
-      action: "record",
-      date: todayISO(),
-      day: "A",
-      other: "接続テスト通信",
-      bPress: "テスト×10×1"
-    };
-    sendToSheets(dummy)
-      .then(function () {
-        showToast("✅ 送信完了！スプレッドシートをご確認ください");
-      })
-      .catch(function (err) {
-        showToast("❌ 送信に失敗しました：" + (err ? err.message : ""));
-      });
+    if (IS_ARTIFACT_HOST) { showToast("Artifact版では接続できません"); return; }
+    if (!gasUrl) { showToast("先にGAS Web App URLを入力してください"); return; }
+    showToast("接続テスト中…", 20000);
+    pingSheets().then(function (json) {
+      if (!json || json.app !== "IRON LOG") throw new Error("IRON LOG 用のGASではない応答が返りました。URLを確認してください");
+      var latest = json.version >= 2;
+      var msg = latest ? "接続OK（重複防止に対応した最新版）" : "接続OK。ただしGASが旧版です。Code.gs を貼り直して再デプロイしてください";
+      recordSheetStatus(latest, "接続テスト：" + msg);
+      showToast((latest ? "✅ " : "⚠️ ") + msg, 5000);
+    }).catch(function (err) {
+      recordSheetStatus(false, "接続テスト失敗：" + err.message);
+      showToast("❌ " + err.message, 6000);
+    });
   };
 
   window.syncAllToSheets = function () {
+    if (IS_ARTIFACT_HOST) { showToast("Artifact版では送信できません"); return; }
     if (!gasUrl) {
       showToast("先にGAS Web App URLを入力してください");
       return;
@@ -3809,17 +4103,19 @@
       showToast("同期する記録がありません");
       return;
     }
-    askConfirm("現在保存されている全 " + records.length + " 件の記録をスプレッドシートに一括同期します。", "同期する", false)
+    askConfirm("保存されている全 " + records.length + " 件の記録をスプレッドシートに同期します。\nシートにすでにある記録は上書きされ、行は増えません。", "同期する", false)
       .then(function (ok) {
         if (!ok) return;
-        showToast("一括同期中...");
-        var allPayloads = records.map(formatRecForSheets);
-        sendToSheets({ action: "bulk_sync", records: allPayloads })
-          .then(function () {
-            showToast("✅ 全 " + records.length + " 件をスプレッドシートに同期しました！");
+        showToast("同期中…", 30000);
+        sendToSheets({ action: "bulk_sync", records: records.map(formatRecForSheets) })
+          .then(function (json) {
+            var msg = describeSheetResult(json);
+            recordSheetStatus(true, "全記録の同期：" + msg);
+            showToast("✅ 同期しました（" + msg + "）", 5000);
           })
           .catch(function (err) {
-            showToast("❌ 同期に失敗しました：" + (err ? err.message : ""));
+            recordSheetStatus(false, "全記録の同期に失敗：" + err.message);
+            showToast("❌ 同期に失敗しました：" + err.message, 6000);
           });
       });
   };
@@ -4082,13 +4378,16 @@
     records.push(rec);
     records.sort(function (a, b) { return a.date.localeCompare(b.date); });
     persistRecords();
-    if (gasAutoSync && gasUrl) {
+    if (gasAutoSync && gasUrl && !IS_ARTIFACT_HOST) {
+      showToast("保存しました（シートへ送信中…）", 20000);
       sendToSheets(formatRecForSheets(rec))
-        .then(function () {
+        .then(function (json) {
+          recordSheetStatus(true, fmtDate(rec.date) + " の記録：" + describeSheetResult(json));
           showToast("保存し、スプレッドシートに記録しました");
         })
-        .catch(function () {
-          showToast("保存完了（スプレッドシート送信は失敗）");
+        .catch(function (err) {
+          recordSheetStatus(false, fmtDate(rec.date) + " の記録の送信に失敗：" + err.message);
+          showToast("記録は保存しました。シート送信は失敗：" + err.message, 6000);
         });
     } else {
       showToast("保存しました");
@@ -4675,7 +4974,7 @@
 
   /* ---------- Settings: export / import / wipe ---------- */
   function backupPayload() {
-    return { app: "IRON LOG", format: 1, exportedAt: new Date().toISOString(), records: records, plan: plan, machineSettings: machineSettings };
+    return { app: "IRON LOG", format: 1, exportedAt: new Date().toISOString(), records: records, plan: plan, machineSettings: machineSettings, floorLayout: floorLayout };
   }
 
   /* 内容がまったく同じ記録を見分けるためのキー（重複取り込みの防止に使う） */
@@ -4697,10 +4996,10 @@
     showToast("最新の内容を表示しました");
   };
 
-  /* 通常のダウンロードリンクで保存する（ローカルのHTMLとして開いた場合） */
-  function saveFileViaLink(filename, text) {
+  /* 通常のダウンロードリンクで保存する（ローカル・GitHub Pages で開いた場合） */
+  function saveFileViaLink(filename, text, mime, onFail) {
     try {
-      var blob = new Blob([text], { type: "application/json" });
+      var blob = new Blob([text], { type: mime });
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
       a.href = url;
@@ -4711,7 +5010,7 @@
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
       showToast(filename + " を保存しました");
     } catch (e) {
-      fallbackToText();
+      onFail();
     }
   }
 
@@ -4721,21 +5020,33 @@
   }
 
   /* claude.ai の Artifact として開かれている場合、ページが直接ダウンロードを
-     開始することは許可されていない。downloads 機能が使えるならそれ経由で保存する。 */
-  function saveBackupFile(filename, text) {
+     開始することは許可されていない。downloads 機能が使えるならそれ経由で保存する。
+     拡張子が許可されていない（例：csv）場合は .txt に変えて保存し直す。 */
+  function saveTextFile(filename, text, mime, onFail) {
     if (!window.claude || typeof window.claude.use !== "function") {
-      saveFileViaLink(filename, text);
+      saveFileViaLink(filename, text, mime, onFail);
       return;
     }
     window.claude.use("downloads").then(function (downloads) {
-      if (!downloads) { fallbackToText(); return; }
-      return downloads.save({ filename: filename, data: text }).then(function () {
-        showToast(filename + " を保存しました");
-      }, function (err) {
-        if (err && err.code === "declined") return;  // 利用者が保存をキャンセルしただけ
-        fallbackToText();
-      });
-    })["catch"](function () { fallbackToText(); });
+      if (!downloads) { onFail(); return; }
+      var attempt = function (name) {
+        return downloads.save({ filename: name, data: text }).then(function () {
+          showToast(name + " を保存しました");
+        }, function (err) {
+          var code = err && err.code;
+          if (code === "declined") return;  // 利用者が保存をキャンセルしただけ
+          if ((code === "extension_not_enabled" || code === "rejected_extension") && !/\.txt$/.test(name)) {
+            return attempt(name.replace(/\.[^.]+$/, "") + ".txt");
+          }
+          onFail();
+        });
+      };
+      return attempt(filename);
+    })["catch"](function () { onFail(); });
+  }
+
+  function saveBackupFile(filename, text) {
+    saveTextFile(filename, text, "application/json", fallbackToText);
   }
 
   window.downloadBackup = function () {
@@ -4799,6 +5110,7 @@
     var incomingRecords = isBareArray ? incoming : (incoming && incoming.records);
     var incomingPlan = isBareArray ? null : (incoming && incoming.plan);
     incomingMachineSettings = isBareArray ? null : ((incoming && incoming.machineSettings) || null);
+    incomingFloorLayout = isBareArray ? null : ((incoming && incoming.floorLayout) || null);
     if (!Array.isArray(incomingRecords)) {
       showToast("記録データが含まれていません");
       return Promise.resolve(false);
@@ -4836,6 +5148,7 @@
   }
 
   var incomingMachineSettings = null;
+  var incomingFloorLayout = null;
 
   function finishImport(mode, added, skipped, incomingPlan) {
     if (incomingMachineSettings && typeof incomingMachineSettings === "object" && !Array.isArray(incomingMachineSettings)) {
@@ -4846,6 +5159,15 @@
       persistMachineSettings();
     }
     incomingMachineSettings = null;
+    if (incomingFloorLayout && typeof incomingFloorLayout === "object") {
+      /* 置き換え：ファイルの配置に。追加：端末側が未確定で、ファイル側が確定済みのときだけ取り込む */
+      var incomingLayout = normalizeFloorLayout(incomingFloorLayout);
+      if (mode === "replace" || (!savedFloorLayout().confirmedAt && incomingLayout.confirmedAt)) {
+        floorLayout = incomingLayout;
+        persistFloorLayout();
+      }
+    }
+    incomingFloorLayout = null;
     records.sort(function (a, b) { return (a.date || "").localeCompare(b.date || ""); });
     persistRecords();
 
@@ -4936,12 +5258,12 @@
 
   /* ---------- Toast ---------- */
   var toastTimer = null;
-  function showToast(msg) {
+  function showToast(msg, durationMs) {
     var t = document.getElementById("toast");
     t.textContent = msg;
     t.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, durationMs || 1800);
   }
 
   /* ---------- Init ---------- */
@@ -4949,6 +5271,7 @@
     loadRecords();
     loadPlan();
     loadMachineSettings();
+    loadFloorLayout();
     loadGasSettings();
     document.getElementById("topbarDate").textContent = fmtDate(todayISO());
     document.getElementById("inDate").value = todayISO();
