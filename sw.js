@@ -6,8 +6,8 @@
 //   以前は「キャッシュ優先」だったため、Android のホーム画面アプリが古い版のまま残りやすかった。
 // - アイコンなどの静的ファイルは「キャッシュ優先＋裏で更新」。
 // - GitHub Pages は max-age=600 を返すため、取得時は HTTP キャッシュを使わない（cache: 'reload'）。
-const APP_VERSION = 'v9';
-const CACHE_NAME = 'ironlog-v9';
+const APP_VERSION = 'v10';
+const CACHE_NAME = 'ironlog-v10';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './',

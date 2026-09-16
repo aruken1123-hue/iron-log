@@ -119,10 +119,30 @@
     font-size: 19px;
     letter-spacing: 0.02em;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 7px;
   }
   .wordmark .bar { color: var(--accent); }
+  .topbar-ver-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: rgba(234, 179, 8, 0.14);
+    color: var(--accent);
+    cursor: pointer;
+    letter-spacing: 0;
+    line-height: 1.2;
+    transition: all 0.12s ease;
+    vertical-align: middle;
+  }
+  .topbar-ver-badge:hover, .topbar-ver-badge:active {
+    transform: scale(0.96);
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
   .topbar .today {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -1410,7 +1430,10 @@
 
 <div id="app-shell">
   <div class="topbar">
-    <div class="wordmark"><span class="bar">/</span>IRON LOG</div>
+    <div class="wordmark">
+      <span class="bar">/</span>IRON LOG
+      <button type="button" class="topbar-ver-badge" id="topbarVerBadge" onclick="showVersionModal()" title="バージョン情報・更新履歴">v10</button>
+    </div>
     <div class="today" id="topbarDate">--</div>
   </div>
 
@@ -1418,7 +1441,7 @@
     <!-- ============ HOME ============ -->
     <section class="screen" id="screen-home">
       <h1 class="page-title">ホーム</h1>
-      <p class="page-sub" id="homeSub">筋力向上プログラムの進捗</p>
+      <p class="page-sub" id="homeSub">筋力向上プログラムの進捗 <span id="homeVerTag" style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:bold;margin-left:4px;">(v10)</span></p>
 
       <div class="stat-grid">
         <div class="card stat-tile">
@@ -1602,6 +1625,23 @@
       <h1 class="page-title">設定</h1>
       <p class="page-sub">データはこの端末のブラウザにのみ保存されます</p>
 
+      <div class="card settings-card" style="border-left: 3.5px solid var(--accent);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h3 style="margin:0;">ℹ️ バージョン情報</h3>
+          <span class="topbar-ver-badge" id="settingsVerBadge" style="cursor:default;">v10</span>
+        </div>
+        <div class="app-version-row" style="border-top:none;padding-top:0;margin-top:0;">
+          <div>
+            <div>アプリの版：<b id="appVersionText">-</b></div>
+            <small id="appVersionSub"></small>
+          </div>
+          <button type="button" onclick="checkAppUpdate()">更新を確認</button>
+        </div>
+        <div style="margin-top:10px;">
+          <button type="button" class="btn-secondary" style="width:100%;font-size:12px;padding:7px;" onclick="showVersionModal()">📋 今回の更新内容（更新履歴）を見る</button>
+        </div>
+      </div>
+
       <div class="card settings-card">
         <h3>ホーム画面に追加</h3>
         <p>Android Chromeでこのページを開いた状態で追加すると、アプリのように使えます。</p>
@@ -1610,10 +1650,6 @@
           <li><span class="num">2</span>「ホーム画面に追加」を選択</li>
           <li><span class="num">3</span>「追加」をタップすると完了</li>
         </ol>
-        <div class="app-version-row">
-          <div>このアプリのバージョン：<b id="appVersionText">-</b><small id="appVersionSub"></small></div>
-          <button type="button" onclick="checkAppUpdate()">更新を確認</button>
-        </div>
       </div>
 
       <div class="card settings-card">
@@ -1753,6 +1789,48 @@
   <div class="ub-text">新しいバージョンが届きました<small>記録を入力中なら、保存してから更新してください</small></div>
   <button type="button" onclick="applyAppUpdate()">今すぐ更新</button>
   <button type="button" class="ub-close" onclick="dismissUpdateBanner()" aria-label="閉じる">✕</button>
+</div>
+
+<!-- バージョン情報・更新内容モーダル -->
+<div class="modal-backdrop" id="versionModal" hidden>
+  <div class="machine-modal-card" role="dialog" aria-modal="true" aria-labelledby="vmTitle" style="max-width:440px;">
+    <div class="machine-modal-head">
+      <div class="machine-modal-title-wrap">
+        <h3 id="vmTitle" class="machine-modal-title">ℹ️ バージョン情報</h3>
+        <span class="machine-modal-area-badge" id="vmBadge">v10 (最新版)</span>
+      </div>
+      <button type="button" class="machine-modal-close" onclick="closeVersionModal()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="machine-modal-body" style="gap:12px;padding:14px;">
+      <div class="card" style="background:var(--surface-2);padding:12px;border:1px solid var(--border);">
+        <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px;">
+          IRON LOG <span style="color:var(--accent);">v10</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" id="vmOfflineStatus">
+          ビルド日：2026-09-16<br>
+          オフラインキャッシュ：確認中…
+        </div>
+      </div>
+
+      <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
+      <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
+        <li><b>見やすいバージョン表示 (v10)</b>: 画面最上部に常時表示し、タップで更新確認が可能になりました。</li>
+        <li><b>笠懸店公式全34マシン図鑑</b>: 全34種の使い方・セッティング・効く部位を完全網羅。</li>
+        <li><b>自分用マシン設定メモ</b>: シートの高さ・ピン位置・いつもの重量を記録画面に自動表示。</li>
+        <li><b>編集できるフロアマップ</b>: 店舗の実際の配置に合わせて全38枠を自由にカスタマイズ可能。</li>
+        <li><b>Googleスプレッドシート連携 (GAS v2)</b>: 重複防止ID機能により、何度同期しても2重書き込みなし。</li>
+        <li><b>Android PWA 自動更新</b>: ネットワーク優先化により、電波があれば常に最新版が起動。</li>
+      </ul>
+
+      <div style="margin-top:6px;display:flex;gap:8px;">
+        <button type="button" class="primary" style="flex:1;padding:9px;font-size:12px;font-weight:700;" onclick="checkAppUpdate(); closeVersionModal();">🔄 最新の更新を確認</button>
+      </div>
+    </div>
+    <div class="machine-modal-foot">
+      <span></span>
+      <button type="button" class="primary" onclick="closeVersionModal()">閉じる</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="confirmModal" hidden>
@@ -5277,11 +5355,18 @@
 
   function wireConfirmDialog() {
     var modal = document.getElementById("confirmModal");
+    var vModal = document.getElementById("versionModal");
     document.getElementById("confirmOk").addEventListener("click", function () { closeConfirm(true); });
     document.getElementById("confirmCancel").addEventListener("click", function () { closeConfirm(false); });
     modal.addEventListener("click", function (e) { if (e.target === modal) closeConfirm(false); });
+    if (vModal) {
+      vModal.addEventListener("click", function (e) { if (e.target === vModal) closeVersionModal(); });
+    }
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !modal.hidden) closeConfirm(false);
+      if (e.key === "Escape") {
+        if (modal && !modal.hidden) closeConfirm(false);
+        if (vModal && !vModal.hidden) closeVersionModal();
+      }
     });
   }
 
@@ -5315,18 +5400,45 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v9";
+  var APP_VERSION = "v10";
   var APP_BUILD_DATE = "2026-09-16";
   var swRegistration = null;
+  var currentOfflineCacheName = null;
 
   function renderAppVersion(offlineCacheName) {
+    if (offlineCacheName) currentOfflineCacheName = offlineCacheName;
     var main = document.getElementById("appVersionText");
     var sub = document.getElementById("appVersionSub");
+    var topBadge = document.getElementById("topbarVerBadge");
+    var setBadge = document.getElementById("settingsVerBadge");
+    var homeTag = document.getElementById("homeVerTag");
+    if (topBadge) topBadge.textContent = APP_VERSION;
+    if (setBadge) setBadge.textContent = APP_VERSION;
+    if (homeTag) homeTag.textContent = "(" + APP_VERSION + ")";
     if (main) main.textContent = APP_VERSION + "（" + APP_BUILD_DATE + "）";
     if (!sub) return;
     if (IS_ARTIFACT_HOST) sub.textContent = "Artifact版：開くたびに最新版が表示されます";
     else if (!("serviceWorker" in navigator)) sub.textContent = "このブラウザではオフライン保存に対応していません";
-    else sub.textContent = offlineCacheName ? "オフライン用データ：" + offlineCacheName : "オフライン用データを準備中…";
+    else sub.textContent = currentOfflineCacheName ? "オフライン用データ：" + currentOfflineCacheName : "オフライン用データを準備中…";
+  }
+
+  function showVersionModal() {
+    var m = document.getElementById("versionModal");
+    if (!m) return;
+    var badge = document.getElementById("vmBadge");
+    if (badge) badge.textContent = APP_VERSION + "（最新版）";
+    var offlineStatus = document.getElementById("vmOfflineStatus");
+    if (offlineStatus) {
+      var offText = currentOfflineCacheName ? ("保存済み：" + currentOfflineCacheName) : "接続中またはブラウザ管理";
+      offlineStatus.innerHTML = "バージョン：<b>" + APP_VERSION + "</b>（ビルド日：" + APP_BUILD_DATE + "）<br>" +
+        "オフラインデータ：" + escapeHTML(offText);
+    }
+    m.hidden = false;
+  }
+
+  function closeVersionModal() {
+    var m = document.getElementById("versionModal");
+    if (m) m.hidden = true;
   }
 
   function askServiceWorkerVersion() {
@@ -5363,6 +5475,8 @@
 
   window.applyAppUpdate = function () { location.reload(); };
   window.dismissUpdateBanner = function () { document.getElementById("updateBanner").hidden = true; };
+  window.showVersionModal = showVersionModal;
+  window.closeVersionModal = closeVersionModal;
 
   window.checkAppUpdate = function () {
     if (IS_ARTIFACT_HOST) { showToast("Artifact版は開くたびに最新版です"); return; }
