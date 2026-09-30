@@ -1551,7 +1551,7 @@
       </div>
 
       <div class="plan-actions-bar" style="margin-bottom:12px;">
-        <button type="button" class="plan-act-btn" onclick="openFloorMapModal()">🗺️ 器具フロアマップ（配置図）</button>
+        <button type="button" class="plan-act-btn" onclick="openFloorMapModal('TODO')">🗺️ 器具フロアマップ（未実施の位置）</button>
         <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 マシン図鑑・種目を追加</button>
       </div>
 
@@ -2036,8 +2036,8 @@
     </div>
     <div class="floor-map-filter-bar">
       <button type="button" class="map-filter-btn active" id="fmfAll" onclick="setFloorMapFilter('ALL')">全体</button>
-      <button type="button" class="map-filter-btn" id="fmfA" onclick="setFloorMapFilter('A')">Day A</button>
-      <button type="button" class="map-filter-btn" id="fmfB" onclick="setFloorMapFilter('B')">Day B</button>
+      <button type="button" class="map-filter-btn" id="fmfTodo" onclick="setFloorMapFilter('TODO')">未実施</button>
+      <button type="button" class="map-filter-btn" id="fmfDone" onclick="setFloorMapFilter('DONE')">実施済み</button>
       <button type="button" class="map-filter-btn" id="fmfEdit" onclick="toggleFloorEdit()">✏️ 編集</button>
     </div>
     <div class="floor-map-body">
@@ -2070,7 +2070,7 @@
         <div class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span><span>フリーウェイト</span></div>
         <div class="legend-item"><span class="legend-color" style="background:#818cf8;"></span><span>マシン</span></div>
         <div class="legend-item"><span class="legend-color" style="background:#34d399;"></span><span>有酸素</span></div>
-        <div class="legend-item"><span style="font-weight:700;color:var(--text);">A / B</span><span>＝今のプランで使う日</span></div>
+        <div class="legend-item"><span style="font-weight:700;color:var(--text);">未 / 済 / 除</span><span>＝今日の記録（未実施・実施済み・除外）</span></div>
       </div>
     </div>
     <div class="machine-modal-foot">
@@ -2780,8 +2780,7 @@
   function findExerciseByName(name) {
     return plan.exercises.filter(function (ex) { return ex.name === name; })[0] || null;
   }
-  function dayLabelOf(d) { return d === "both" ? "共通" : "Day " + d; }
-
+  /* 記録画面は区分なしの一覧なので、追加先の Day A / Day B は選ばせない */
   function renderMachineAddBlock(key) {
     var m = MACHINE_DB[key];
     var body = document.getElementById("mmAddBody");
@@ -2793,18 +2792,15 @@
         '</select></label>'
       : '<div class="add-move-single">種目：<b>' + escapeHTML(moves[0].name) + '</b></div>';
     var registered = moves.map(function (mv) {
-      var ex = findExerciseByName(mv.name);
-      return ex ? mv.name + "（" + dayLabelOf(ex.day) + "）" : null;
+      return findExerciseByName(mv.name) ? mv.name : null;
     }).filter(Boolean);
+    var allRegistered = registered.length === moves.length;
     body.innerHTML = picker +
       '<div class="add-day-btns">' +
-      ["A", "B", "both"].map(function (d) {
-        return '<button type="button"' + (d === currentDay ? ' class="primary"' : '') +
-          ' onclick="addMachineToPlan(' + jsArg(key) + ',' + jsArg(d) + ')">' +
-          (d === "both" ? "両方の日" : "Day " + d) + 'に追加</button>';
-      }).join("") + '</div>' +
-      '<p class="add-note">追加するとプランに登録され、その日の記録画面に毎回表示されます（プラン編集で変更・削除できます）。' +
-      (registered.length ? '<br>登録済み：' + escapeHTML(registered.join("、")) : '') + '</p>';
+      '<button type="button" class="primary" onclick="addMachineToPlan(' + jsArg(key) + ')">' +
+      (allRegistered ? '記録画面で開く' : '記録の一覧に追加') + '</button></div>' +
+      '<p class="add-note">追加すると記録画面の一覧に毎回表示されます（プラン編集で変更・削除できます）。' +
+      (registered.length ? '<br>一覧に登録済み：' + escapeHTML(registered.join("、")) : '') + '</p>';
   }
 
   function uniqueExerciseId(base) {
@@ -2813,7 +2809,7 @@
     return id;
   }
 
-  window.addMachineToPlan = function (key, day) {
+  window.addMachineToPlan = function (key) {
     var m = MACHINE_DB[key];
     if (!m || !m.moves || !m.moves.length) return;
     if (targetsEditMode) {
@@ -2825,18 +2821,13 @@
     var ex = findExerciseByName(move.name);
     var message;
     if (ex) {
-      if (ex.day === day || ex.day === "both") {
-        message = move.name + " はすでに" + dayLabelOf(ex.day) + "に登録されています";
-      } else {
-        ex.day = "both";
-        message = move.name + " を Day A・Day B の両方に表示するようにしました";
-      }
+      message = move.name + " はすでに一覧にあります";
       if (!ex.machineKey) ex.machineKey = key;
     } else {
       ex = {
         id: uniqueExerciseId("m_" + key),
         name: move.name,
-        day: day,
+        day: "both",   /* 区分は「共通」。プラン編集で変えられる */
         category: move.category,
         unit: move.unit,
         status: "ok",
@@ -2846,7 +2837,7 @@
         goal: { sets: mkSets(move.sets[0], move.sets[1], move.sets[2]) }
       };
       plan.exercises.push(ex);
-      message = move.name + " を" + dayLabelOf(day) + "に追加しました";
+      message = move.name + " を記録の一覧に追加しました";
     }
     ensureDayOrder(plan);
     persistPlan();
@@ -2864,6 +2855,15 @@
       card.scrollIntoView({ block: "center" });
       card.classList.add("just-added");
       setTimeout(function () { card.classList.remove("just-added"); }, 1800);
+    } else {
+      /* 一覧に無い＝この日はもう実施済み。実施済み欄を見せる */
+      var todayRec = findRecordByDate(recordDate());
+      if (todayRec && todayRec[ex.id]) {
+        doneSectionOpen = true;
+        renderRecordScreen();
+        document.getElementById("recDoneSection").scrollIntoView({ block: "center" });
+        message = move.name + " は今日すでに実施済みです";
+      }
     }
     showToast(message);
   };
@@ -3151,23 +3151,30 @@
     return layout.labels[slot.zone] + "：上から" + slot.row + "段目・左から" + slot.col + "番目";
   }
 
-  /* 今のプランでそのマシンを使う日（{A:true, B:true}） */
-  function planDaysForMachine(key) {
-    var days = {};
-    plan.exercises.forEach(function (ex) {
-      if (machineKeysForExercise(ex).indexOf(key) === -1) return;
-      if (ex.day === "both") { days.A = true; days.B = true; }
-      else if (ex.day === "A" || ex.day === "B") days[ex.day] = true;
-    });
-    return days;
+  /* 記録画面の一覧での、そのマシンの今日の状態。
+     todo = 未実施の種目が残っている / done = 実施済み / excluded = 除外 / null = 一覧に無い */
+  var MAP_STATUS_BADGES = {
+    todo: { text: "未", fill: "#0284c7" },
+    done: { text: "済", fill: "#15803d" },
+    excluded: { text: "除", fill: "#475569" }
+  };
+  function machineStatusToday(key, lists) {
+    function uses(list) {
+      return list.some(function (ex) { return machineKeysForExercise(ex).indexOf(key) !== -1; });
+    }
+    if (uses(lists.todo)) return "todo";
+    if (uses(lists.done)) return "done";
+    if (uses(lists.excluded)) return "excluded";
+    return null;
   }
 
   /* opts: editing（編集表示）, focusKey（強調するマシン）, viewBox（切り抜き）, noClick（タップ無効） */
-  function renderFloorMapSVG(filterDay, opts) {
+  function renderFloorMapSVG(filter, opts) {
     opts = opts || {};
     var layout = opts.layout || visibleFloorLayout();
     var editing = !!opts.editing;
-    var normDay = (!editing && (filterDay === "A" || filterDay === "B")) ? filterDay : null;
+    var wanted = editing ? null : (filter === "TODO" ? "todo" : (filter === "DONE" ? "done" : null));
+    var lists = recordScreenLists();
     var svg = '<svg viewBox="' + (opts.viewBox || "0 0 360 556") + '" xmlns="http://www.w3.org/2000/svg">';
     svg += '<rect x="0" y="0" width="360" height="556" fill="#090d14" rx="10"/>';
 
@@ -3190,9 +3197,9 @@
       var zone = FLOOR_ZONE_RECTS[slot.zone];
       var selected = editing && floorEditSelected === slot.id;
       var focused = !!(opts.focusKey && key === opts.focusKey);
-      var days = m ? planDaysForMachine(key) : {};
-      var hit = normDay ? !!days[normDay] : false;
-      var dim = (normDay && !hit) || (opts.focusKey && !focused);
+      var status = m ? machineStatusToday(key, lists) : null;
+      var hit = !!wanted && status === wanted;
+      var dim = (wanted && !hit) || (opts.focusKey && !focused);
       var stroke = selected ? "#f59e0b" : ((hit || focused) ? zone.color : "#334155");
       var fill = m ? ((hit || focused) ? "#172554" : "#131b2e") : "#0b1220";
       var action = "";
@@ -3211,11 +3218,10 @@
         svg += '<text x="' + cx + '" y="' + (cy - 1) + '" fill="#e2e8f0" font-size="8.5" font-weight="bold" text-anchor="middle">' +
           escapeHTML(MAP_LABELS[key] || m.shortName) + '</text>';
         svg += '<text x="' + cx + '" y="' + (cy + 10) + '" fill="#94a3b8" font-size="6.5" text-anchor="middle">' + escapeHTML(sub) + '</text>';
-        var badge = (days.A ? "A" : "") + (days.B ? "B" : "");
+        var badge = status ? MAP_STATUS_BADGES[status] : null;
         if (badge) {
-          var bw = badge.length === 2 ? 17 : 11;
-          svg += '<rect x="' + (slot.x + slot.w - bw - 2) + '" y="' + (slot.y + 2) + '" width="' + bw + '" height="10" fill="#0284c7" rx="2"/>';
-          svg += '<text x="' + (slot.x + slot.w - bw / 2 - 2) + '" y="' + (slot.y + 9.5) + '" fill="#ffffff" font-size="7" font-weight="bold" text-anchor="middle">' + badge + '</text>';
+          svg += '<rect x="' + (slot.x + slot.w - 14) + '" y="' + (slot.y + 2) + '" width="12" height="10" fill="' + badge.fill + '" rx="2"/>';
+          svg += '<text x="' + (slot.x + slot.w - 8) + '" y="' + (slot.y + 9.6) + '" fill="#ffffff" font-size="7" font-weight="bold" text-anchor="middle">' + badge.text + '</text>';
         }
       } else {
         svg += '<text x="' + cx + '" y="' + (cy + 4) + '" fill="#64748b" font-size="12" text-anchor="middle">＋</text>';
@@ -3360,25 +3366,18 @@
       });
   };
 
-  function setFloorMapFilter(day) {
-    currentMapFilter = (day === "A" || day === "B" || day === "ALL") ? day : "ALL";
-    var btnAll = document.getElementById("fmfAll");
-    var btnA = document.getElementById("fmfA");
-    var btnB = document.getElementById("fmfB");
-    if (btnAll) btnAll.classList.toggle("active", currentMapFilter === "ALL");
-    if (btnA) btnA.classList.toggle("active", currentMapFilter === "A");
-    if (btnB) btnB.classList.toggle("active", currentMapFilter === "B");
+  /* 絞り込み：ALL（全体）/ TODO（今日まだの器具）/ DONE（今日実施済みの器具） */
+  function setFloorMapFilter(filter) {
+    currentMapFilter = (filter === "TODO" || filter === "DONE") ? filter : "ALL";
+    [["fmfAll", "ALL"], ["fmfTodo", "TODO"], ["fmfDone", "DONE"]].forEach(function (pair) {
+      var btn = document.getElementById(pair[0]);
+      if (btn) btn.classList.toggle("active", currentMapFilter === pair[1]);
+    });
     refreshFloorMap();
   }
 
-  function openFloorMapModal(day) {
-    var d = day;
-    if (d === "TODAY") {
-      d = (typeof currentDay !== "undefined" && currentDay) ? currentDay : "ALL";
-    } else if (d !== "A" && d !== "B" && d !== "ALL") {
-      d = "ALL";
-    }
-    setFloorMapFilter(d);
+  function openFloorMapModal(filter) {
+    setFloorMapFilter(filter);
     document.getElementById("floorMapModal").hidden = false;
     var mm = document.getElementById("machineModal");
     if (mm && !mm.hidden) mm.hidden = true;
@@ -5692,7 +5691,7 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v11";
+  var APP_VERSION = "v11.1";
   var APP_BUILD_DATE = "2026-09-30";
   var swRegistration = null;
   var currentOfflineCacheName = null;
