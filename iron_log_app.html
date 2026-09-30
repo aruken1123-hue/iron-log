@@ -4025,7 +4025,10 @@
   var GAS_URL_KEY = "ironlog_gas_url";
   var GAS_AUTO_SYNC_KEY = "ironlog_gas_auto_sync";
   var GAS_STATUS_KEY = "ironlog_gas_last_status";
-  var SHEET_TIMEOUT_MS = 20000;
+  /* GAS は同じ処理でも応答が 2秒のときと 30〜45秒のときがある（実測）。
+     20秒で打ち切ると、Google 側では処理が続いているのに失敗と表示してしまう。 */
+  var SHEET_TIMEOUT_MS = 60000;   // 1回あたりの待ち時間
+  var SHEET_MAX_TRIES = 3;        // 安全に再送できる通信だけ、この回数まで試す
   var PAGES_APP_URL = "https://aruken1123-hue.github.io/iron-log/iron_log_app.html";
   /* claude.ai の Artifact 版では、外部サイトへの通信がセキュリティ制限でブロックされる */
   var IS_ARTIFACT_HOST = !!(window.claude && typeof window.claude.use === "function");
@@ -4108,43 +4111,88 @@
     return msg;
   }
 
-  /* GAS Web アプリへの通信。応答（JSON）を読んで成否を判定する。
-     以前は mode:"no-cors" だったため応答を読めず、失敗しても成功と表示していた。 */
+  function sheetError(message, flags) {
+    var err = new Error(message);
+    flags = flags || {};
+    err.retryable = !!flags.retryable;   // もう一度試す価値がある（応答なし・一時的な通信失敗・結果が不明）
+    err.unknownResult = !!flags.unknownResult;   // Google 側で処理が済んだかどうか分からない
+    return err;
+  }
+
+  /* GAS Web アプリへの通信（1回分）。応答（JSON）を読んで返す。 */
   function sheetRequest(url, options) {
-    if (IS_ARTIFACT_HOST) return Promise.reject(new Error("Artifact版からは外部へ通信できません"));
-    if (!gasUrl) return Promise.reject(new Error("GAS Web App URL が未設定です"));
+    if (IS_ARTIFACT_HOST) return Promise.reject(sheetError("Artifact版からは外部へ通信できません"));
+    if (!gasUrl) return Promise.reject(sheetError("GAS Web App URL が未設定です"));
     var controller = typeof AbortController === "function" ? new AbortController() : null;
     var timer = setTimeout(function () { if (controller) controller.abort(); }, SHEET_TIMEOUT_MS);
-    if (controller) options.signal = controller.signal;
-    return fetch(url, options).then(function (res) {
+    var opts = {};
+    Object.keys(options).forEach(function (k) { opts[k] = options[k]; });
+    if (controller) opts.signal = controller.signal;
+    return fetch(url, opts).then(function (res) {
       clearTimeout(timer);
-      if (!res.ok) throw new Error("GASがエラー（HTTP " + res.status + "）を返しました");
+      if (!res.ok) throw sheetError("GASがエラー（HTTP " + res.status + "）を返しました");
       return res.text();
     }, function (err) {
       clearTimeout(timer);
-      if (err && err.name === "AbortError") throw new Error("応答がありません（" + (SHEET_TIMEOUT_MS / 1000) + "秒でタイムアウト）");
-      throw new Error("通信できませんでした。URL・デプロイの「アクセスできるユーザー：全員」・ネット接続を確認してください");
+      if (err && err.name === "AbortError") {
+        throw sheetError("Googleからの応答がありません（" + (SHEET_TIMEOUT_MS / 1000) + "秒待ちました）", { retryable: true, unknownResult: true });
+      }
+      throw sheetError("通信できませんでした。URL・デプロイの「アクセスできるユーザー：全員」・ネット接続を確認してください", { retryable: true });
     }).then(function (text) {
       try { return JSON.parse(text); }
-      catch (e) { throw new Error("GASの応答を読み取れませんでした。「/exec」で終わるウェブアプリのURLか確認してください"); }
+      catch (e) { throw sheetError("GASの応答を読み取れませんでした。「/exec」で終わるウェブアプリのURLか確認してください"); }
     });
   }
 
+  /* 再送しても安全な通信を、応答があるまで maxTries 回まで試す */
+  function withSheetRetry(attempt, maxTries) {
+    var tries = 0;
+    function run() {
+      tries++;
+      return attempt().catch(function (err) {
+        if (!err.retryable || tries >= maxTries) {
+          if (tries > 1) err.message += "（" + tries + "回試しました）";
+          throw err;
+        }
+        showToast("Googleの応答を待っています…（" + (tries + 1) + "回目）", SHEET_TIMEOUT_MS);
+        return run();
+      });
+    }
+    return run();
+  }
+
+  /* 記録を送る。上書きに対応した GAS（v2以上）は同じ内容を何度送っても結果が変わらないので、
+     応答がないときは自動で再送する。旧版は送るたびに行が増えるため、再送しない。 */
   function sendToSheets(payload) {
-    return sheetRequest(gasUrl, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },   // 事前確認（プリフライト）が発生しない形式
-      body: JSON.stringify(payload)
-    }).then(function (json) {
-      if (!json || json.status !== "success") throw new Error((json && json.message) || "GASがエラーを返しました");
-      rememberGasVersion(json);
-      return json;
+    var idempotent = knownGasVersion() >= 2;
+    return withSheetRetry(function () {
+      return sheetRequest(gasUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },   // 事前確認（プリフライト）が発生しない形式
+        body: JSON.stringify(payload)
+      }).then(function (json) {
+        /* Google 側が混んでいると、転送のやり直しで書き込み結果の代わりに接続確認の応答が返ることがある */
+        if (json && json.status === "ok" && typeof json.count !== "number" && typeof json.added !== "number") {
+          throw sheetError("書き込みの結果を確認できませんでした", { retryable: true, unknownResult: true });
+        }
+        if (!json || json.status !== "success") throw sheetError((json && json.message) || "GASがエラーを返しました");
+        rememberGasVersion(json);
+        return json;
+      });
+    }, idempotent ? SHEET_MAX_TRIES : 1).catch(function (err) {
+      if (!idempotent && err.unknownResult) {
+        err.message += "。Google側では処理が続いていて、シートに書き込まれた可能性があります。送り直す前にシートを確認してください（GASが旧版のため、送り直すと行が重複します）";
+      }
+      throw err;
     });
   }
 
+  /* 接続と版の確認。シートには書き込まないので、応答がなければ再送する */
   function pingSheets() {
     var sep = gasUrl.indexOf("?") === -1 ? "?" : "&";
-    return sheetRequest(gasUrl + sep + "action=ping&t=" + Date.now(), { method: "GET" }).then(function (json) {
+    return withSheetRetry(function () {
+      return sheetRequest(gasUrl + sep + "action=ping&t=" + Date.now(), { method: "GET" });
+    }, SHEET_MAX_TRIES).then(function (json) {
       rememberGasVersion(json);
       return json;
     });
@@ -4262,16 +4310,20 @@
   window.testSheetConnection = function () {
     if (IS_ARTIFACT_HOST) { showToast("Artifact版では接続できません"); return; }
     if (!gasUrl) { showToast("先にGAS Web App URLを入力してください"); return; }
-    showToast("接続テスト中…", 20000);
+    showToast("接続テスト中…（Googleの応答に1分ほどかかることがあります）", SHEET_TIMEOUT_MS);
+    var started = Date.now();
     pingSheets().then(function (json) {
       if (!json || json.app !== "IRON LOG") throw new Error("IRON LOG 用のGASではない応答が返りました。URLを確認してください");
       var latest = json.version >= 2;
-      var msg = latest ? "接続OK（重複防止に対応した最新版）" : "接続OK。ただしGASが旧版です。Code.gs を貼り直して再デプロイしてください";
+      var secs = "応答 " + ((Date.now() - started) / 1000).toFixed(1) + "秒";
+      var msg = latest
+        ? "接続OK（重複防止に対応した最新版・" + secs + "）"
+        : "接続OK（" + secs + "）。ただしGASが旧版です。Code.gs を貼り直して再デプロイしてください";
       recordSheetStatus(latest, "接続テスト：" + msg);
-      showToast((latest ? "✅ " : "⚠️ ") + msg, 5000);
+      showToast((latest ? "✅ " : "⚠️ ") + msg, 6000);
     }).catch(function (err) {
       recordSheetStatus(false, "接続テスト失敗：" + err.message);
-      showToast("❌ " + err.message, 6000);
+      showToast("❌ " + err.message, 7000);
     });
   };
 
@@ -4285,21 +4337,27 @@
       showToast("同期する記録がありません");
       return;
     }
-    askConfirm("保存されている全 " + records.length + " 件の記録をスプレッドシートに同期します。\nシートにすでにある記録は上書きされ、行は増えません。", "同期する", false)
-      .then(function (ok) {
-        if (!ok) return;
-        showToast("同期中…", 30000);
-        sendToSheets({ action: "bulk_sync", records: records.map(formatRecForSheets) })
-          .then(function (json) {
-            var msg = describeSheetResult(json);
-            recordSheetStatus(true, "全記録の同期：" + msg);
-            showToast("✅ 同期しました（" + msg + "）", 5000);
-          })
-          .catch(function (err) {
-            recordSheetStatus(false, "全記録の同期に失敗：" + err.message);
-            showToast("❌ 同期に失敗しました：" + err.message, 6000);
-          });
+    /* 旧版GASは送った分だけ行を追加する。先に版を確かめ、旧版なら重複することを伝える */
+    showToast("GASの版を確認中…（1分ほどかかることがあります）", SHEET_TIMEOUT_MS);
+    pingSheets().then(function () {
+      var legacy = knownGasVersion() < 2;
+      return askConfirm(
+        legacy
+          ? "GASが旧版です。旧版は送った分だけ行を追加するため、すでにシートにある記録は重複します。\n先に gas/Code.gs を貼り直して再デプロイすることをおすすめします。\n\nこのまま全 " + records.length + " 件を送りますか？"
+          : "保存されている全 " + records.length + " 件の記録をスプレッドシートに同期します。\nシートにすでにある記録は上書きされ、行は増えません。",
+        legacy ? "重複してもよいので送る" : "同期する", legacy);
+    }).then(function (ok) {
+      if (!ok) return;
+      showToast("同期中…（Googleの応答に1分ほどかかることがあります）", SHEET_TIMEOUT_MS);
+      return sendToSheets({ action: "bulk_sync", records: records.map(formatRecForSheets) }).then(function (json) {
+        var msg = describeSheetResult(json);
+        recordSheetStatus(true, "全記録の同期：" + msg);
+        showToast("✅ 同期しました（" + msg + "）", 6000);
       });
+    }).catch(function (err) {
+      recordSheetStatus(false, "全記録の同期に失敗：" + err.message);
+      showToast("❌ 同期に失敗しました：" + err.message, 8000);
+    });
   };
 
   /* ---------- Numeric stepper (shared by plan edit + record entry) ---------- */
@@ -4727,12 +4785,20 @@
     sheetSyncTimer = setTimeout(flushSheetSync, SHEET_SYNC_DELAY_MS);
   }
 
+  var sheetSyncBusy = false;
+
   function flushSheetSync() {
     clearTimeout(sheetSyncTimer);
+    if (sheetSyncBusy) {
+      /* 送信中に次の変更が入った。今の送信が終わってから、最新の内容をもう一度送る */
+      if (sheetSyncRec) sheetSyncTimer = setTimeout(flushSheetSync, SHEET_SYNC_DELAY_MS);
+      return;
+    }
     var rec = sheetSyncRec;
     sheetSyncRec = null;
     if (!rec || records.indexOf(rec) === -1) return;
     if (!gasAutoSync || !gasUrl || IS_ARTIFACT_HOST) return;
+    sheetSyncBusy = true;
     /* この方式は同じ記録を何度も送る。上書きできない旧版GASでは行が増えるので、版を確かめてから送る */
     (knownGasVersion() ? Promise.resolve() : pingSheets())
       .then(function () {
@@ -4748,7 +4814,8 @@
       .catch(function (err) {
         recordSheetStatus(false, fmtDate(rec.date) + " の記録の送信に失敗：" + err.message);
         showToast("記録は保存済みです。シート送信は失敗：" + err.message, 6000);
-      });
+      })
+      .then(function () { sheetSyncBusy = false; });
   }
 
   /* ---------- Home ---------- */
@@ -5638,8 +5705,8 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v11.3";
-  var APP_BUILD_DATE = "2026-09-30";
+  var APP_VERSION = "v11.4";
+  var APP_BUILD_DATE = "2026-10-01";
   var swRegistration = null;
   var currentOfflineCacheName = null;
 
