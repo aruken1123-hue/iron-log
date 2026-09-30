@@ -1241,7 +1241,6 @@
   .hist-card .h-top { display: flex; justify-content: space-between; align-items: center; }
   .hist-card .h-date { font-weight: 700; font-family: var(--font-display); font-size: 14.5px; }
   .hist-card .h-day { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-muted); }
-  .hist-card .h-day.A { background: var(--accent); color: var(--accent-ink); }
   .hist-card .h-summary {
     font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.6;
     overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -1652,7 +1651,6 @@
           <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 笠懸店マシン図鑑（公式ラインナップ全34種）</button>
         </div>
         <div class="card prog-card" id="progCard"></div>
-        <div class="sched-grid" id="schedGrid"></div>
         <div class="card phase-note" id="phaseNoteView"></div>
         <div class="section-label">メイン種目</div>
         <div class="card target-table" id="targetMain"></div>
@@ -1669,16 +1667,6 @@
             <div class="field"><label>デロード週</label><input type="number" id="planDeload" min="1" max="52"></div>
           </div>
           <div class="field"><label>メモ（進め方のポイントなど）</label><textarea id="planNote"></textarea></div>
-          <div class="day-edit-block">
-            <div class="dlabel">Day A</div>
-            <input type="text" id="planATitle" placeholder="例：Day A · High Day">
-            <textarea id="planADesc" class="day-desc" placeholder="種目を「／」区切りで入力"></textarea>
-          </div>
-          <div class="day-edit-block">
-            <div class="dlabel">Day B</div>
-            <input type="text" id="planBTitle" placeholder="例：Day B · Volume Day">
-            <textarea id="planBDesc" class="day-desc" placeholder="種目を「／」区切りで入力"></textarea>
-          </div>
         </div>
 
         <div class="section-label">種目リスト</div>
@@ -1812,7 +1800,7 @@
 
       <div class="card settings-card">
         <h3>🏢 アクロスプラザ笠懸店 全身マシンプラン</h3>
-        <p>エニタイムフィットネス アクロスプラザ笠懸店のマシンラインナップに最適化した全身2分割プログラム（案1: 着実増量）に切り替えます。最新の実績重量をもとに目標が設定されます。</p>
+        <p>エニタイムフィットネス アクロスプラザ笠懸店のマシンラインナップに最適化した全身プログラム（案1: 着実増量）に切り替えます。最新の実績重量をもとに目標が設定されます。</p>
         <div class="btn-row">
           <button class="primary" onclick="applyKasakakePlan()">笠懸店マシンプランを適用</button>
         </div>
@@ -1891,7 +1879,7 @@
 
       <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
-        <li><b>記録画面を一覧方式に (v11)</b>: Day A/B の切り替えをなくし、全種目を前回の実施順に表示。「実施済み」でその場で保存して折りたたみ、「除外」で今日やらない種目を最下部へまとめます。</li>
+        <li><b>記録画面を一覧方式に (v11)</b>: 日ごとの区分をなくし、全種目を前回の実施順に表示。「実施済み」でその場で保存して折りたたみ、「除外」で今日やらない種目を最下部へまとめます。</li>
         <li><b>見やすいバージョン表示 (v10)</b>: 画面最上部に常時表示し、タップで更新確認が可能になりました。</li>
         <li><b>笠懸店公式全34マシン図鑑</b>: 全34種の使い方・セッティング・効く部位を完全網羅。</li>
         <li><b>自分用マシン設定メモ</b>: シートの高さ・ピン位置・いつもの重量を記録画面に自動表示。</li>
@@ -2141,7 +2129,7 @@
     startDate: "2025-07-29",
     weeks: 8,
     deloadWeek: 5,
-    note: "【アクロスプラザ笠懸店 特化型全身2分割（案1: 着実増量）】\nエニタイム笠懸店のマシン・フリーウェイト設備に最適化したプログラムです。前回の成功重量から着実な+2.5kgアップ（過負荷の原則）を目指しましょう。",
+    note: "【アクロスプラザ笠懸店 特化型全身プログラム（案1: 着実増量）】\nエニタイム笠懸店のマシン・フリーウェイト設備に最適化したプログラムです。前回の成功重量から着実な+2.5kgアップ（過負荷の原則）を目指しましょう。",
     daySchedule: {
       A: { title: "Day A · High Day（上半身＆脚・背中・腕）", desc: "ベンチプレス／スクワット／ショルダープレス／デッドリフト／アームカール／カーフ" },
       B: { title: "Day B · Volume Day（胸上部＆下半身・広背筋・体幹）", desc: "インクライン／レッグプレス／ラットプルダウン／レッグE／レッグC／ランジ" }
@@ -3688,7 +3676,6 @@
   var plan = {};
   var planDraft = null;
   var targetsEditMode = false;
-  var currentDay = "A";
   var recordDraft = {}; // { [exId]: { included: bool, sets: [{weight,reps}, ...] } }
 
   function isValidPlanShape(p) {
@@ -4462,17 +4449,6 @@
     return !!((rec.order && rec.order.length) || (rec.other && rec.other.trim()));
   }
 
-  /* 履歴・ホームの表示用に、実施した種目の区分から Day を決める（A だけ→A、B だけ→B、混在→なし） */
-  function refreshRecordDay(rec) {
-    var days = {};
-    (rec.order || []).forEach(function (id) {
-      var ex = exerciseById(id);
-      if (ex && (ex.day === "A" || ex.day === "B")) days[ex.day] = true;
-    });
-    var keys = Object.keys(days);
-    rec.day = keys.length === 1 ? keys[0] : "";
-  }
-
   /* 前回の実施順。その日より前の記録を新しい順にたどり、初めて出てきた種目から並べる。
      前回やっていない種目は、その前に実施したときの順番で後ろに続く。 */
   function lastCompletedOrder(beforeDate) {
@@ -4669,7 +4645,6 @@
     var rec = ensureRecordForDate();
     rec[exId] = { sets: clone(draft.sets) };
     if (rec.order.indexOf(exId) === -1) rec.order.push(exId);
-    refreshRecordDay(rec);
     afterRecordChange(rec);
     showToast("✅ " + ex.name + " を記録しました");
   };
@@ -4682,7 +4657,6 @@
     if (!Array.isArray(rec.order)) rec.order = recordExerciseList(rec).map(function (ex) { return ex.id; });
     delete rec[exId];
     rec.order = rec.order.filter(function (id) { return id !== exId; });
-    refreshRecordDay(rec);
     var emptied = !recordHasContent(rec);
     if (emptied) records.splice(records.indexOf(rec), 1);
     afterRecordChange(emptied ? null : rec);
@@ -4777,22 +4751,7 @@
       });
   }
 
-  /* 記録画面では区分を使わない。プランへの追加やフロアマップの絞り込み用に値だけ保持する */
-  function setDay(d) {
-    if (d === "A" || d === "B") currentDay = d;
-  }
-  window.setDay = setDay;
-
   /* ---------- Home ---------- */
-  /* 前回と交互になる「次にやる区分」 */
-  function suggestedNextDay() {
-    for (var i = records.length - 1; i >= 0; i--) {
-      if (records[i].day === "A") return "B";
-      if (records[i].day === "B") return "A";
-    }
-    return "A";
-  }
-
   /* ホームの「今日のトレーニング」カード。記録画面と同じ一覧から、
      実施済みの数と、このあと行う種目（前回の実施順）を出す。Day A/B は出さない。 */
   function renderTodayCard() {
@@ -4970,9 +4929,8 @@
     return out;
   }
 
-  /* 履歴に出す区分のラベル。区分なしで記録したものは種目数を出す */
-  function recordDayLabel(rec) {
-    if (rec.day === "A" || rec.day === "B") return "Day " + rec.day;
+  /* 履歴の各記録に付けるラベル（実施した種目数） */
+  function recordCountLabel(rec) {
     var n = recordExerciseList(rec).length;
     return n ? n + "種目" : "メモ";
   }
@@ -4993,7 +4951,7 @@
       card.className = "card hist-card";
       card.innerHTML =
         '<div class="h-top"><span class="h-date">' + fmtDate(rec.date) + '</span>' +
-        '<span class="h-day ' + (rec.day || "") + '">' + recordDayLabel(rec) + '</span></div>' +
+        '<span class="h-day">' + recordCountLabel(rec) + '</span></div>' +
         '<div class="h-summary">' + escapeHTML(summary || rec.other || "-") + '</div>' +
         '<div class="hist-detail" style="display:none;"></div>';
       card.addEventListener("click", function (e) {
@@ -5025,7 +4983,7 @@
   window.deleteRecord = function (index) {
     var rec = records[index];
     if (!rec) return;
-    askConfirm(fmtDate(rec.date) + "（" + recordDayLabel(rec) + "）の記録を削除します。\n元に戻せません。", "削除する", true)
+    askConfirm(fmtDate(rec.date) + "（" + recordCountLabel(rec) + "）の記録を削除します。\n元に戻せません。", "削除する", true)
       .then(function (ok) {
         if (!ok) return;
         records.splice(index, 1);
@@ -5039,7 +4997,6 @@
 
   /* ---------- Targets: view mode ---------- */
   function targetRowHTML(t) {
-    var dayLabel = t.day === "A" ? "Day A" : t.day === "B" ? "Day B" : "共通";
     var curTop = topWeight(t.current), goalTop = topWeight(t.goal);
     var pct = 100;
     if (goalTop !== curTop) pct = goalTop === 0 ? 0 : Math.max(0, Math.min(100, (curTop / goalTop) * 100));
@@ -5047,7 +5004,6 @@
       '<div class="tr2-top">' +
         '<div class="tr2-name-wrap">' +
         '<span class="tr2-name clickable" onclick="openMachineByName(' + jsArg(t.name) + ',' + jsArg(t.machineTip || "") + ')" title="タップしてマシンの外観・使い方を見る">' + escapeHTML(t.name) + ' <span class="photo-badge">📷</span></span>' +
-        '<span class="day-chip">' + dayLabel + '</span>' +
         renderMachineTipsHTML(t.machineTip, t.name) +
         '</div>' +
         '<span class="t-status ' + (t.status === "watch" ? "watch" : "ok") + '">' + (t.status === "watch" ? "要てこ入れ" : "順調") + '</span>' +
@@ -5076,16 +5032,8 @@
       '<div class="prog-dates"><span>' + fmtDateShort(plan.startDate || todayISO()) + ' 開始</span><span>' + fmtDateShort(endDate) + ' 終了予定</span></div>';
   }
 
-  function renderSchedGrid() {
-    var A = plan.daySchedule.A, B = plan.daySchedule.B;
-    document.getElementById("schedGrid").innerHTML =
-      '<div class="card sched-card"><div class="sc-badge">A</div><div><div class="sc-title">' + escapeHTML(A.title) + '</div><div class="sc-desc">' + escapeHTML(A.desc) + '</div></div></div>' +
-      '<div class="card sched-card"><div class="sc-badge">B</div><div><div class="sc-title">' + escapeHTML(B.title) + '</div><div class="sc-desc">' + escapeHTML(B.desc) + '</div></div></div>';
-  }
-
   function renderTargetsView() {
     renderProgCard();
-    renderSchedGrid();
     document.getElementById("phaseNoteView").innerHTML = '<b>メモ：</b>' + escapeHTML(plan.note || "");
     var mains = plan.exercises.filter(function (e) { return e.category === "メイン"; });
     var accs = plan.exercises.filter(function (e) { return e.category !== "メイン"; });
@@ -5120,13 +5068,8 @@
     planDraft.weeks = parseInt(val("planWeeks"), 10) || planDraft.weeks;
     planDraft.deloadWeek = parseInt(val("planDeload"), 10) || planDraft.deloadWeek;
     planDraft.note = val("planNote");
-    planDraft.daySchedule.A.title = val("planATitle") || planDraft.daySchedule.A.title;
-    planDraft.daySchedule.A.desc = val("planADesc");
-    planDraft.daySchedule.B.title = val("planBTitle") || planDraft.daySchedule.B.title;
-    planDraft.daySchedule.B.desc = val("planBDesc");
     planDraft.exercises.forEach(function (ex, i) {
       ex.name = (val("pe_name_" + i) || "").trim() || ex.name;
-      ex.day = val("pe_day_" + i) || ex.day;
       ex.category = val("pe_cat_" + i) || ex.category;
       ex.unit = val("pe_unit_" + i) || ex.unit;
       ex.status = val("pe_status_" + i) || ex.status;
@@ -5143,12 +5086,6 @@
     });
   }
 
-  function daySelectHTML(name, selected) {
-    var opts = [["A", "Day A"], ["B", "Day B"], ["both", "共通"]];
-    return '<select id="' + name + '">' + opts.map(function (o) {
-      return '<option value="' + o[0] + '"' + (o[0] === selected ? " selected" : "") + '>' + o[1] + '</option>';
-    }).join("") + '</select>';
-  }
   function catSelectHTML(name, selected) {
     var opts = ["メイン", "補助"];
     return '<select id="' + name + '">' + opts.map(function (o) {
@@ -5199,10 +5136,6 @@
     document.getElementById("planWeeks").value = planDraft.weeks || 8;
     document.getElementById("planDeload").value = planDraft.deloadWeek || 5;
     document.getElementById("planNote").value = planDraft.note || "";
-    document.getElementById("planATitle").value = planDraft.daySchedule.A.title || "";
-    document.getElementById("planADesc").value = planDraft.daySchedule.A.desc || "";
-    document.getElementById("planBTitle").value = planDraft.daySchedule.B.title || "";
-    document.getElementById("planBDesc").value = planDraft.daySchedule.B.desc || "";
 
     var list = document.getElementById("exEditList");
     list.innerHTML = "";
@@ -5211,11 +5144,10 @@
       row.className = "card ex-edit-row";
       row.dataset.exid = ex.id;
       row.open = !!planEditOpen[ex.id];
-      var dayLabel = ex.day === "both" ? "共通" : "Day " + ex.day;
       row.innerHTML =
         '<summary><span class="ee-caret">▶</span><span class="ee-sum">' +
         '<span class="ee-sum-name">' + (escapeHTML(ex.name) || "（名称未設定）") + '</span>' +
-        '<span class="ee-sum-meta">' + escapeHTML(dayLabel + " · " + ex.category) + '</span>' +
+        '<span class="ee-sum-meta">' + escapeHTML(ex.category) + '</span>' +
         '<span class="ee-sum-qty">' + escapeHTML(formatQty(ex.current, ex.unit)) +
         '<span class="ee-arrow">→</span>' +
         '<span class="ee-goal">' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span></span>' +
@@ -5225,7 +5157,7 @@
         '<input type="text" id="pe_name_' + i + '" value="' + escapeAttr(ex.name) + '" placeholder="種目名" style="flex:1;min-width:140px;">' +
         '<input type="text" id="pe_tip_' + i + '" value="' + escapeAttr(ex.machineTip || "") + '" placeholder="店舗マシン・設備名（例: パワーラック）" style="flex:1;min-width:160px;font-size:12.5px;">' +
         '</div>' +
-        '<div class="er-selects">' + daySelectHTML("pe_day_" + i, ex.day) + catSelectHTML("pe_cat_" + i, ex.category) + statusSelectHTML("pe_status_" + i, ex.status) +
+        '<div class="er-selects">' + catSelectHTML("pe_cat_" + i, ex.category) + statusSelectHTML("pe_status_" + i, ex.status) +
         unitSelectHTML("pe_unit_" + i, ex.unit, "onUnitChange(" + i + ")") + '</div>' +
         qtyGroupHTML(i, "cur", "現状", ex.current, ex.unit) +
         qtyGroupHTML(i, "goal", "目標", ex.goal, ex.unit) +
@@ -5594,7 +5526,6 @@
 
     renderHome();
     buildExerciseFields();
-    setDay(currentDay);
     refreshBackupSummary();
     document.getElementById("exportBox").value = "";
     showToast(mode === "replace"
@@ -5698,7 +5629,6 @@
     document.getElementById("topbarDate").textContent = fmtDate(todayISO());
     document.getElementById("inDate").value = todayISO();
     buildExerciseFields();
-    setDay(suggestedNextDay());
     showScreen("home");     /* renderHome もこの中で呼ばれる */
     refreshBackupSummary();
     wireConfirmDialog();
@@ -5708,7 +5638,7 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v11.2";
+  var APP_VERSION = "v11.3";
   var APP_BUILD_DATE = "2026-09-30";
   var swRegistration = null;
   var currentOfflineCacheName = null;
