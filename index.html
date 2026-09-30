@@ -123,6 +123,9 @@
     gap: 7px;
   }
   .wordmark .bar { color: var(--accent); }
+  .home-ver-tag {
+    font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 700; margin-left: 4px;
+  }
   .topbar-ver-badge {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -1441,7 +1444,7 @@
     <!-- ============ HOME ============ -->
     <section class="screen" id="screen-home">
       <h1 class="page-title">ホーム</h1>
-      <p class="page-sub" id="homeSub">筋力向上プログラムの進捗 <span id="homeVerTag" style="font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:bold;margin-left:4px;">(v10)</span></p>
+      <p class="page-sub" id="homeSub">筋力向上プログラムの進捗 <span id="homeVerTag" class="home-ver-tag">(v10)</span></p>
 
       <div class="stat-grid">
         <div class="card stat-tile">
@@ -4513,7 +4516,9 @@
 
   function renderHome() {
     var mainCount = plan.exercises.filter(function (e) { return e.category === "メイン"; }).length;
-    document.getElementById("homeSub").textContent = plan.weeks + "週間プログラム 第" + computeWeek() + "週 ／ メイン種目" + mainCount + "種目を強化中";
+    var homeSubEl = document.getElementById("homeSub");
+    homeSubEl.textContent = plan.weeks + "週間プログラム 第" + computeWeek() + "週 ／ メイン種目" + mainCount + "種目を強化中";
+    appendHomeVersionTag(homeSubEl);   /* textContent の書き換えで消えるため付け直す */
     document.getElementById("statCount").innerHTML = records.length + "<small>回</small>";
     document.getElementById("statLast").textContent = records.length ? fmtDate(records[records.length - 1].date) : "まだ記録なし";
 
@@ -5400,10 +5405,20 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v10";
-  var APP_BUILD_DATE = "2026-09-16";
+  var APP_VERSION = "v10.1";
+  var APP_BUILD_DATE = "2026-09-30";
   var swRegistration = null;
   var currentOfflineCacheName = null;
+
+  /* ホームの説明文は renderHome のたびに作り直されるので、バージョン表示を付け直す */
+  function appendHomeVersionTag(homeSubEl) {
+    if (!homeSubEl || homeSubEl.querySelector(".home-ver-tag")) return;
+    var tag = document.createElement("span");
+    tag.id = "homeVerTag";
+    tag.className = "home-ver-tag";
+    tag.textContent = "(" + APP_VERSION + ")";
+    homeSubEl.appendChild(tag);
+  }
 
   function renderAppVersion(offlineCacheName) {
     if (offlineCacheName) currentOfflineCacheName = offlineCacheName;
