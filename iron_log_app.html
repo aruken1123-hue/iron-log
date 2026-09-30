@@ -123,6 +123,68 @@
     gap: 7px;
   }
   .wordmark .bar { color: var(--accent); }
+  .rec-progress {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+  }
+  .rec-progress .rp-text { font-size: 12.5px; color: var(--text); flex-shrink: 0; }
+  .rec-progress .rp-text b { font-family: var(--font-mono); font-size: 15px; color: var(--accent); }
+  .rec-progress .rp-bar { flex: 1; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .rec-progress .rp-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .rec-progress .rp-sub { font-size: 10.5px; color: var(--text-muted); flex-shrink: 0; }
+
+  .rec-section { margin-top: 12px; }
+  .rec-section-head {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text); font-size: 12.5px; font-weight: 700; cursor: pointer;
+  }
+  .rec-section-count { font-family: var(--font-mono); color: var(--accent); margin-left: 4px; }
+  .rec-section-hint { font-size: 10.5px; font-weight: 500; color: var(--text-muted); }
+  .rec-section-body { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+  .rec-section-body[hidden] { display: none; }
+
+  .done-row, .excluded-row {
+    display: flex; align-items: center; gap: 8px; padding: 9px 11px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .done-row { border-left: 3px solid var(--success); }
+  .excluded-row { opacity: 0.75; }
+  .done-row .dr-idx {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--success-bg); color: var(--success);
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .done-row .dr-main, .excluded-row .er-main { flex: 1; min-width: 0; }
+  .done-row .dr-name, .excluded-row .er-name {
+    font-size: 12.5px; font-weight: 600; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .done-row .dr-val {
+    font-family: var(--font-mono); font-size: 11px; color: var(--success); margin-top: 2px;
+    font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+  }
+  .done-row button, .excluded-row button {
+    flex-shrink: 0; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text-muted); font-size: 11.5px; font-weight: 700; cursor: pointer;
+  }
+  .rec-card-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-done {
+    flex: 1; padding: 13px 8px; border-radius: 10px; border: none; background: var(--accent); color: var(--accent-ink);
+    font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .btn-done:active { opacity: 0.85; }
+  .btn-exclude {
+    flex-shrink: 0; padding: 13px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text-muted); font-size: 12.5px; font-weight: 700; cursor: pointer;
+  }
+  .rec-autosave-note { font-size: 10.5px; color: var(--text-muted); margin: 6px 2px 0; line-height: 1.5; }
+  .rec-empty-hint { color: var(--text-muted); font-size: 12.5px; text-align: center; padding: 16px 10px; }
+  .ex-pos {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; color: var(--text-muted); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
   .home-ver-tag {
     font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 700; margin-left: 4px;
   }
@@ -1216,7 +1278,8 @@
     font-family: var(--font-display); font-weight: 900; font-size: 13px; width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent);
   }
-  .sched-card .sc-title { font-weight: 700; font-size: 13.5px; }
+  .sched-card > div:last-child { min-width: 0; }
+  .sched-card .sc-title { font-weight: 700; font-size: 13.5px; overflow-wrap: anywhere; }
   .sched-card .sc-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.6; }
 
   .phase-note { padding: 13px 14px; margin-bottom: 14px; font-size: 12.5px; color: var(--text-muted); line-height: 1.7; }
@@ -1435,7 +1498,7 @@
   <div class="topbar">
     <div class="wordmark">
       <span class="bar">/</span>IRON LOG
-      <button type="button" class="topbar-ver-badge" id="topbarVerBadge" onclick="showVersionModal()" title="バージョン情報・更新履歴">v10</button>
+      <button type="button" class="topbar-ver-badge" id="topbarVerBadge" onclick="showVersionModal()" title="バージョン情報・更新履歴">v11</button>
     </div>
     <div class="today" id="topbarDate">--</div>
   </div>
@@ -1444,7 +1507,7 @@
     <!-- ============ HOME ============ -->
     <section class="screen" id="screen-home">
       <h1 class="page-title">ホーム</h1>
-      <p class="page-sub" id="homeSub">筋力向上プログラムの進捗 <span id="homeVerTag" class="home-ver-tag">(v10)</span></p>
+      <p class="page-sub" id="homeSub">筋力向上プログラムの進捗 <span id="homeVerTag" class="home-ver-tag">(v11)</span></p>
 
       <div class="stat-grid">
         <div class="card stat-tile">
@@ -1473,19 +1536,12 @@
     <!-- ============ RECORD ============ -->
     <section class="screen" id="screen-record">
       <h1 class="page-title">記録入力</h1>
-      <p class="page-sub">Day A / Day B を選ぶとその日の種目だけが表示されます。▲▼で実施順序を並べ替えられます</p>
+      <p class="page-sub">機器と実施内容の一覧です。終えたら「実施済み」、今日やらないものは「除外」を押してください。並び順は前回の実施順です。</p>
 
       <div class="field-row">
         <div class="field">
           <label>日付</label>
-          <input type="date" id="inDate">
-        </div>
-      </div>
-      <div class="field" style="margin-bottom:14px;">
-        <label>区分</label>
-        <div class="day-toggle" id="dayToggle">
-          <button type="button" data-day="A" onclick="setDay('A')">Day A</button>
-          <button type="button" data-day="B" onclick="setDay('B')">Day B</button>
+          <input type="date" id="inDate" onchange="onRecordDateChange()">
         </div>
       </div>
 
@@ -1495,11 +1551,26 @@
       </div>
 
       <div class="plan-actions-bar" style="margin-bottom:12px;">
-        <button type="button" class="plan-act-btn" onclick="openFloorMapModal('TODAY')">🗺️ 本日の器具フロアマップ（配置図）</button>
+        <button type="button" class="plan-act-btn" onclick="openFloorMapModal()">🗺️ 器具フロアマップ（配置図）</button>
         <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 マシン図鑑・種目を追加</button>
       </div>
 
+      <div id="recProgress" class="rec-progress"></div>
       <div id="exerciseFields"></div>
+      <div id="recDoneSection" class="rec-section" hidden>
+        <button type="button" class="rec-section-head" onclick="toggleDoneSection()">
+          <span><span id="recDoneCaret">▾</span> ✅ 実施済み <span id="recDoneCount" class="rec-section-count"></span></span>
+          <span class="rec-section-hint">タップで開閉</span>
+        </button>
+        <div id="recDoneList" class="rec-section-body"></div>
+      </div>
+      <div id="recExcludedSection" class="rec-section" hidden>
+        <button type="button" class="rec-section-head" onclick="toggleExcludedSection()">
+          <span><span id="recExcludedCaret">▾</span> 🚫 除外したマシン <span id="recExcludedCount" class="rec-section-count"></span></span>
+          <span class="rec-section-hint">今日だけ</span>
+        </button>
+        <div id="recExcludedList" class="rec-section-body"></div>
+      </div>
 
       <div class="field" style="margin-top:8px;">
         <label>その他・メモ</label>
@@ -1511,12 +1582,15 @@
           <button type="button" class="quick-chip" onclick="addQuickChip('ヒザタテ15回')">＋ ヒザタテ15回</button>
         </div>
         <div class="card" style="padding:2px;">
-          <input type="text" id="inOther" placeholder="バーチカル30秒、クロス30秒 など" style="border:none;width:100%;background:transparent;padding:10px 11px;font-family:var(--font-body);font-size:13.5px;color:var(--text);">
+          <input type="text" id="inOther" onchange="saveRecordMemo(true)" placeholder="バーチカル30秒、クロス30秒 など" style="border:none;width:100%;background:transparent;padding:10px 11px;font-family:var(--font-body);font-size:13.5px;color:var(--text);">
         </div>
       </div>
 
-      <button class="btn-primary" onclick="saveRecord()">この内容を保存</button>
-      <button class="btn-secondary" onclick="clearForm()">フォームをクリア</button>
+      <div class="btn-row" style="margin-top:8px;">
+        <button type="button" onclick="saveRecordMemo()">メモを保存</button>
+      </div>
+      <p class="rec-autosave-note">「実施済み」を押すたびに、その場で記録されます（保存ボタンは不要です）。</p>
+      <button class="btn-secondary" onclick="clearTodayRecord()">この日の記録をやり直す</button>
 
       <!-- ============ Rest Timer (下部常時固定) ============ -->
       <div class="rest-timer" id="bottomRestTimer">
@@ -1631,7 +1705,7 @@
       <div class="card settings-card" style="border-left: 3.5px solid var(--accent);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <h3 style="margin:0;">ℹ️ バージョン情報</h3>
-          <span class="topbar-ver-badge" id="settingsVerBadge" style="cursor:default;">v10</span>
+          <span class="topbar-ver-badge" id="settingsVerBadge" style="cursor:default;">v11</span>
         </div>
         <div class="app-version-row" style="border-top:none;padding-top:0;margin-top:0;">
           <div>
@@ -1800,23 +1874,24 @@
     <div class="machine-modal-head">
       <div class="machine-modal-title-wrap">
         <h3 id="vmTitle" class="machine-modal-title">ℹ️ バージョン情報</h3>
-        <span class="machine-modal-area-badge" id="vmBadge">v10 (最新版)</span>
+        <span class="machine-modal-area-badge" id="vmBadge">v11 (最新版)</span>
       </div>
       <button type="button" class="machine-modal-close" onclick="closeVersionModal()" aria-label="閉じる">✕</button>
     </div>
     <div class="machine-modal-body" style="gap:12px;padding:14px;">
       <div class="card" style="background:var(--surface-2);padding:12px;border:1px solid var(--border);">
         <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px;">
-          IRON LOG <span style="color:var(--accent);">v10</span>
+          IRON LOG <span id="vmAppVer" style="color:var(--accent);">v11</span>
         </div>
         <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" id="vmOfflineStatus">
-          ビルド日：2026-09-16<br>
+          ビルド日：2026-09-30<br>
           オフラインキャッシュ：確認中…
         </div>
       </div>
 
       <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
+        <li><b>記録画面を一覧方式に (v11)</b>: Day A/B の切り替えをなくし、全種目を前回の実施順に表示。「実施済み」でその場で保存して折りたたみ、「除外」で今日やらない種目を最下部へまとめます。</li>
         <li><b>見やすいバージョン表示 (v10)</b>: 画面最上部に常時表示し、タップで更新確認が可能になりました。</li>
         <li><b>笠懸店公式全34マシン図鑑</b>: 全34種の使い方・セッティング・効く部位を完全網羅。</li>
         <li><b>自分用マシン設定メモ</b>: シートの高さ・ピン位置・いつもの重量を記録画面に自動表示。</li>
@@ -2777,20 +2852,13 @@
     persistPlan();
 
     /* 入力途中の記録を消さないよう、足りない下書きだけを補う */
-    if (!recordDraft[ex.id]) {
-      recordDraft[ex.id] = { included: false, sets: clone(lastSetsFor(ex.id) || ex.current.sets) };
-    }
+    draftFor(ex);
+    setExcluded(excludedIds().filter(function (id) { return id !== ex.id; }));
     closeMachineModal();
     closeMachineListModal();
     closeFloorMapModal();
     showScreen("record");
-    var showDay = day === "both" ? currentDay : day;
-    if (showDay !== currentDay) {
-      setDay(showDay);
-    } else {
-      recordDraft[ex.id].included = true;
-      renderDayExerciseCards();
-    }
+    renderRecordScreen();
     var card = document.getElementById("exCard_" + ex.id);
     if (card) {
       card.scrollIntoView({ block: "center" });
@@ -3916,7 +3984,7 @@
     } else if (cur.indexOf(text) === -1) {
       input.value = cur + "、" + text;
     }
-    input.focus();
+    saveRecordMemo(true);   /* チップで足した内容もその場で記録に反映する */
   };
 
   /* ---------- Screen Wake Lock (画面消灯防止) ---------- */
@@ -4017,6 +4085,7 @@
 
   /* 同じ記録を識別するID。同じ日・同じ区分の何回目か、で決める */
   function sheetRecordKey(rec) {
+    if (rec.id) return rec.id;   /* 新しい記録は固有IDを持つ。区分が変わっても同じ行に書く */
     var n = 0;
     for (var i = 0; i < records.length; i++) {
       if (records[i].date === rec.date && records[i].day === rec.day) {
@@ -4082,13 +4151,27 @@
       body: JSON.stringify(payload)
     }).then(function (json) {
       if (!json || json.status !== "success") throw new Error((json && json.message) || "GASがエラーを返しました");
+      rememberGasVersion(json);
       return json;
     });
   }
 
   function pingSheets() {
     var sep = gasUrl.indexOf("?") === -1 ? "?" : "&";
-    return sheetRequest(gasUrl + sep + "action=ping&t=" + Date.now(), { method: "GET" });
+    return sheetRequest(gasUrl + sep + "action=ping&t=" + Date.now(), { method: "GET" }).then(function (json) {
+      rememberGasVersion(json);
+      return json;
+    });
+  }
+
+  /* GAS の版。0 = まだ不明、1 = 旧版（同じ記録を送るたびに行が増える）、2以上 = 上書きに対応 */
+  var GAS_VERSION_KEY = "ironlog_gas_version";
+  function knownGasVersion() {
+    try { return parseInt(localStorage.getItem(GAS_VERSION_KEY) || "0", 10) || 0; } catch (e) { return 0; }
+  }
+  function rememberGasVersion(json) {
+    if (!json) return;
+    try { localStorage.setItem(GAS_VERSION_KEY, String(json.version >= 2 ? json.version : 1)); } catch (e) {}
   }
 
   function sheetRowsForExport() {
@@ -4133,7 +4216,10 @@
 
   window.saveGasUrl = function (val) {
     gasUrl = (val || "").trim();
-    try { localStorage.setItem(GAS_URL_KEY, gasUrl); } catch (e) {}
+    try {
+      localStorage.setItem(GAS_URL_KEY, gasUrl);
+      localStorage.removeItem(GAS_VERSION_KEY);   /* URL が変わったら版を調べ直す */
+    } catch (e) {}
     showToast("GAS URLを保存しました");
   };
 
@@ -4269,6 +4355,8 @@
     document.querySelectorAll(".tab-btn").forEach(function (b) {
       b.classList.toggle("active", b.dataset.screen === name);
     });
+    if (name !== "record") flushSheetSync();   /* 記録画面を離れるときに未送信分を送る */
+    if (name === "record") renderRecordScreen();
     if (name === "home") renderHome();
     if (name === "history") renderHistory();
     if (name === "targets") { targetsEditMode = false; renderTargets(); }
@@ -4278,7 +4366,6 @@
   window.showScreen = showScreen;
 
   window.startRecord = function () {
-    setDay(suggestedNextDay());
     showScreen("record");
   };
 
@@ -4296,60 +4383,193 @@
 
   function initRecordDraft() {
     recordDraft = {};
+    var rec = findRecordByDate(recordDate());
     plan.exercises.forEach(function (ex) {
-      var prevSets = lastSetsFor(ex.id);
-      recordDraft[ex.id] = { included: false, sets: clone(prevSets || ex.current.sets) };
+      var todaySets = (rec && isValidRecordEntry(rec[ex.id])) ? clone(rec[ex.id].sets) : null;
+      recordDraft[ex.id] = { sets: todaySets || clone(lastSetsFor(ex.id) || ex.current.sets) };
     });
   }
 
+  function draftFor(ex) {
+    if (!recordDraft[ex.id]) recordDraft[ex.id] = { sets: clone(lastSetsFor(ex.id) || ex.current.sets) };
+    return recordDraft[ex.id];
+  }
+
+  /* 記録画面を作り直す（日付を変えたとき・プランを変えたとき・起動時） */
   function buildExerciseFields() {
     initRecordDraft();
-    applyDayInclusion(currentDay);
-    renderDayExerciseCards();
+    loadExcluded();
+    var rec = findRecordByDate(recordDate());
+    var memo = document.getElementById("inOther");
+    if (memo) memo.value = (rec && rec.other) || "";
+    renderRecordScreen();
   }
 
-  /* marks exercises belonging to day `d` as included by default, everything else excluded */
-  function applyDayInclusion(d) {
-    ensureDayOrder(plan);
-    var ids = plan.dayOrder[d] || [];
-    plan.exercises.forEach(function (ex) {
-      if (recordDraft[ex.id]) recordDraft[ex.id].included = ids.indexOf(ex.id) !== -1;
-    });
+  /* ---------- 記録画面：区分なしの一覧／実施済み／除外 ----------
+     ・「実施済み」を押した時点で、その日の記録（records）へ保存する
+     ・並び順は「前回の記録で実施した順」。前回やっていない種目はその後ろ
+     ・「除外」はその日だけ。翌日（別の日付）には元の一覧に戻る */
+  var EXCLUDE_KEY = "ironlog_excluded_v1";
+  var excludedState = { date: "", ids: [] };
+  var doneSectionOpen = true;
+  var excludedSectionOpen = true;
+
+  function recordDate() {
+    var el = document.getElementById("inDate");
+    return (el && el.value) || todayISO();
   }
 
-  function dayExerciseList(d) {
-    var ids = plan.dayOrder[d] || [];
-    return ids.map(function (id) {
-      return plan.exercises.filter(function (ex) { return ex.id === id; })[0];
-    }).filter(Boolean);
+  function loadExcluded() {
+    try {
+      var v = JSON.parse(localStorage.getItem(EXCLUDE_KEY) || "null");
+      excludedState = (v && typeof v === "object" && Array.isArray(v.ids)) ? v : { date: "", ids: [] };
+    } catch (e) { excludedState = { date: "", ids: [] }; }
+  }
+  function excludedIds() {
+    return excludedState.date === recordDate() ? excludedState.ids : [];
+  }
+  function setExcluded(ids) {
+    excludedState = { date: recordDate(), ids: ids };
+    try { localStorage.setItem(EXCLUDE_KEY, JSON.stringify(excludedState)); } catch (e) {}
   }
 
-  function renderDayExerciseCards() {
-    var wrap = document.getElementById("exerciseFields");
-    wrap.innerHTML = "";
-    var list = dayExerciseList(currentDay);
-    if (!list.length) {
-      wrap.innerHTML = '<div class="card empty-hint">この区分に割り当てられた種目がありません。「プラン」タブで種目の区分を設定してください。</div>';
-      return;
+  function exerciseById(id) {
+    return plan.exercises.filter(function (ex) { return ex.id === id; })[0] || null;
+  }
+
+  function findRecordByDate(date) {
+    for (var i = records.length - 1; i >= 0; i--) {
+      if (records[i].date === date) return records[i];
     }
-    list.forEach(function (ex, idx) {
+    return null;
+  }
+
+  /* その日の記録を返す。無ければ作る */
+  function ensureRecordForDate() {
+    var date = recordDate();
+    var rec = findRecordByDate(date);
+    if (!rec) {
+      rec = { id: "r" + Date.now().toString(36), date: date, day: "", other: "", order: [] };
+      records.push(rec);
+      records.sort(function (a, b) { return a.date.localeCompare(b.date); });
+    }
+    /* 以前の方式で保存した記録を続ける場合は、シート上の行と同じIDを引き継ぐ */
+    if (!rec.id) rec.id = sheetRecordKey(rec);
+    if (!Array.isArray(rec.order)) rec.order = recordExerciseList(rec).map(function (ex) { return ex.id; });
+    return rec;
+  }
+
+  function recordHasContent(rec) {
+    return !!((rec.order && rec.order.length) || (rec.other && rec.other.trim()));
+  }
+
+  /* 履歴・ホームの表示用に、実施した種目の区分から Day を決める（A だけ→A、B だけ→B、混在→なし） */
+  function refreshRecordDay(rec) {
+    var days = {};
+    (rec.order || []).forEach(function (id) {
+      var ex = exerciseById(id);
+      if (ex && (ex.day === "A" || ex.day === "B")) days[ex.day] = true;
+    });
+    var keys = Object.keys(days);
+    rec.day = keys.length === 1 ? keys[0] : "";
+  }
+
+  /* 前回の実施順。その日より前の記録を新しい順にたどり、初めて出てきた種目から並べる。
+     前回やっていない種目は、その前に実施したときの順番で後ろに続く。 */
+  function lastCompletedOrder(beforeDate) {
+    var out = [], seen = {}, remaining = plan.exercises.length;
+    for (var i = records.length - 1; i >= 0 && remaining > 0; i--) {
+      var r = records[i];
+      if (r.date >= beforeDate) continue;
+      recordExerciseList(r).forEach(function (ex) {
+        if (seen[ex.id]) return;
+        seen[ex.id] = true;
+        out.push(ex.id);
+        remaining--;
+      });
+    }
+    return out;
+  }
+
+  function recordScreenLists() {
+    var date = recordDate();
+    var rec = findRecordByDate(date);
+    var doneIds = rec ? recordExerciseList(rec).map(function (ex) { return ex.id; }) : [];
+    var exIds = excludedIds().filter(function (id) { return doneIds.indexOf(id) === -1; });
+    var ordered = [], seen = {};
+    lastCompletedOrder(date).concat(plan.exercises.map(function (ex) { return ex.id; })).forEach(function (id) {
+      var ex = exerciseById(id);
+      if (!ex || seen[id]) return;
+      seen[id] = true;
+      ordered.push(ex);
+    });
+    return {
+      rec: rec,
+      todo: ordered.filter(function (ex) { return doneIds.indexOf(ex.id) === -1 && exIds.indexOf(ex.id) === -1; }),
+      done: doneIds.map(exerciseById).filter(Boolean),
+      excluded: exIds.map(exerciseById).filter(Boolean)
+    };
+  }
+
+  function renderRecordScreen() {
+    var wrap = document.getElementById("exerciseFields");
+    if (!wrap) return;
+    var lists = recordScreenLists();
+    var total = lists.todo.length + lists.done.length;
+
+    var prog = document.getElementById("recProgress");
+    if (prog) {
+      var pct = total ? Math.round((lists.done.length / total) * 100) : 0;
+      prog.innerHTML = '<div class="rp-text"><b>' + lists.done.length + '</b> / ' + total + ' 実施済み</div>' +
+        '<div class="rp-bar"><div class="rp-fill" style="width:' + pct + '%;"></div></div>' +
+        '<div class="rp-sub">残り ' + lists.todo.length + (lists.excluded.length ? '・除外 ' + lists.excluded.length : '') + '</div>';
+    }
+
+    wrap.innerHTML = "";
+    if (!plan.exercises.length) {
+      wrap.innerHTML = '<div class="card rec-empty-hint">種目が登録されていません。「プラン」タブか「マシン図鑑」から追加してください。</div>';
+    } else if (!lists.todo.length) {
+      wrap.innerHTML = '<div class="card rec-empty-hint">' +
+        (lists.done.length ? '🎉 一覧の種目はすべて実施済みです。おつかれさまでした。' : 'すべて除外されています。下の「除外したマシン」から戻せます。') + '</div>';
+    }
+    lists.todo.forEach(function (ex, idx) {
       var box = document.createElement("div");
       box.className = "card exercise-card";
       box.id = "exCard_" + ex.id;
+      box.dataset.pos = String(idx + 1);
       wrap.appendChild(box);
-      renderExerciseCard(ex, idx, list.length);
+      renderExerciseCard(ex);
     });
-  }
 
-  window.moveExerciseOrder = function (exId, dir) {
-    var order = plan.dayOrder[currentDay];
-    var i = order.indexOf(exId);
-    var j = i + dir;
-    if (i === -1 || j < 0 || j >= order.length) return;
-    var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
-    persistPlan();
-    renderDayExerciseCards();
-  };
+    var doneSec = document.getElementById("recDoneSection");
+    doneSec.hidden = !lists.done.length;
+    document.getElementById("recDoneCount").textContent = lists.done.length ? lists.done.length + "件" : "";
+    document.getElementById("recDoneCaret").textContent = doneSectionOpen ? "▾" : "▸";
+    var doneList = document.getElementById("recDoneList");
+    doneList.hidden = !doneSectionOpen;
+    doneList.innerHTML = lists.done.map(function (ex, i) {
+      return '<div class="done-row"><span class="dr-idx">' + (i + 1) + '</span>' +
+        '<div class="dr-main"><div class="dr-name">' + escapeHTML(ex.name) + '</div>' +
+        '<div class="dr-val">' + escapeHTML(displayValue(lists.rec[ex.id], ex.unit)) + '</div></div>' +
+        '<button type="button" onclick="undoExerciseDone(' + jsArg(ex.id) + ')">やり直す</button></div>';
+    }).join("");
+
+    var exSec = document.getElementById("recExcludedSection");
+    exSec.hidden = !lists.excluded.length;
+    document.getElementById("recExcludedCount").textContent = lists.excluded.length ? lists.excluded.length + "件" : "";
+    document.getElementById("recExcludedCaret").textContent = excludedSectionOpen ? "▾" : "▸";
+    var exList = document.getElementById("recExcludedList");
+    exList.hidden = !excludedSectionOpen;
+    exList.innerHTML = lists.excluded.map(function (ex) {
+      return '<div class="excluded-row"><div class="er-main"><div class="er-name">' + escapeHTML(ex.name) + '</div></div>' +
+        '<button type="button" onclick="restoreExercise(' + jsArg(ex.id) + ')">一覧に戻す</button></div>';
+    }).join("");
+  }
+  /* 旧名で呼んでいる箇所のために残す */
+  function renderDayExerciseCards() { renderRecordScreen(); }
+
+  window.toggleDoneSection = function () { doneSectionOpen = !doneSectionOpen; renderRecordScreen(); };
+  window.toggleExcludedSection = function () { excludedSectionOpen = !excludedSectionOpen; renderRecordScreen(); };
 
   window.onRecFieldChange = function (el, exId, setIdx, field) {
     var v = parseFloat(el.value);
@@ -4357,57 +4577,52 @@
     if (recordDraft[exId] && recordDraft[exId].sets[setIdx]) recordDraft[exId].sets[setIdx][field] = v;
   };
 
-  function renderExerciseCard(ex, idx, total) {
+  /* 未実施の種目カード（入力欄＋「実施済み」「除外」） */
+  function renderExerciseCard(ex) {
     var el = document.getElementById("exCard_" + ex.id);
     if (!el) return;
-    var draft = recordDraft[ex.id];
+    var draft = draftFor(ex);
     var ucfg = UNIT_CONFIG[ex.unit] || UNIT_CONFIG.kg;
+    var rcfg = repsCfgFor(ex.unit);
     var prevText = displayValue(lastEntryFor(ex.id), ex.unit);
-    var isFirst = idx === 0, isLast = idx === total - 1;
 
-    var html = '<div class="ex-head">' +
-      '<div class="ex-order">' +
-      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + jsArg(ex.id) + ',-1)"' + (isFirst ? " disabled" : "") + ' aria-label="順番を上げる">▲</button>' +
-      '<span class="ex-order-num">' + (idx + 1) + '</span>' +
-      '<button type="button" class="ex-order-btn" onclick="moveExerciseOrder(' + jsArg(ex.id) + ',1)"' + (isLast ? " disabled" : "") + ' aria-label="順番を下げる">▼</button>' +
-      '</div>' +
+    var rows = draft.sets.map(function (s, j) {
+      var live = "onRecFieldChange(this," + jsArg(ex.id) + "," + j + ",";
+      return '<div class="set-row">' +
+        '<div class="set-idx">' + (j + 1) + '</div>' +
+        '<div class="set-fields">' +
+          qtyFieldHTML("rec_w_" + ex.id + "_" + j, ucfg.label, s.weight, ucfg, ex.unit, live + "'weight')") +
+          qtyFieldHTML("rec_r_" + ex.id + "_" + j, rcfg.label, s.reps, rcfg, rcfg.suffix, live + "'reps')") +
+        '</div>' +
+        (draft.sets.length > 1
+          ? '<button type="button" class="set-remove" onclick="removeRecSet(' + jsArg(ex.id) + ',' + j + ')">✕</button>'
+          : '<span class="set-remove-spacer"></span>') +
+        '</div>';
+    }).join("");
+
+    el.innerHTML = '<div class="ex-head">' +
+      '<span class="ex-pos">' + escapeHTML(el.dataset.pos || "") + '</span>' +
       '<div class="ex-name-wrap">' +
       '<span class="ex-name clickable" onclick="openMachineByName(' + jsArg(ex.name) + ',' + jsArg(ex.machineTip || "") + ')" title="タップしてマシンの外観・使い方を見る">' + escapeHTML(ex.name) + ' <span class="photo-badge">📷</span></span>' +
       '<span class="ex-target">目標 ' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span>' +
       renderMachineTipsHTML(ex.machineTip, ex.name) +
       machineMemoLineHTML(ex) +
-      '</div>' +
-      '<button type="button" class="ex-toggle-btn ' + (draft.included ? "on" : "") + '" onclick="toggleRecInclude(' + jsArg(ex.id) + ')">' +
-      (draft.included ? "実施" : "スキップ中") + '</button></div>';
+      '</div></div>' +
+      rows +
+      '<button type="button" class="add-set-btn" onclick="addRecSet(' + jsArg(ex.id) + ')">＋ セットを追加</button>' +
+      (prevText
+        ? '<div class="ex-prev-row"><div class="ex-prev">前回：' + escapeHTML(prevText) + '</div>' +
+          '<button type="button" class="copy-prev-btn" onclick="applyPrevSets(' + jsArg(ex.id) + ')">⚡ 前回を反映</button></div>'
+        : '') +
+      '<div class="rec-card-actions">' +
+      '<button type="button" class="btn-done" onclick="markExerciseDone(' + jsArg(ex.id) + ')">✅ 実施済み</button>' +
+      '<button type="button" class="btn-exclude" onclick="excludeExercise(' + jsArg(ex.id) + ')">除外</button>' +
+      '</div>';
+  }
 
-    if (draft.included) {
-      var rows = draft.sets.map(function (s, j) {
-        var live = "onRecFieldChange(this," + jsArg(ex.id) + "," + j + ",";
-        return '<div class="set-row">' +
-          '<div class="set-idx">' + (j + 1) + '</div>' +
-          '<div class="set-fields">' +
-            qtyFieldHTML("rec_w_" + ex.id + "_" + j, ucfg.label, s.weight, ucfg, ex.unit, live + "'weight')") +
-            qtyFieldHTML("rec_r_" + ex.id + "_" + j, repsCfgFor(ex.unit).label, s.reps, repsCfgFor(ex.unit), repsCfgFor(ex.unit).suffix, live + "'reps')") +
-          '</div>' +
-          (draft.sets.length > 1
-            ? '<button type="button" class="set-remove" onclick="removeRecSet(' + jsArg(ex.id) + ',' + j + ')">✕</button>'
-            : '<span class="set-remove-spacer"></span>') +
-          '</div>';
-      }).join("");
-      html += rows + '<button type="button" class="add-set-btn" onclick="addRecSet(' + jsArg(ex.id) + ')">＋ セットを追加</button>';
-      if (prevText) {
-        html += '<div class="ex-prev-row">' +
-          '<div class="ex-prev">前回：' + escapeHTML(prevText) + '</div>' +
-          '<button type="button" class="copy-prev-btn" onclick="applyPrevSets(' + jsArg(ex.id) + ')">⚡ 前回を反映</button>' +
-          '</div>';
-      }
-    } else {
-      html += '<div class="ex-empty-body"><div class="ex-prev-row"><div class="ex-prev">今日はスキップします' +
-        (prevText ? '（前回：' + escapeHTML(prevText) + '）' : '') + '</div>' +
-        (prevText ? '<button type="button" class="copy-prev-btn" onclick="applyPrevSets(' + jsArg(ex.id) + ')">⚡ 実施して反映</button>' : '') +
-        '</div></div>';
-    }
-    el.innerHTML = html;
+  function rerenderCard(exId) {
+    var ex = exerciseById(exId);
+    if (ex) renderExerciseCard(ex);
   }
 
   window.applyPrevSets = function (exId) {
@@ -4416,102 +4631,167 @@
       showToast("前回の記録がありません");
       return;
     }
-    if (!recordDraft[exId]) recordDraft[exId] = { included: true, sets: [] };
-    recordDraft[exId].included = true;
-    recordDraft[exId].sets = clone(prev);
-    var list = dayExerciseList(currentDay);
-    var idx = list.findIndex(function (e) { return e.id === exId; });
-    renderExerciseCard(list[idx], idx, list.length);
+    var ex = exerciseById(exId);
+    if (!ex) return;
+    draftFor(ex).sets = clone(prev);
+    rerenderCard(exId);
     showToast("前回のセット内容を反映しました");
-  };
-
-  window.toggleRecInclude = function (exId) {
-    recordDraft[exId].included = !recordDraft[exId].included;
-    var list = dayExerciseList(currentDay);
-    var idx = list.findIndex(function (e) { return e.id === exId; });
-    renderExerciseCard(list[idx], idx, list.length);
   };
 
   window.addRecSet = function (exId) {
     var draft = recordDraft[exId];
+    if (!draft) return;
     if (draft.sets.length >= MAX_SETS) { showToast("セット数の上限（" + MAX_SETS + "）に達しています"); return; }
     var last = draft.sets[draft.sets.length - 1] || { weight: 20, reps: 10 };
     draft.sets.push({ weight: last.weight, reps: last.reps });
-    var list = dayExerciseList(currentDay);
-    var idx = list.findIndex(function (e) { return e.id === exId; });
-    renderExerciseCard(list[idx], idx, list.length);
+    rerenderCard(exId);
   };
 
   window.removeRecSet = function (exId, j) {
     var draft = recordDraft[exId];
+    if (!draft) return;
     if (draft.sets.length > 1) draft.sets.splice(j, 1);
-    var list = dayExerciseList(currentDay);
-    var idx = list.findIndex(function (e) { return e.id === exId; });
-    renderExerciseCard(list[idx], idx, list.length);
+    rerenderCard(exId);
   };
 
+  /* 記録が変わったあとの共通処理 */
+  function afterRecordChange(rec) {
+    persistRecords();
+    scheduleSheetSync(rec);
+    renderRecordScreen();
+    refreshBackupSummary();
+  }
+
+  /* 「実施済み」：入力中の内容をその日の記録に保存し、カードを折りたたむ */
+  window.markExerciseDone = function (exId) {
+    var ex = exerciseById(exId);
+    var draft = recordDraft[exId];
+    if (!ex || !draft || !draft.sets.length) return;
+    var rec = ensureRecordForDate();
+    rec[exId] = { sets: clone(draft.sets) };
+    if (rec.order.indexOf(exId) === -1) rec.order.push(exId);
+    refreshRecordDay(rec);
+    afterRecordChange(rec);
+    showToast("✅ " + ex.name + " を記録しました");
+  };
+
+  /* 「やり直す」：実施済みを取り消して一覧に戻す（入力値は残す） */
+  window.undoExerciseDone = function (exId) {
+    var rec = findRecordByDate(recordDate());
+    if (!rec) return;
+    if (isValidRecordEntry(rec[exId]) && recordDraft[exId]) recordDraft[exId].sets = clone(rec[exId].sets);
+    if (!Array.isArray(rec.order)) rec.order = recordExerciseList(rec).map(function (ex) { return ex.id; });
+    delete rec[exId];
+    rec.order = rec.order.filter(function (id) { return id !== exId; });
+    refreshRecordDay(rec);
+    var emptied = !recordHasContent(rec);
+    if (emptied) records.splice(records.indexOf(rec), 1);
+    afterRecordChange(emptied ? null : rec);
+    showToast("一覧に戻しました");
+  };
+
+  /* 「除外」：今日やらない種目を最下部へまとめる（その日だけ） */
+  window.excludeExercise = function (exId) {
+    var ids = excludedIds().slice();
+    if (ids.indexOf(exId) === -1) ids.push(exId);
+    setExcluded(ids);
+    renderRecordScreen();
+  };
+
+  window.restoreExercise = function (exId) {
+    setExcluded(excludedIds().filter(function (id) { return id !== exId; }));
+    renderRecordScreen();
+  };
+
+  /* メモ（その他）をその日の記録に保存する。quiet=true は入力欄の変更時の自動保存 */
+  window.saveRecordMemo = function (quiet) {
+    var input = document.getElementById("inOther");
+    if (!input) return;
+    var text = input.value.trim();
+    var rec = findRecordByDate(recordDate());
+    if (!rec && !text) { if (!quiet) showToast("メモが空です"); return; }
+    if (!rec) rec = ensureRecordForDate();
+    if ((rec.other || "") === text) { if (!quiet) showToast("メモは保存済みです"); return; }
+    rec.other = text;
+    var emptied = !recordHasContent(rec);
+    if (emptied) records.splice(records.indexOf(rec), 1);
+    afterRecordChange(emptied ? null : rec);
+    showToast(text ? "メモを保存しました" : "メモを消しました");
+  };
+
+  window.onRecordDateChange = function () {
+    flushSheetSync();
+    buildExerciseFields();
+  };
+
+  /* この日の記録と除外をすべて取り消して、最初からやり直す */
+  window.clearTodayRecord = function () {
+    var date = recordDate();
+    var rec = findRecordByDate(date);
+    var count = rec ? recordExerciseList(rec).length : 0;
+    if (!rec && !excludedIds().length) { showToast("この日の記録はまだありません"); return; }
+    askConfirm(fmtDate(date) + " の記録" + (count ? "（実施済み " + count + " 件）" : "") + "と除外を取り消して、最初からやり直します。\n元に戻せません。", "やり直す", true)
+      .then(function (ok) {
+        if (!ok) return;
+        if (rec) records.splice(records.indexOf(rec), 1);
+        setExcluded([]);
+        persistRecords();
+        refreshBackupSummary();
+        buildExerciseFields();
+        showToast("この日の記録を取り消しました");
+      });
+  };
+
+  /* シートへの自動送信。押すたびに送らず、最後の操作から少し待ってまとめて送る */
+  var SHEET_SYNC_DELAY_MS = 5000;
+  var sheetSyncTimer = null;
+  var sheetSyncRec = null;
+
+  function scheduleSheetSync(rec) {
+    if (!rec || !gasAutoSync || !gasUrl || IS_ARTIFACT_HOST) return;
+    sheetSyncRec = rec;
+    clearTimeout(sheetSyncTimer);
+    sheetSyncTimer = setTimeout(flushSheetSync, SHEET_SYNC_DELAY_MS);
+  }
+
+  function flushSheetSync() {
+    clearTimeout(sheetSyncTimer);
+    var rec = sheetSyncRec;
+    sheetSyncRec = null;
+    if (!rec || records.indexOf(rec) === -1) return;
+    if (!gasAutoSync || !gasUrl || IS_ARTIFACT_HOST) return;
+    /* この方式は同じ記録を何度も送る。上書きできない旧版GASでは行が増えるので、版を確かめてから送る */
+    (knownGasVersion() ? Promise.resolve() : pingSheets())
+      .then(function () {
+        if (knownGasVersion() < 2) {
+          recordSheetStatus(false, "GASが旧版のため自動送信を止めています（同じ日の行が増えるのを防ぐため）。gas/Code.gs を貼り直して再デプロイし、「接続テスト」を押してください");
+          return null;
+        }
+        if (records.indexOf(rec) === -1) return null;
+        return sendToSheets(formatRecForSheets(rec)).then(function (json) {
+          recordSheetStatus(true, fmtDate(rec.date) + " の記録：" + describeSheetResult(json));
+        });
+      })
+      .catch(function (err) {
+        recordSheetStatus(false, fmtDate(rec.date) + " の記録の送信に失敗：" + err.message);
+        showToast("記録は保存済みです。シート送信は失敗：" + err.message, 6000);
+      });
+  }
+
+  /* 記録画面では区分を使わない。プランへの追加やフロアマップの絞り込み用に値だけ保持する */
   function setDay(d) {
-    currentDay = d;
-    document.querySelectorAll("#dayToggle button").forEach(function (b) {
-      b.classList.toggle("sel", b.dataset.day === d);
-    });
-    applyDayInclusion(d);
-    renderDayExerciseCards();
+    if (d === "A" || d === "B") currentDay = d;
   }
   window.setDay = setDay;
-
-  window.clearForm = function () {
-    document.getElementById("inDate").value = todayISO();
-    document.getElementById("inOther").value = "";
-    buildExerciseFields();
-    setDay(currentDay);
-  };
-
-  window.saveRecord = function () {
-    var date = document.getElementById("inDate").value || todayISO();
-    var rec = { date: date, day: currentDay, other: document.getElementById("inOther").value.trim(), order: [] };
-    var any = false;
-    /* 画面に並んでいる順（＝▲▼で決めた実施順）でたどる。
-       plan.exercises の定義順ではなく、この順序を記録側にも残しておく。 */
-    dayExerciseList(currentDay).forEach(function (ex) {
-      var draft = recordDraft[ex.id];
-      if (draft && draft.included && draft.sets.length) {
-        rec[ex.id] = { sets: clone(draft.sets) };
-        rec.order.push(ex.id);
-        any = true;
-      }
-    });
-    if (!any && !rec.other) {
-      showToast("種目を1つ以上「実施する」に切り替えてください");
-      return;
-    }
-    records.push(rec);
-    records.sort(function (a, b) { return a.date.localeCompare(b.date); });
-    persistRecords();
-    if (gasAutoSync && gasUrl && !IS_ARTIFACT_HOST) {
-      showToast("保存しました（シートへ送信中…）", 20000);
-      sendToSheets(formatRecForSheets(rec))
-        .then(function (json) {
-          recordSheetStatus(true, fmtDate(rec.date) + " の記録：" + describeSheetResult(json));
-          showToast("保存し、スプレッドシートに記録しました");
-        })
-        .catch(function (err) {
-          recordSheetStatus(false, fmtDate(rec.date) + " の記録の送信に失敗：" + err.message);
-          showToast("記録は保存しました。シート送信は失敗：" + err.message, 6000);
-        });
-    } else {
-      showToast("保存しました");
-    }
-    buildExerciseFields();
-    setDay(suggestedNextDay());   /* 次に記録タブを開いたときは、交互の次の区分から */
-    showScreen("home");
-  };
 
   /* ---------- Home ---------- */
   /* 前回と交互になる「次にやる区分」 */
   function suggestedNextDay() {
-    var lastDay = records.length ? records[records.length - 1].day : "B";
-    return lastDay === "A" ? "B" : "A";
+    for (var i = records.length - 1; i >= 0; i--) {
+      if (records[i].day === "A") return "B";
+      if (records[i].day === "B") return "A";
+    }
+    return "A";
   }
 
   function renderHome() {
@@ -4674,6 +4954,13 @@
     return out;
   }
 
+  /* 履歴に出す区分のラベル。区分なしで記録したものは種目数を出す */
+  function recordDayLabel(rec) {
+    if (rec.day === "A" || rec.day === "B") return "Day " + rec.day;
+    var n = recordExerciseList(rec).length;
+    return n ? n + "種目" : "メモ";
+  }
+
   function renderHistory() {
     var list = document.getElementById("historyList");
     list.innerHTML = "";
@@ -4690,7 +4977,7 @@
       card.className = "card hist-card";
       card.innerHTML =
         '<div class="h-top"><span class="h-date">' + fmtDate(rec.date) + '</span>' +
-        '<span class="h-day ' + rec.day + '">Day ' + rec.day + '</span></div>' +
+        '<span class="h-day ' + (rec.day || "") + '">' + recordDayLabel(rec) + '</span></div>' +
         '<div class="h-summary">' + escapeHTML(summary || rec.other || "-") + '</div>' +
         '<div class="hist-detail" style="display:none;"></div>';
       card.addEventListener("click", function (e) {
@@ -4722,7 +5009,7 @@
   window.deleteRecord = function (index) {
     var rec = records[index];
     if (!rec) return;
-    askConfirm(fmtDate(rec.date) + "（Day " + rec.day + "）の記録を削除します。\n元に戻せません。", "削除する", true)
+    askConfirm(fmtDate(rec.date) + "（" + recordDayLabel(rec) + "）の記録を削除します。\n元に戻せません。", "削除する", true)
       .then(function (ok) {
         if (!ok) return;
         records.splice(index, 1);
@@ -5405,7 +5692,7 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v10.1";
+  var APP_VERSION = "v11";
   var APP_BUILD_DATE = "2026-09-30";
   var swRegistration = null;
   var currentOfflineCacheName = null;
@@ -5429,6 +5716,8 @@
     var homeTag = document.getElementById("homeVerTag");
     if (topBadge) topBadge.textContent = APP_VERSION;
     if (setBadge) setBadge.textContent = APP_VERSION;
+    var vmAppVer = document.getElementById("vmAppVer");
+    if (vmAppVer) vmAppVer.textContent = APP_VERSION;
     if (homeTag) homeTag.textContent = "(" + APP_VERSION + ")";
     if (main) main.textContent = APP_VERSION + "（" + APP_BUILD_DATE + "）";
     if (!sub) return;
