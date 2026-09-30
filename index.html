@@ -1521,9 +1521,9 @@
       </div>
 
       <div class="card next-session" id="nextSessionCard">
-        <div class="badge" id="nextBadge">A</div>
+        <div class="badge" id="nextBadge">0</div>
         <div class="info">
-          <div class="t" id="nextTitle">Day A · High Day</div>
+          <div class="t" id="nextTitle">今日のトレーニング</div>
           <div class="d" id="nextDesc">-</div>
         </div>
         <button class="go" onclick="startRecord()">記録する</button>
@@ -4793,6 +4793,31 @@
     return "A";
   }
 
+  /* ホームの「今日のトレーニング」カード。記録画面と同じ一覧から、
+     実施済みの数と、このあと行う種目（前回の実施順）を出す。Day A/B は出さない。 */
+  function renderTodayCard() {
+    var lists = recordScreenLists();
+    var date = recordDate();
+    var label = date === todayISO() ? "今日" : fmtDate(date);
+    var done = lists.done.length, total = done + lists.todo.length;
+    document.getElementById("nextBadge").textContent = String(done);
+    /* 狭い画面で途中改行しないよう、見出しは短くする */
+    document.getElementById("nextTitle").textContent = done
+      ? (date === todayISO() ? "" : label + " ") + "実施済み " + done + " / " + total
+      : label + "のトレーニング";
+    var desc;
+    if (lists.todo.length) {
+      var names = lists.todo.slice(0, 3).map(function (ex) { return ex.name; });
+      desc = (done ? "次：" : "最初：") + names.join(" → ") +
+        (lists.todo.length > 3 ? " ほか" + (lists.todo.length - 3) + "種目" : "");
+    } else if (done) {
+      desc = "一覧の種目はすべて実施済みです";
+    } else {
+      desc = "種目がありません。マシン図鑑から追加してください";
+    }
+    document.getElementById("nextDesc").textContent = desc;
+  }
+
   function renderHome() {
     var mainCount = plan.exercises.filter(function (e) { return e.category === "メイン"; }).length;
     var homeSubEl = document.getElementById("homeSub");
@@ -4801,13 +4826,7 @@
     document.getElementById("statCount").innerHTML = records.length + "<small>回</small>";
     document.getElementById("statLast").textContent = records.length ? fmtDate(records[records.length - 1].date) : "まだ記録なし";
 
-    var next = suggestedNextDay();
-    var sched = plan.daySchedule[next] || { title: "Day " + next, desc: "" };
-    document.getElementById("nextBadge").textContent = next;
-    document.getElementById("nextTitle").textContent = sched.title;
-    document.getElementById("nextDesc").textContent = sched.desc;
-    /* ここで currentDay を書き換えない。書き換えると、記録画面に表示中の区分と
-       保存時の区分が食い違い、表示している種目が保存されずに消えていた。 */
+    renderTodayCard();
 
     renderSparkList();
   }
@@ -4865,8 +4884,7 @@
 
     if (!pts.length) {
       var emptyHead = '<div class="row"><span class="name">' +
-        '<span class="nm">' + escapeHTML(ex.name) + '</span>' +
-        '<span class="day-chip">' + (ex.day === "both" ? "共通" : "Day " + ex.day) + '</span></span>';
+        '<span class="nm">' + escapeHTML(ex.name) + '</span></span>';
       card.innerHTML = emptyHead + '<span class="now none">まだ記録なし</span></div>';
       return card;
     }
@@ -4878,7 +4896,6 @@
 
     var head = '<div class="row"><span class="name">' +
       '<span class="nm">' + escapeHTML(ex.name) + '</span>' +
-      '<span class="day-chip">' + (ex.day === "both" ? "共通" : "Day " + ex.day) + '</span>' +
       prBadge + '</span>';
     var deltaHTML = "";
     if (pts.length >= 2) {
@@ -5691,7 +5708,7 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v11.1";
+  var APP_VERSION = "v11.2";
   var APP_BUILD_DATE = "2026-09-30";
   var swRegistration = null;
   var currentOfflineCacheName = null;
