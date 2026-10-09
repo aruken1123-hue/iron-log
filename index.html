@@ -408,7 +408,7 @@
     box-sizing: border-box;
   }
   #screen-record {
-    padding-bottom: 215px;
+    padding-bottom: 255px;
   }
   .timer-head {
     display: flex;
@@ -557,6 +557,41 @@
   }
   .timer-presets.collapsed {
     display: none;
+  }
+  .timer-volume {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .timer-volume label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .timer-volume input[type="range"] {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    margin: 0;
+    accent-color: var(--accent);
+  }
+  .timer-volume-value {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 34px;
+    text-align: right;
+  }
+  .timer-volume.muted .timer-volume-value {
+    color: var(--text-muted);
+  }
+  .timer-btn.timer-volume-test {
+    padding: 6px 10px;
+    min-height: 32px;
+    white-space: nowrap;
   }
 
   /* ============ Machine Tip & Plan Actions ============ */
@@ -1600,7 +1635,7 @@
               <span id="timerFoldIcon">▼</span> 秒数選択
             </button>
           </div>
-          <button type="button" class="timer-sound-btn" id="timerSoundBtn" onclick="toggleTimerSound()" aria-label="通知音切替">🔔</button>
+          <button type="button" class="timer-sound-btn" id="timerSoundBtn" onclick="toggleTimerSound()" aria-label="タイマー音の切り替え">🔔</button>
         </div>
         <div class="timer-main">
           <div class="timer-display" id="timerDisplay">00:00</div>
@@ -1622,6 +1657,13 @@
           <button type="button" class="timer-btn" onclick="startRestTimer(160)">160秒</button>
           <button type="button" class="timer-btn" onclick="startRestTimer(180)">180秒</button>
           <button type="button" class="timer-btn" onclick="addRestTimer(10)">+10秒</button>
+          <div class="timer-volume" id="timerVolumeRow">
+            <label for="timerVolume">🔊 音量</label>
+            <input type="range" id="timerVolume" min="0" max="100" step="5" value="40"
+              oninput="setTimerVolume(this.value, false)" onchange="setTimerVolume(this.value, true)" aria-label="タイマー音の音量">
+            <span class="timer-volume-value" id="timerVolumeValue">40%</span>
+            <button type="button" class="timer-btn timer-volume-test" onclick="previewTimerSound()">試聴</button>
+          </div>
         </div>
       </div>
     </section>
@@ -1787,7 +1829,7 @@
           </div>
           <textarea class="data-box" id="sheetTsvBox" readonly hidden></textarea>
         </div>
-        <p style="font-size:11.5px;color:var(--text-muted);margin-top:8px;margin-bottom:0;">※セットアップ手順は <code>gas/README.md</code>。重複防止を使うには、<code>gas/Code.gs</code> を最新版に貼り直して再デプロイしてください。</p>
+        <p style="font-size:11.5px;color:var(--text-muted);margin-top:8px;margin-bottom:0;">※セットアップ手順は <code>gas/README.md</code>。追加した種目を専用の列に記録するには、<code>gas/Code.gs</code>（v3）を貼り直して再デプロイしてください。</p>
       </div>
 
       <div class="card settings-card">
@@ -1872,19 +1914,20 @@
           IRON LOG <span id="vmAppVer" style="color:var(--accent);">v11</span>
         </div>
         <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" id="vmOfflineStatus">
-          ビルド日：2026-09-30<br>
+          ビルド日：2026-10-09<br>
           オフラインキャッシュ：確認中…
         </div>
       </div>
 
       <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
+        <li><b>追加種目のシート列・タイマー音量 (v11.5)</b>: 図鑑から追加した種目を、スプレッドシートに種目ごとの列を作って記録（GAS v3）。休憩タイマーの音量をつまみで調整できます（秒数選択を開くと表示）。</li>
         <li><b>記録画面を一覧方式に (v11)</b>: 日ごとの区分をなくし、全種目を前回の実施順に表示。「実施済み」でその場で保存して折りたたみ、「除外」で今日やらない種目を最下部へまとめます。</li>
         <li><b>見やすいバージョン表示 (v10)</b>: 画面最上部に常時表示し、タップで更新確認が可能になりました。</li>
         <li><b>笠懸店公式全34マシン図鑑</b>: 全34種の使い方・セッティング・効く部位を完全網羅。</li>
         <li><b>自分用マシン設定メモ</b>: シートの高さ・ピン位置・いつもの重量を記録画面に自動表示。</li>
         <li><b>編集できるフロアマップ</b>: 店舗の実際の配置に合わせて全38枠を自由にカスタマイズ可能。</li>
-        <li><b>Googleスプレッドシート連携 (GAS v2)</b>: 重複防止ID機能により、何度同期しても2重書き込みなし。</li>
+        <li><b>Googleスプレッドシート連携 (GAS v3)</b>: 重複防止ID機能により、何度同期しても2重書き込みなし。追加した種目は専用の列に記録。</li>
         <li><b>Android PWA 自動更新</b>: ネットワーク優先化により、電波があれば常に最新版が起動。</li>
       </ul>
 
@@ -3819,7 +3862,12 @@
   var restTimerTarget = 0;
   var restTimerTotal = 0;
   var lastRestTimerSec = 60;
+  var TIMER_SOUND_KEY = "ironlog_timer_sound";
+  var TIMER_VOLUME_KEY = "ironlog_timer_volume";
+  var TIMER_VOLUME_DEFAULT = 40;   // 0〜100。40% が以前の固定の音量とほぼ同じ
   var timerSoundEnabled = true;
+  var timerVolume = TIMER_VOLUME_DEFAULT;
+  var timerAudioCtx = null;
 
   function formatTimerTime(sec) {
     var m = Math.floor(sec / 60);
@@ -3827,21 +3875,36 @@
     return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
   }
 
-  function playBeep() {
-    if (!timerSoundEnabled) return;
+  /* 音を鳴らす部品（AudioContext）は1つだけ作って使い回す。
+     スマホは画面を触ったときにしか音を出せるようにならないので、タイマー操作のたびに準備しておく */
+  function timerAudio() {
+    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!timerAudioCtx) {
+      try { timerAudioCtx = new AudioCtx(); } catch (e) { return null; }
+    }
+    if (timerAudioCtx.state === "suspended" && timerAudioCtx.resume) {
+      try { timerAudioCtx.resume(); } catch (e) {}
+    }
+    return timerAudioCtx;
+  }
+
+  function playBeep(force) {
+    if (!force && !timerSoundEnabled) return;
+    if (timerVolume <= 0) return;
     try {
-      var AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      var ctx = new AudioCtx();
-      var now = ctx.currentTime;
+      var ctx = timerAudio();
+      if (!ctx) return;
+      var peak = Math.pow(timerVolume / 100, 2);   // 耳の感じ方に合わせて、つまみの動きを2乗で効かせる
+      var now = ctx.currentTime + 0.02;
       [0, 0.2].forEach(function (delay) {
         var osc = ctx.createOscillator();
         var gain = ctx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(880, now + delay);
         osc.frequency.exponentialRampToValueAtTime(1760, now + delay + 0.12);
-        gain.gain.setValueAtTime(0.15, now + delay);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.12);
+        gain.gain.setValueAtTime(peak, now + delay);
+        gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, peak / 15), now + delay + 0.12);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now + delay);
@@ -3850,12 +3913,69 @@
     } catch (e) {}
   }
 
+  function loadTimerSound() {
+    try {
+      timerSoundEnabled = localStorage.getItem(TIMER_SOUND_KEY) !== "off";
+      var v = parseInt(localStorage.getItem(TIMER_VOLUME_KEY), 10);
+      timerVolume = isNaN(v) ? TIMER_VOLUME_DEFAULT : Math.max(0, Math.min(100, v));
+    } catch (e) {}
+    var range = document.getElementById("timerVolume");
+    if (range) range.value = timerVolume;
+    renderTimerSound();
+  }
+
+  function renderTimerSound() {
+    var muted = !timerSoundEnabled || timerVolume <= 0;
+    var btn = document.getElementById("timerSoundBtn");
+    if (btn) {
+      btn.textContent = muted ? "🔕" : "🔔";
+      btn.setAttribute("aria-label", muted ? "タイマー音：OFF（押すとON）" : "タイマー音：ON（押すとOFF）");
+    }
+    var label = document.getElementById("timerVolumeValue");
+    if (label) label.textContent = timerSoundEnabled ? timerVolume + "%" : "OFF";
+    var row = document.getElementById("timerVolumeRow");
+    if (row) row.classList.toggle("muted", muted);
+  }
+
   window.toggleTimerSound = function () {
     timerSoundEnabled = !timerSoundEnabled;
-    var btn = document.getElementById("timerSoundBtn");
-    if (btn) btn.textContent = timerSoundEnabled ? "🔔" : "🔕";
-    showToast(timerSoundEnabled ? "タイマー音：ON" : "タイマー音：OFF");
+    if (timerSoundEnabled && timerVolume <= 0) timerVolume = TIMER_VOLUME_DEFAULT;
+    try {
+      localStorage.setItem(TIMER_SOUND_KEY, timerSoundEnabled ? "on" : "off");
+      localStorage.setItem(TIMER_VOLUME_KEY, String(timerVolume));
+    } catch (e) {}
+    var range = document.getElementById("timerVolume");
+    if (range) range.value = timerVolume;
+    renderTimerSound();
+    if (timerSoundEnabled) playBeep();
+    showToast(timerSoundEnabled ? "タイマー音：ON（音量 " + timerVolume + "%）" : "タイマー音：OFF");
   };
+
+  /* 音量つまみ。動かしている間は数字だけ変え、指を離したら試しに鳴らす */
+  window.setTimerVolume = function (val, preview) {
+    var v = Math.max(0, Math.min(100, parseInt(val, 10) || 0));
+    timerVolume = v;
+    timerSoundEnabled = v > 0;
+    try {
+      localStorage.setItem(TIMER_VOLUME_KEY, String(v));
+      localStorage.setItem(TIMER_SOUND_KEY, timerSoundEnabled ? "on" : "off");
+    } catch (e) {}
+    renderTimerSound();
+    if (preview) playBeep();
+  };
+
+  window.previewTimerSound = function () {
+    if (timerVolume <= 0) { showToast("音量が 0% です。つまみを右へ動かしてください"); return; }
+    playBeep(true);
+  };
+
+  /* 記録画面の下の余白を、下に固定したタイマーの高さに合わせる（入力欄がタイマーに隠れないように） */
+  function fitRecordTimerSpace() {
+    var timer = document.getElementById("bottomRestTimer");
+    var recScreen = document.getElementById("screen-record");
+    if (!timer || !recScreen || !timer.offsetHeight) return;
+    recScreen.style.paddingBottom = (timer.offsetHeight + 72) + "px";
+  }
 
   window.toggleTimerFold = function () {
     var presets = document.getElementById("timerPresets");
@@ -3863,13 +3983,11 @@
     if (!presets) return;
     var isCollapsed = presets.classList.toggle("collapsed");
     if (icon) icon.textContent = isCollapsed ? "▲" : "▼";
-    var recScreen = document.getElementById("screen-record");
-    if (recScreen) {
-      recScreen.style.paddingBottom = isCollapsed ? "130px" : "215px";
-    }
+    fitRecordTimerSpace();
   };
 
   window.startRestTimer = function (sec) {
+    if (timerSoundEnabled) timerAudio();   /* 終了の音を鳴らせるよう、押したときに準備しておく */
     clearInterval(restTimerId);
     lastRestTimerSec = sec;
     restTimerTotal = sec;
@@ -3898,6 +4016,7 @@
       startRestTimer(sec);
       return;
     }
+    if (timerSoundEnabled) timerAudio();
     restTimerTarget += sec * 1000;
     restTimerTotal += sec;
     updateRestTimerUI();
@@ -4208,21 +4327,27 @@
     try { localStorage.setItem(GAS_VERSION_KEY, String(json.version >= 2 ? json.version : 1)); } catch (e) {}
   }
 
-  function sheetRowsForExport() {
-    return records.map(function (rec) {
-      var p = formatRecForSheets(rec);
+  /* 手動反映用の表。追加種目は「その他」の左に種目ごとの列を作る（GAS v3 と同じ並び） */
+  function sheetTableForExport() {
+    var extraCols = sheetExtraColumns();
+    var header = SHEET_COLUMNS.slice(0, 4 + SHEET_EX_KEYS.length).concat(extraCols).concat(["その他", "ID"]);
+    var rows = records.map(function (rec) {
+      var p = formatRecForSheets(rec, { splitExtras: true });
       var d = new Date(rec.date + "T00:00:00");
       var valid = !isNaN(d.getTime());
       return [
         valid ? d.getFullYear() : "", valid ? d.getMonth() + 1 : "", valid ? d.getDate() : "",
         valid ? "日月火水木金土".charAt(d.getDay()) : ""
-      ].concat(SHEET_EX_KEYS.map(function (k) { return p[k] || ""; })).concat([p.other || "", p.key]);
+      ].concat(SHEET_EX_KEYS.map(function (k) { return p[k] || ""; }))
+        .concat(extraCols.map(function (name) { return p.extra[name] || ""; }))
+        .concat([p.other || "", p.key]);
     });
+    return [header].concat(rows);
   }
 
   window.copySheetTSV = function () {
     if (!records.length) { showToast("記録がありません"); return; }
-    var tsv = [SHEET_COLUMNS].concat(sheetRowsForExport()).map(function (row) {
+    var tsv = sheetTableForExport().map(function (row) {
       return row.map(function (v) { return String(v).replace(/[\t\r\n]+/g, " "); }).join("\t");
     }).join("\n");
     var box = document.getElementById("sheetTsvBox");
@@ -4237,7 +4362,7 @@
 
   window.saveSheetCSV = function () {
     if (!records.length) { showToast("記録がありません"); return; }
-    var csv = "\uFEFF" + [SHEET_COLUMNS].concat(sheetRowsForExport()).map(function (row) {
+    var csv = "\uFEFF" + sheetTableForExport().map(function (row) {
       return row.map(function (v) {
         var cell = String(v);
         return /[",\r\n]/.test(cell) ? '"' + cell.replace(/"/g, '""') + '"' : cell;
@@ -4263,7 +4388,7 @@
     showToast(gasAutoSync ? "スプレッドシート自動同期：有効" : "スプレッドシート自動同期：無効");
   };
 
-  function formatRecForSheets(rec) {
+  function formatRecForSheets(rec, opts) {
     var payload = {
       action: "record",
       key: sheetRecordKey(rec),
@@ -4296,15 +4421,49 @@
         payload[k] = "";
       }
     });
-    /* シートの列は固定なので、図鑑から追加した種目などは「その他」列にまとめて書く */
-    var extras = [];
-    plan.exercises.forEach(function (ex) {
-      if (exKeys.indexOf(ex.id) !== -1 || !rec[ex.id]) return;
-      var txt = displayValue(rec[ex.id], ex.unit);
-      if (txt) extras.push(ex.name + " " + txt);
+    /* 図鑑から追加した種目など。GAS v3 以上は種目ごとの列に書く。
+       それより古い GAS は列を作れないので、従来どおり「その他」列にまとめて書く */
+    var extra = sheetExtraValues(rec);
+    var columns = (opts && opts.splitExtras) ? sheetExtraColumns() : [];
+    var folded = [];
+    if (opts && opts.splitExtras) {
+      payload.extra = {};
+      payload.extraColumns = columns;
+    }
+    Object.keys(extra).forEach(function (name) {
+      if (columns.indexOf(name) !== -1) payload.extra[name] = extra[name];
+      else folded.push(name + " " + extra[name]);   /* 列を作れない名前（決まった見出しと同じ名前など） */
     });
-    if (extras.length) payload.other = [payload.other].concat(extras).filter(Boolean).join(" ／ ");
+    if (folded.length) payload.other = [payload.other].concat(folded).filter(Boolean).join(" ／ ");
     return payload;
+  }
+
+  /* 追加種目（決まった14種目以外）の列名。プランの並び順・重複なし。固定の見出しと同じ名前は除く */
+  function sheetExtraColumns() {
+    var names = [];
+    plan.exercises.forEach(function (ex) {
+      if (SHEET_EX_KEYS.indexOf(ex.id) !== -1) return;
+      var name = String(ex.name || "").trim();
+      if (name && SHEET_COLUMNS.indexOf(name) === -1 && names.indexOf(name) === -1) names.push(name);
+    });
+    return names;
+  }
+
+  /* 記録に含まれる追加種目の値 { 種目名: "40×10 / 45×8" } */
+  function sheetExtraValues(rec) {
+    var out = {};
+    plan.exercises.forEach(function (ex) {
+      if (SHEET_EX_KEYS.indexOf(ex.id) !== -1 || !rec[ex.id]) return;
+      var txt = displayValue(rec[ex.id], ex.unit);
+      var name = String(ex.name || "").trim() || ex.id;
+      if (txt) out[name] = out[name] ? out[name] + " ／ " + txt : txt;
+    });
+    return out;
+  }
+
+  /* GAS が追加種目の列に対応しているか（v3 以上） */
+  function gasSplitsExtras() {
+    return knownGasVersion() >= 3;
   }
 
   window.testSheetConnection = function () {
@@ -4314,18 +4473,30 @@
     var started = Date.now();
     pingSheets().then(function (json) {
       if (!json || json.app !== "IRON LOG") throw new Error("IRON LOG 用のGASではない応答が返りました。URLを確認してください");
-      var latest = json.version >= 2;
+      var ver = json.version || 1;
       var secs = "応答 " + ((Date.now() - started) / 1000).toFixed(1) + "秒";
-      var msg = latest
-        ? "接続OK（重複防止に対応した最新版・" + secs + "）"
-        : "接続OK（" + secs + "）。ただしGASが旧版です。Code.gs を貼り直して再デプロイしてください";
-      recordSheetStatus(latest, "接続テスト：" + msg);
-      showToast((latest ? "✅ " : "⚠️ ") + msg, 6000);
+      var msg = ver >= 3
+        ? "接続OK（最新版・追加種目も専用の列に記録・" + secs + "）"
+        : ver >= 2
+          ? "接続OK（" + secs + "）。追加種目は「その他」列にまとめて記録されます。種目ごとの列に分けるには Code.gs を貼り直して再デプロイしてください"
+          : "接続OK（" + secs + "）。ただしGASが旧版です。Code.gs を貼り直して再デプロイしてください";
+      recordSheetStatus(ver >= 2, "接続テスト：" + msg);
+      showToast((ver >= 3 ? "✅ " : "⚠️ ") + msg, ver >= 3 ? 6000 : 9000);
     }).catch(function (err) {
       recordSheetStatus(false, "接続テスト失敗：" + err.message);
       showToast("❌ " + err.message, 7000);
     });
   };
+
+  function bulkSheetPayload() {
+    var split = gasSplitsExtras();
+    var payload = {
+      action: "bulk_sync",
+      records: records.map(function (rec) { return formatRecForSheets(rec, { splitExtras: split }); })
+    };
+    if (split) payload.extraColumns = sheetExtraColumns();
+    return payload;
+  }
 
   window.syncAllToSheets = function () {
     if (IS_ARTIFACT_HOST) { showToast("Artifact版では送信できません"); return; }
@@ -4344,12 +4515,15 @@
       return askConfirm(
         legacy
           ? "GASが旧版です。旧版は送った分だけ行を追加するため、すでにシートにある記録は重複します。\n先に gas/Code.gs を貼り直して再デプロイすることをおすすめします。\n\nこのまま全 " + records.length + " 件を送りますか？"
-          : "保存されている全 " + records.length + " 件の記録をスプレッドシートに同期します。\nシートにすでにある記録は上書きされ、行は増えません。",
+          : "保存されている全 " + records.length + " 件の記録をスプレッドシートに同期します。\nシートにすでにある記録は上書きされ、行は増えません。" +
+            (gasSplitsExtras() && sheetExtraColumns().length
+              ? "\n追加した種目（" + sheetExtraColumns().join("・") + "）は「その他」の左に専用の列を作って記録します。"
+              : ""),
         legacy ? "重複してもよいので送る" : "同期する", legacy);
     }).then(function (ok) {
       if (!ok) return;
       showToast("同期中…（Googleの応答に1分ほどかかることがあります）", SHEET_TIMEOUT_MS);
-      return sendToSheets({ action: "bulk_sync", records: records.map(formatRecForSheets) }).then(function (json) {
+      return sendToSheets(bulkSheetPayload()).then(function (json) {
         var msg = describeSheetResult(json);
         recordSheetStatus(true, "全記録の同期：" + msg);
         showToast("✅ 同期しました（" + msg + "）", 6000);
@@ -4400,7 +4574,7 @@
       b.classList.toggle("active", b.dataset.screen === name);
     });
     if (name !== "record") flushSheetSync();   /* 記録画面を離れるときに未送信分を送る */
-    if (name === "record") renderRecordScreen();
+    if (name === "record") { renderRecordScreen(); fitRecordTimerSpace(); }
     if (name === "home") renderHome();
     if (name === "history") renderHistory();
     if (name === "targets") { targetsEditMode = false; renderTargets(); }
@@ -4807,7 +4981,7 @@
           return null;
         }
         if (records.indexOf(rec) === -1) return null;
-        return sendToSheets(formatRecForSheets(rec)).then(function (json) {
+        return sendToSheets(formatRecForSheets(rec, { splitExtras: gasSplitsExtras() })).then(function (json) {
           recordSheetStatus(true, fmtDate(rec.date) + " の記録：" + describeSheetResult(json));
         });
       })
@@ -5701,12 +5875,14 @@
     wireConfirmDialog();
     wireMachineModals();
     updateRepeatBtnText();
+    loadTimerSound();
+    window.addEventListener("resize", fitRecordTimerSpace);
     registerServiceWorker();
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v11.4";
-  var APP_BUILD_DATE = "2026-10-01";
+  var APP_VERSION = "v11.5";
+  var APP_BUILD_DATE = "2026-10-09";
   var swRegistration = null;
   var currentOfflineCacheName = null;
 
