@@ -6,8 +6,8 @@
 //   以前は「キャッシュ優先」だったため、Android のホーム画面アプリが古い版のまま残りやすかった。
 // - アイコンなどの静的ファイルは「キャッシュ優先＋裏で更新」。
 // - GitHub Pages は max-age=600 を返すため、取得時は HTTP キャッシュを使わない（cache: 'reload'）。
-const APP_VERSION = 'v11.5';
-const CACHE_NAME = 'ironlog-v11.5';
+const APP_VERSION = 'v11.6';
+const CACHE_NAME = 'ironlog-v11.6';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './',
@@ -39,6 +39,19 @@ self.addEventListener('message', (e) => {
   if (e.data === 'GET_VERSION' && e.source) {
     e.source.postMessage({ type: 'SW_VERSION', version: APP_VERSION, cache: CACHE_NAME });
   }
+});
+
+// タイマー終了の通知を押したら、開いているアプリに戻る（無ければ開く）
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        if ('focus' in client) return client.focus();
+      }
+      return self.clients.openWindow ? self.clients.openWindow('./') : null;
+    })
+  );
 });
 
 function isAppPage(request) {

@@ -558,12 +558,43 @@
   .timer-presets.collapsed {
     display: none;
   }
-  .timer-volume {
+  .timer-sound-panel {
     grid-column: 1 / -1;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
     min-width: 0;
+  }
+  .timer-sound-row,
+  .timer-volume {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .timer-sound-select {
+    flex: 1;
+    min-width: 0;
+    height: 34px;
+    padding: 0 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 12.5px;
+    font-weight: 700;
+    font-family: inherit;
+  }
+  .timer-sound-summary {
+    display: none;
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .timer-volume label {
     font-size: 11.5px;
@@ -585,14 +616,37 @@
     min-width: 34px;
     text-align: right;
   }
-  .timer-volume.muted .timer-volume-value {
+  .timer-sound-panel.muted .timer-volume-value,
+  .timer-sound-panel.notify .timer-volume-value {
     color: var(--text-muted);
   }
-  .timer-btn.timer-volume-test {
+  .timer-sound-panel.notify .timer-volume input[type="range"] {
+    opacity: 0.4;
+  }
+  .timer-btn.timer-volume-test,
+  .timer-btn.timer-lock-btn {
     padding: 6px 10px;
-    min-height: 32px;
+    min-height: 34px;
     white-space: nowrap;
   }
+  .timer-btn.timer-lock-btn {
+    min-width: 40px;
+    font-size: 15px;
+  }
+  .timer-btn.timer-lock-btn.on {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .timer-sound-hint {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+  /* ロック中は1行にまとめ、選択と音量は触れないようにする */
+  .timer-sound-panel.locked .timer-sound-summary { display: block; }
+  .timer-sound-panel.locked .timer-sound-select,
+  .timer-sound-panel.locked .timer-volume { display: none; }
 
   /* ============ Machine Tip & Plan Actions ============ */
   .machine-chip {
@@ -1657,12 +1711,21 @@
           <button type="button" class="timer-btn" onclick="startRestTimer(160)">160秒</button>
           <button type="button" class="timer-btn" onclick="startRestTimer(180)">180秒</button>
           <button type="button" class="timer-btn" onclick="addRestTimer(10)">+10秒</button>
-          <div class="timer-volume" id="timerVolumeRow">
-            <label for="timerVolume">🔊 音量</label>
-            <input type="range" id="timerVolume" min="0" max="100" step="5" value="40"
-              oninput="setTimerVolume(this.value, false)" onchange="setTimerVolume(this.value, true)" aria-label="タイマー音の音量">
-            <span class="timer-volume-value" id="timerVolumeValue">40%</span>
-            <button type="button" class="timer-btn timer-volume-test" onclick="previewTimerSound()">試聴</button>
+          <div class="timer-sound-panel" id="timerSoundPanel">
+            <div class="timer-sound-row">
+              <span class="timer-sound-summary" id="timerSoundSummary"></span>
+              <select id="timerSoundType" class="timer-sound-select" onchange="setTimerSoundType(this.value)" aria-label="タイマーの音の種類"></select>
+              <button type="button" class="timer-btn timer-volume-test" onclick="previewTimerSound()">試聴</button>
+              <button type="button" class="timer-btn timer-lock-btn" id="timerLockBtn" onclick="toggleTimerLock()" aria-label="音の設定をロックする">🔓</button>
+            </div>
+            <div class="timer-volume">
+              <label for="timerVolume">🔊 音量</label>
+              <input type="range" id="timerVolume" min="0" max="100" step="5" value="60"
+                oninput="setTimerVolume(this.value, false)" onchange="setTimerVolume(this.value, true)" aria-label="タイマー音の音量">
+              <span class="timer-volume-value" id="timerVolumeValue">60%</span>
+            </div>
+            <p class="timer-sound-hint" id="timerSoundHint" hidden></p>
+            <input type="file" id="timerFileInput" accept="audio/*" hidden onchange="onTimerFilePicked(this)">
           </div>
         </div>
       </div>
@@ -1914,13 +1977,14 @@
           IRON LOG <span id="vmAppVer" style="color:var(--accent);">v11</span>
         </div>
         <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" id="vmOfflineStatus">
-          ビルド日：2026-10-09<br>
+          ビルド日：2026-10-10<br>
           オフラインキャッシュ：確認中…
         </div>
       </div>
 
       <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
+        <li><b>タイマーの音を選べるように (v11.6)</b>: アプリ内の4種類・スマホの通知音・スマホの音声ファイルから選択。音量を底上げし、🔒で音の設定をロックできます。</li>
         <li><b>追加種目のシート列・タイマー音量 (v11.5)</b>: 図鑑から追加した種目を、スプレッドシートに種目ごとの列を作って記録（GAS v3）。休憩タイマーの音量をつまみで調整できます（秒数選択を開くと表示）。</li>
         <li><b>記録画面を一覧方式に (v11)</b>: 日ごとの区分をなくし、全種目を前回の実施順に表示。「実施済み」でその場で保存して折りたたみ、「除外」で今日やらない種目を最下部へまとめます。</li>
         <li><b>見やすいバージョン表示 (v10)</b>: 画面最上部に常時表示し、タップで更新確認が可能になりました。</li>
@@ -3864,10 +3928,29 @@
   var lastRestTimerSec = 60;
   var TIMER_SOUND_KEY = "ironlog_timer_sound";
   var TIMER_VOLUME_KEY = "ironlog_timer_volume";
-  var TIMER_VOLUME_DEFAULT = 40;   // 0〜100。40% が以前の固定の音量とほぼ同じ
+  var TIMER_SOUND_TYPE_KEY = "ironlog_timer_sound_type";
+  var TIMER_LOCK_KEY = "ironlog_timer_sound_lock";
+  var TIMER_FILE_NAME_KEY = "ironlog_timer_file_name";
+  var TIMER_VOLUME_DEFAULT = 60;
+  var TIMER_FILE_MAX_BYTES = 3 * 1024 * 1024;
+  var TIMER_FILE_MAX_SEC = 8;   // 長い曲を選んでも、この秒数で止める
+  var TIMER_SOUND_TYPES = [
+    { id: "beep", name: "ピピッ（標準）" },
+    { id: "alarm", name: "ピピピピ（アラーム）" },
+    { id: "chime", name: "チャイム" },
+    { id: "bell", name: "ベル" },
+    { id: "notify", name: "スマホの通知音" },
+    { id: "file", name: "スマホの音声ファイル…" }
+  ];
   var timerSoundEnabled = true;
   var timerVolume = TIMER_VOLUME_DEFAULT;
+  var timerSoundType = "beep";
+  var timerSoundLocked = false;
   var timerAudioCtx = null;
+  var timerMaster = null;          // 音量つまみ → 音割れを抑えて音圧を上げる部品 → スピーカー
+  var timerFileData = null;        // 選んだ音声ファイル（ArrayBuffer）
+  var timerFileBuffer = null;      // 再生できる形に変換したもの
+  var timerFileName = "";
 
   function formatTimerTime(sec) {
     var m = Math.floor(sec / 60);
@@ -3881,35 +3964,215 @@
     var AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return null;
     if (!timerAudioCtx) {
-      try { timerAudioCtx = new AudioCtx(); } catch (e) { return null; }
+      try {
+        timerAudioCtx = new AudioCtx();
+        /* 小さい音は持ち上げ、大きい音は割れる手前で丸める（スマホの小さいスピーカーでも聞こえやすく） */
+        var shaper = timerAudioCtx.createWaveShaper();
+        var curve = new Float32Array(1024);
+        for (var k = 0; k < curve.length; k++) {
+          var x = k / (curve.length - 1) * 2 - 1;
+          curve[k] = Math.tanh(2 * x);
+        }
+        shaper.curve = curve;
+        shaper.oversample = "2x";
+        timerMaster = timerAudioCtx.createGain();
+        timerMaster.connect(shaper);
+        shaper.connect(timerAudioCtx.destination);
+      } catch (e) { timerAudioCtx = null; return null; }
     }
     if (timerAudioCtx.state === "suspended" && timerAudioCtx.resume) {
       try { timerAudioCtx.resume(); } catch (e) {}
     }
+    decodeTimerFile();
     return timerAudioCtx;
   }
 
-  function playBeep(force) {
-    if (!force && !timerSoundEnabled) return;
-    if (timerVolume <= 0) return;
-    try {
-      var ctx = timerAudio();
-      if (!ctx) return;
-      var peak = Math.pow(timerVolume / 100, 2);   // 耳の感じ方に合わせて、つまみの動きを2乗で効かせる
-      var now = ctx.currentTime + 0.02;
-      [0, 0.2].forEach(function (delay) {
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, now + delay);
-        osc.frequency.exponentialRampToValueAtTime(1760, now + delay + 0.12);
-        gain.gain.setValueAtTime(peak, now + delay);
-        gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, peak / 15), now + delay + 0.12);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now + delay);
-        osc.stop(now + delay + 0.13);
+  /* つまみ 0〜100% → 音の大きさ。以前より全体に大きく、100% は音割れ手前まで出す */
+  function timerGain() {
+    return 1.9 * Math.pow(timerVolume / 100, 2) / 2;   // 2 で割るのは、上の丸め部品の入口で約2倍になるため
+  }
+
+  /* 1つの音（周波数・波形・長さ）を鳴らす */
+  function tone(ctx, at, freq, dur, opts) {
+    opts = opts || {};
+    var osc = ctx.createOscillator();
+    var env = ctx.createGain();
+    osc.type = opts.wave || "sine";
+    osc.frequency.setValueAtTime(freq, at);
+    if (opts.to) osc.frequency.exponentialRampToValueAtTime(opts.to, at + dur * 0.9);
+    var peak = opts.level || 1;
+    env.gain.setValueAtTime(0.0001, at);
+    env.gain.exponentialRampToValueAtTime(peak, at + 0.008);
+    env.gain.setValueAtTime(peak, at + Math.min(opts.hold || 0, dur));
+    env.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    osc.connect(env);
+    env.connect(timerMaster);
+    osc.start(at);
+    osc.stop(at + dur + 0.02);
+  }
+
+  var TIMER_SYNTHS = {
+    beep: function (ctx, t) {
+      [0, 0.22].forEach(function (d) { tone(ctx, t + d, 1100, 0.16, { to: 2200, hold: 0.1 }); });
+    },
+    alarm: function (ctx, t) {
+      [0, 0.5].forEach(function (g) {
+        [0, 0.1, 0.2, 0.3].forEach(function (d) { tone(ctx, t + g + d, 2400, 0.07, { wave: "square", level: 0.5, hold: 0.05 }); });
       });
+    },
+    chime: function (ctx, t) {
+      tone(ctx, t, 1319, 0.9, { level: 0.9 });
+      tone(ctx, t, 2638, 0.5, { level: 0.25 });
+      tone(ctx, t + 0.45, 1047, 1.2, { level: 0.9 });
+      tone(ctx, t + 0.45, 2094, 0.6, { level: 0.25 });
+    },
+    bell: function (ctx, t) {
+      [0, 0.7].forEach(function (d) {
+        tone(ctx, t + d, 1568, 1.4, { level: 0.8 });
+        tone(ctx, t + d, 3920, 0.6, { level: 0.3 });
+        tone(ctx, t + d, 2352, 0.9, { level: 0.3 });
+      });
+    }
+  };
+
+  function playTimerSynth(type) {
+    var ctx = timerAudio();
+    if (!ctx || !timerMaster) return false;
+    timerMaster.gain.setValueAtTime(timerGain(), ctx.currentTime);
+    (TIMER_SYNTHS[type] || TIMER_SYNTHS.beep)(ctx, ctx.currentTime + 0.03);
+    return true;
+  }
+
+  function playTimerFile() {
+    var ctx = timerAudio();
+    if (!ctx || !timerMaster || !timerFileBuffer) return false;
+    var now = ctx.currentTime + 0.03;
+    var dur = Math.min(timerFileBuffer.duration, TIMER_FILE_MAX_SEC);
+    var src = ctx.createBufferSource();
+    var env = ctx.createGain();
+    src.buffer = timerFileBuffer;
+    env.gain.setValueAtTime(1, now);
+    env.gain.setValueAtTime(1, now + Math.max(0, dur - 0.4));
+    env.gain.linearRampToValueAtTime(0, now + dur);
+    timerMaster.gain.setValueAtTime(timerGain(), now);
+    src.connect(env);
+    env.connect(timerMaster);
+    src.start(now);
+    src.stop(now + dur + 0.05);
+    return true;
+  }
+
+  /* 「スマホの通知音」：通知を出して、スマホの設定で選んだ通知音を鳴らす */
+  function canUseTimerNotify() {
+    return !IS_ARTIFACT_HOST && "Notification" in window && "serviceWorker" in navigator && !!swRegistration;
+  }
+
+  function showTimerNotification(body) {
+    if (!canUseTimerNotify() || Notification.permission !== "granted") return Promise.resolve(false);
+    return swRegistration.showNotification("IRON LOG ⏱️ 休憩終了", {
+      body: body || "次のセットへ",
+      tag: "ironlog-timer",
+      renotify: true,
+      silent: false,
+      icon: "icons/icon-192.png",
+      badge: "icons/icon-192.png",
+      vibrate: [250, 100, 250, 100, 400]
+    }).then(function () { return true; }, function () { return false; });
+  }
+
+  /* タイマー終了・試聴で鳴らす。鳴らせなかった種類は標準の音に切り替える */
+  function playTimerSound(force) {
+    if (!force && !timerSoundEnabled) return;
+    try {
+      if (timerSoundType === "notify") {
+        showTimerNotification(force ? "通知音のテストです" : "").then(function (ok) {
+          if (!ok && timerVolume > 0) playTimerSynth("beep");
+        });
+        return;
+      }
+      if (timerVolume <= 0) return;
+      if (timerSoundType === "file" && playTimerFile()) return;
+      playTimerSynth(timerSoundType === "file" ? "beep" : timerSoundType);
+    } catch (e) {}
+  }
+
+  /* ---- 選んだ音声ファイルの保管（記録と同じ保存領域を圧迫しないよう IndexedDB に置く） ---- */
+  function timerFileDB(mode, fn) {
+    return new Promise(function (resolve, reject) {
+      if (!window.indexedDB) { reject(new Error("no indexedDB")); return; }
+      var req;
+      try { req = indexedDB.open("ironlog_media", 1); } catch (e) { reject(e); return; }
+      req.onupgradeneeded = function () { req.result.createObjectStore("files"); };
+      req.onerror = function () { reject(req.error); };
+      req.onsuccess = function () {
+        var db = req.result;
+        var tx = db.transaction("files", mode);
+        var r = fn(tx.objectStore("files"));
+        tx.oncomplete = function () { db.close(); resolve(r && r.result); };
+        tx.onerror = function () { db.close(); reject(tx.error); };
+      };
+    });
+  }
+
+  function loadTimerFile() {
+    if (timerSoundType !== "file") return;
+    timerFileDB("readonly", function (st) { return st.get("timerSound"); }).then(function (rec) {
+      if (rec && rec.data) { timerFileData = rec.data; timerFileBuffer = null; }
+    }).catch(function () {});
+  }
+
+  function decodeTimerFile() {
+    if (!timerAudioCtx || !timerFileData || timerFileBuffer) return;
+    var data = timerFileData;
+    try {
+      var done = function (buf) { if (timerFileData === data) timerFileBuffer = buf; };
+      var p = timerAudioCtx.decodeAudioData(data.slice(0), done, function () {});
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) {}
+  }
+
+  window.onTimerFilePicked = function (input) {
+    var file = input.files && input.files[0];
+    input.value = "";
+    if (!file) { renderTimerSound(); return; }
+    if (file.size > TIMER_FILE_MAX_BYTES) {
+      showToast("ファイルが大きすぎます（3MBまで）。短い通知音を選んでください", 4000);
+      renderTimerSound();
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var data = reader.result;
+      var ctx = timerAudio();
+      if (!ctx) { showToast("この端末では音声ファイルを再生できません"); renderTimerSound(); return; }
+      var ok = function (buf) {
+        timerFileDB("readwrite", function (st) { return st.put({ name: file.name, data: data }, "timerSound"); }).catch(function () {});
+        timerFileData = data;
+        timerFileBuffer = buf;
+        timerFileName = file.name;
+        timerSoundType = "file";
+        saveTimerSoundPrefs();
+        renderTimerSound();
+        playTimerSound(true);
+        showToast("🎵 " + file.name + " をタイマーの音にしました", 3000);
+      };
+      var ng = function () { showToast("この音声ファイルは再生できませんでした。別のファイルを選んでください", 4000); renderTimerSound(); };
+      try {
+        var pr = ctx.decodeAudioData(data.slice(0), ok, ng);
+        if (pr && pr.catch) pr.catch(function () {});
+      } catch (e) { ng(); }
+    };
+    reader.onerror = function () { showToast("ファイルを読み込めませんでした"); renderTimerSound(); };
+    reader.readAsArrayBuffer(file);
+  };
+
+  function saveTimerSoundPrefs() {
+    try {
+      localStorage.setItem(TIMER_SOUND_KEY, timerSoundEnabled ? "on" : "off");
+      localStorage.setItem(TIMER_VOLUME_KEY, String(timerVolume));
+      localStorage.setItem(TIMER_SOUND_TYPE_KEY, timerSoundType);
+      localStorage.setItem(TIMER_LOCK_KEY, timerSoundLocked ? "on" : "off");
+      localStorage.setItem(TIMER_FILE_NAME_KEY, timerFileName);
     } catch (e) {}
   }
 
@@ -3918,55 +4181,149 @@
       timerSoundEnabled = localStorage.getItem(TIMER_SOUND_KEY) !== "off";
       var v = parseInt(localStorage.getItem(TIMER_VOLUME_KEY), 10);
       timerVolume = isNaN(v) ? TIMER_VOLUME_DEFAULT : Math.max(0, Math.min(100, v));
+      var t = localStorage.getItem(TIMER_SOUND_TYPE_KEY) || "beep";
+      timerSoundType = TIMER_SOUND_TYPES.some(function (x) { return x.id === t; }) ? t : "beep";
+      timerSoundLocked = localStorage.getItem(TIMER_LOCK_KEY) === "on";
+      timerFileName = localStorage.getItem(TIMER_FILE_NAME_KEY) || "";
     } catch (e) {}
-    var range = document.getElementById("timerVolume");
-    if (range) range.value = timerVolume;
+    var sel = document.getElementById("timerSoundType");
+    if (sel) {
+      sel.innerHTML = TIMER_SOUND_TYPES.map(function (x) {
+        return '<option value="' + x.id + '">' + x.name + "</option>";
+      }).join("");
+    }
+    loadTimerFile();
     renderTimerSound();
   }
 
+  function timerSoundLabel() {
+    if (timerSoundType === "file") return timerFileName ? "🎵 " + timerFileName : "音声ファイル";
+    for (var k = 0; k < TIMER_SOUND_TYPES.length; k++) {
+      if (TIMER_SOUND_TYPES[k].id === timerSoundType) return TIMER_SOUND_TYPES[k].name;
+    }
+    return "";
+  }
+
   function renderTimerSound() {
-    var muted = !timerSoundEnabled || timerVolume <= 0;
+    var muted = !timerSoundEnabled || (timerVolume <= 0 && timerSoundType !== "notify");
     var btn = document.getElementById("timerSoundBtn");
     if (btn) {
       btn.textContent = muted ? "🔕" : "🔔";
       btn.setAttribute("aria-label", muted ? "タイマー音：OFF（押すとON）" : "タイマー音：ON（押すとOFF）");
     }
+    var panel = document.getElementById("timerSoundPanel");
+    if (panel) {
+      panel.classList.toggle("locked", timerSoundLocked);
+      panel.classList.toggle("muted", muted);
+      panel.classList.toggle("notify", timerSoundType === "notify");
+    }
+    var sel = document.getElementById("timerSoundType");
+    if (sel) { sel.value = timerSoundType; sel.disabled = timerSoundLocked; }
+    var range = document.getElementById("timerVolume");
+    if (range) { range.value = timerVolume; range.disabled = timerSoundLocked || timerSoundType === "notify"; }
     var label = document.getElementById("timerVolumeValue");
-    if (label) label.textContent = timerSoundEnabled ? timerVolume + "%" : "OFF";
-    var row = document.getElementById("timerVolumeRow");
-    if (row) row.classList.toggle("muted", muted);
+    if (label) label.textContent = !timerSoundEnabled ? "OFF" : timerSoundType === "notify" ? "端末" : timerVolume + "%";
+    var lock = document.getElementById("timerLockBtn");
+    if (lock) {
+      lock.textContent = timerSoundLocked ? "🔒" : "🔓";
+      lock.setAttribute("aria-label", timerSoundLocked ? "音の設定はロック中（押すと解除）" : "音の設定をロックする");
+      lock.classList.toggle("on", timerSoundLocked);
+    }
+    var summary = document.getElementById("timerSoundSummary");
+    if (summary) {
+      summary.textContent = !timerSoundEnabled ? "音：OFF"
+        : timerSoundLabel() + "・" + (timerSoundType === "notify" ? "音量は端末" : "音量 " + timerVolume + "%");
+    }
+    var hint = document.getElementById("timerSoundHint");
+    if (hint) {
+      var text = "";
+      if (timerSoundType === "notify") {
+        text = canUseTimerNotify()
+          ? "スマホの「設定 → アプリ → IRON LOG（または Chrome）→ 通知」で好きな通知音を選べます。音量はスマホの通知音量です。"
+          : "この画面では通知が使えないため、標準の音で鳴らします（GitHub Pages 版のアプリで使えます）。";
+      } else if (timerSoundType === "file") {
+        text = timerFileName ? "選んだファイル：" + timerFileName + "（" + TIMER_FILE_MAX_SEC + "秒まで再生）" : "";
+      }
+      hint.textContent = text;
+      hint.hidden = timerSoundLocked || !text;
+    }
+  }
+
+  function timerLockedNotice() {
+    if (!timerSoundLocked) return false;
+    showToast("🔒 音の設定はロック中です（🔒を押すと解除）");
+    return true;
   }
 
   window.toggleTimerSound = function () {
+    if (timerLockedNotice()) return;
     timerSoundEnabled = !timerSoundEnabled;
     if (timerSoundEnabled && timerVolume <= 0) timerVolume = TIMER_VOLUME_DEFAULT;
-    try {
-      localStorage.setItem(TIMER_SOUND_KEY, timerSoundEnabled ? "on" : "off");
-      localStorage.setItem(TIMER_VOLUME_KEY, String(timerVolume));
-    } catch (e) {}
-    var range = document.getElementById("timerVolume");
-    if (range) range.value = timerVolume;
+    saveTimerSoundPrefs();
     renderTimerSound();
-    if (timerSoundEnabled) playBeep();
-    showToast(timerSoundEnabled ? "タイマー音：ON（音量 " + timerVolume + "%）" : "タイマー音：OFF");
+    if (timerSoundEnabled) playTimerSound();
+    showToast(timerSoundEnabled ? "タイマー音：ON" : "タイマー音：OFF");
+  };
+
+  window.toggleTimerLock = function () {
+    timerSoundLocked = !timerSoundLocked;
+    saveTimerSoundPrefs();
+    renderTimerSound();
+    fitRecordTimerSpace();
+    showToast(timerSoundLocked ? "🔒 音の設定をロックしました" : "🔓 ロックを解除しました。音の種類と音量を変えられます");
+  };
+
+  window.setTimerSoundType = function (type) {
+    if (timerLockedNotice()) { renderTimerSound(); return; }
+    if (type === "file") {
+      document.getElementById("timerFileInput").click();   // 選び終わったら onTimerFilePicked で切り替える
+      renderTimerSound();
+      return;
+    }
+    if (type === "notify") {
+      if (!canUseTimerNotify()) {
+        showToast(IS_ARTIFACT_HOST ? "Artifact版では通知が使えません。GitHub Pages 版のアプリで選んでください" : "この画面では通知が使えません", 4000);
+        renderTimerSound();
+        return;
+      }
+      Notification.requestPermission().then(function (perm) {
+        if (perm !== "granted") {
+          showToast("通知が許可されていません。スマホの設定で IRON LOG の通知を許可してください", 5000);
+          renderTimerSound();
+          return;
+        }
+        timerSoundType = "notify";
+        timerSoundEnabled = true;
+        saveTimerSoundPrefs();
+        renderTimerSound();
+        fitRecordTimerSpace();
+        playTimerSound(true);
+      });
+      return;
+    }
+    timerSoundType = type;
+    timerSoundEnabled = true;
+    if (timerVolume <= 0) timerVolume = TIMER_VOLUME_DEFAULT;
+    saveTimerSoundPrefs();
+    renderTimerSound();
+    fitRecordTimerSpace();
+    playTimerSound(true);
   };
 
   /* 音量つまみ。動かしている間は数字だけ変え、指を離したら試しに鳴らす */
   window.setTimerVolume = function (val, preview) {
+    if (timerSoundLocked) { renderTimerSound(); return; }
     var v = Math.max(0, Math.min(100, parseInt(val, 10) || 0));
     timerVolume = v;
     timerSoundEnabled = v > 0;
-    try {
-      localStorage.setItem(TIMER_VOLUME_KEY, String(v));
-      localStorage.setItem(TIMER_SOUND_KEY, timerSoundEnabled ? "on" : "off");
-    } catch (e) {}
+    saveTimerSoundPrefs();
     renderTimerSound();
-    if (preview) playBeep();
+    if (preview) playTimerSound();
   };
 
   window.previewTimerSound = function () {
-    if (timerVolume <= 0) { showToast("音量が 0% です。つまみを右へ動かしてください"); return; }
-    playBeep(true);
+    if (timerSoundType !== "notify" && timerVolume <= 0) { showToast("音量が 0% です。つまみを右へ動かしてください"); return; }
+    playTimerSound(true);
   };
 
   /* 記録画面の下の余白を、下に固定したタイマーの高さに合わせる（入力欄がタイマーに隠れないように） */
@@ -3974,7 +4331,11 @@
     var timer = document.getElementById("bottomRestTimer");
     var recScreen = document.getElementById("screen-record");
     if (!timer || !recScreen || !timer.offsetHeight) return;
-    recScreen.style.paddingBottom = (timer.offsetHeight + 72) + "px";
+    /* 下のタブの高さは端末（ホームバーの有無）で変わるので、実際の高さに合わせてタイマーを載せる */
+    var nav = document.querySelector("nav.tabbar");
+    var navH = nav && nav.offsetHeight ? nav.offsetHeight : 58;
+    timer.style.bottom = navH + "px";
+    recScreen.style.paddingBottom = (timer.offsetHeight + navH + 14) + "px";
   }
 
   window.toggleTimerFold = function () {
@@ -4055,7 +4416,7 @@
       }
       if (fill) fill.style.width = "100%";
       highlightTimerPreset(null);
-      playBeep();
+      playTimerSound();
       if ("vibrate" in navigator) {
         try { navigator.vibrate([250, 100, 250, 100, 400]); } catch (e) {}
       }
@@ -5881,8 +6242,8 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v11.5";
-  var APP_BUILD_DATE = "2026-10-09";
+  var APP_VERSION = "v11.6";
+  var APP_BUILD_DATE = "2026-10-10";
   var swRegistration = null;
   var currentOfflineCacheName = null;
 
