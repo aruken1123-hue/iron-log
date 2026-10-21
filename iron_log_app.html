@@ -945,6 +945,48 @@
   .exercise-card.just-added { outline: 2px solid var(--accent); outline-offset: 1px; }
   .map-disclaimer { font-size: 10.5px; color: var(--text-muted); margin: 0 0 6px; line-height: 1.5; }
   #confirmModal { z-index: 90; }   /* 他のモーダルの上から確認できるように */
+  #planModal, #exEditorModal { z-index: 70; }
+  .pm-card {
+    max-width: 420px;
+    max-height: calc(100vh - 48px);
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+  .pm-title { margin: 0 0 6px; font-size: 16px; }
+  .pm-label { display: block; margin: 12px 0 4px; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .pm-card input[type="text"], .pm-card input[type="date"], .pm-card input[type="number"]:not(.qf-input), .pm-card select, .plan-select {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px;
+    padding: 9px 10px; font-size: 16px; color: var(--text);
+  }
+  .pm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pm-note { margin: 10px 0 0; font-size: 11.5px; line-height: 1.6; color: var(--text-muted); }
+  .pm-extra { display: flex; gap: 8px; margin-top: 14px; }
+  .pm-extra button, .pm-link-btn, .pm-remove-btn {
+    flex: 1; padding: 10px 8px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  }
+  .pm-link-btn, .pm-remove-btn { display: block; width: 100%; margin-top: 10px; }
+  .pm-extra button.danger, .pm-remove-btn { color: var(--danger); border-color: var(--danger); background: transparent; }
+  .pm-extra button:disabled { opacity: 0.4; cursor: default; }
+  .exe-goal { margin-top: 14px; }
+  .plan-switch-card { padding: 12px 14px; margin-bottom: 12px; }
+  .plan-switch-row { display: flex; align-items: center; gap: 10px; }
+  .plan-switch-row label { font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .plan-select { flex: 1; min-width: 0; font-weight: 700; }
+  .plan-switch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .plan-switch-actions button {
+    padding: 9px 6px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  }
+  .plan-switch-actions button:first-child { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .dr-other-plan { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .ex-edit-btn {
+    flex: none; align-self: flex-start; margin-left: auto;
+    width: 36px; height: 36px; border-radius: 10px; cursor: pointer; font-size: 15px;
+    border: 1px solid var(--border); background: var(--surface-2);
+  }
   .floor-map-filter-bar.editing .map-filter-btn:not(#fmfEdit) { opacity: 0.35; pointer-events: none; }
   #fmfEdit.active { background: #f59e0b; border-color: #f59e0b; color: #1a1200; }
   .floor-edit-panel {
@@ -1321,7 +1363,7 @@
   .toast {
     position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
     background: var(--text); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: 13px; font-weight: 600;
-    opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 50; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 95; white-space: nowrap;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -1638,6 +1680,17 @@
         <button type="button" class="wakelock-btn" id="wakeLockBtn" onclick="toggleWakeLock()">常時点灯: OFF</button>
       </div>
 
+      <div class="card plan-switch-card">
+        <div class="plan-switch-row">
+          <label for="recPlanSelect">📋 プラン</label>
+          <select id="recPlanSelect" class="plan-select" onchange="onPlanSelect(this)" aria-label="使うプラン"></select>
+        </div>
+        <div class="plan-switch-actions">
+          <button type="button" onclick="openExerciseEditor('')">＋ 種目を追加</button>
+          <button type="button" onclick="openPlanSettings()">⚙ プランの設定</button>
+        </div>
+      </div>
+
       <div class="plan-actions-bar" style="margin-bottom:12px;">
         <button type="button" class="plan-act-btn" onclick="openFloorMapModal('TODO')">🗺️ 器具フロアマップ（未実施の位置）</button>
         <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 マシン図鑑・種目を追加</button>
@@ -1750,6 +1803,16 @@
 
       <!-- view mode -->
       <div id="targetsView">
+        <div class="card plan-switch-card">
+          <div class="plan-switch-row">
+            <label for="planSelect">📋 プラン</label>
+            <select id="planSelect" class="plan-select" onchange="onPlanSelect(this)" aria-label="使うプラン"></select>
+          </div>
+          <div class="plan-switch-actions">
+            <button type="button" onclick="openNewPlanDialog()">＋ 新しいプラン</button>
+            <button type="button" onclick="openPlanSettings()">⚙ プランの設定</button>
+          </div>
+        </div>
         <div class="plan-actions-bar">
           <button type="button" class="plan-act-btn primary" onclick="applyKasakakePlan()">🏢 笠懸店マシン 全身プランを適用（案1: 着実増量）</button>
           <button type="button" class="plan-act-btn" onclick="openFloorMapModal()">🗺️ 笠懸店フロアマップ（配置図）</button>
@@ -1977,13 +2040,14 @@
           IRON LOG <span id="vmAppVer" style="color:var(--accent);">v11</span>
         </div>
         <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" id="vmOfflineStatus">
-          ビルド日：2026-10-10<br>
+          ビルド日：2026-10-21<br>
           オフラインキャッシュ：確認中…
         </div>
       </div>
 
       <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
+        <li><b>プランを複数保存 (v12)</b>: 記録画面の「プラン」で切り替え・新規作成。「＋ 種目を追加」と各種目の ✏️ で、記録しながら種目や目標を追加・変更できます。</li>
         <li><b>タイマーの音を選べるように (v11.6)</b>: アプリ内の4種類・スマホの通知音・スマホの音声ファイルから選択。音量を底上げし、🔒で音の設定をロックできます。</li>
         <li><b>追加種目のシート列・タイマー音量 (v11.5)</b>: 図鑑から追加した種目を、スプレッドシートに種目ごとの列を作って記録（GAS v3）。休憩タイマーの音量をつまみで調整できます（秒数選択を開くと表示）。</li>
         <li><b>記録画面を一覧方式に (v11)</b>: 日ごとの区分をなくし、全種目を前回の実施順に表示。「実施済み」でその場で保存して折りたたみ、「除外」で今日やらない種目を最下部へまとめます。</li>
@@ -2002,6 +2066,29 @@
     <div class="machine-modal-foot">
       <span></span>
       <button type="button" class="primary" onclick="closeVersionModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="planModal" hidden>
+  <div class="modal-card pm-card" role="dialog" aria-modal="true" aria-labelledby="planModalTitle">
+    <h3 class="pm-title" id="planModalTitle">プラン</h3>
+    <div id="planModalBody"></div>
+    <div id="planModalExtra"></div>
+    <div class="modal-actions">
+      <button type="button" onclick="closePlanModal()">キャンセル</button>
+      <button type="button" class="go" id="planModalOk" onclick="savePlanModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="exEditorModal" hidden>
+  <div class="modal-card pm-card ex-editor-card" role="dialog" aria-modal="true" aria-labelledby="exEditorTitle">
+    <h3 class="pm-title" id="exEditorTitle">種目を追加</h3>
+    <div id="exEditorBody"></div>
+    <div class="modal-actions">
+      <button type="button" onclick="closeExerciseEditor()">キャンセル</button>
+      <button type="button" class="go" onclick="saveExerciseEditor()">保存</button>
     </div>
   </div>
 </div>
@@ -2180,7 +2267,8 @@
   "use strict";
 
   var STORAGE_KEY = "ironlog_records_v2";
-  var PLAN_KEY = "ironlog_plan_v3";
+  var PLAN_KEY = "ironlog_plan_v3";      // 使用中のプラン（v11.6 までの形。以前の版で開いても読めるよう書き続ける）
+  var PLANS_KEY = "ironlog_plans_v1";    // 全プラン（v12〜）
 
   var UNIT_CONFIG = {
     "kg":   { min: 0, max: 300, step: 2.5, label: "重さ" },
@@ -2894,13 +2982,14 @@
       '<div class="add-day-btns">' +
       '<button type="button" class="primary" onclick="addMachineToPlan(' + jsArg(key) + ')">' +
       (allRegistered ? '記録画面で開く' : '記録の一覧に追加') + '</button></div>' +
-      '<p class="add-note">追加すると記録画面の一覧に毎回表示されます（プラン編集で変更・削除できます）。' +
+      '<p class="add-note">使用中のプラン「' + escapeHTML(plan.name) + '」に追加され、記録画面の一覧に毎回表示されます（種目の ✏️ で変更・削除できます）。' +
       (registered.length ? '<br>一覧に登録済み：' + escapeHTML(registered.join("、")) : '') + '</p>';
   }
 
   function uniqueExerciseId(base) {
-    var id = base, n = 2;
-    while (plan.exercises.some(function (ex) { return ex.id === id; })) { id = base + "_" + n; n++; }
+    var id = base, n = 2, used = {};
+    catalogExercises().forEach(function (ex) { used[ex.id] = true; });
+    while (used[id]) { id = base + "_" + n; n++; }
     return id;
   }
 
@@ -2918,6 +3007,17 @@
     if (ex) {
       message = move.name + " はすでに一覧にあります";
       if (!ex.machineKey) ex.machineKey = key;
+    } else if ((ex = catalogExercises().filter(function (x) { return x.name === move.name; })[0])) {
+      /* ほかのプランにある同じ種目は、同じIDで追加して記録をつなげる */
+      ex = clone(ex);
+      ex.day = "both";
+      ex.status = ex.status || "ok";
+      if (!ex.machineKey) ex.machineKey = key;
+      if (!ex.machineTip) ex.machineTip = m.name.split("/").join("・");
+      if (!ex.goal) ex.goal = { sets: mkSets(move.sets[0], move.sets[1], move.sets[2]) };
+      if (!ex.current) ex.current = { sets: lastSetsFor(ex.id) || clone(ex.goal.sets) };
+      plan.exercises.push(ex);
+      message = move.name + " をプラン「" + plan.name + "」に追加しました";
     } else {
       ex = {
         id: uniqueExerciseId("m_" + key),
@@ -2932,7 +3032,7 @@
         goal: { sets: mkSets(move.sets[0], move.sets[1], move.sets[2]) }
       };
       plan.exercises.push(ex);
-      message = move.name + " を記録の一覧に追加しました";
+      message = move.name + " をプラン「" + plan.name + "」に追加しました";
     }
     ensureDayOrder(plan);
     persistPlan();
@@ -3780,7 +3880,9 @@
   ];
 
   var records = [];
-  var plan = {};
+  var plan = {};             // 使用中のプラン（plans の中の1つ）
+  var plans = [];            // 保存している全プラン
+  var exerciseArchive = {};  // プランから外した種目の名前・単位（履歴とシートで名前を出すため）
   var planDraft = null;
   var targetsEditMode = false;
   var recordDraft = {}; // { [exId]: { included: bool, sets: [{weight,reps}, ...] } }
@@ -3838,13 +3940,51 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); } catch (e) {}
   }
 
+  /* プラン1つ分として使えるか（種目0個の空のプランも可） */
+  function isValidPlanEntry(p) {
+    return !!(p && typeof p === "object" && Array.isArray(p.exercises) && p.exercises.every(function (ex) {
+      return ex && ex.id && ex.current && Array.isArray(ex.current.sets) && ex.current.sets.length &&
+        ex.goal && Array.isArray(ex.goal.sets) && ex.goal.sets.length;
+    }));
+  }
+
+  function newPlanId() {
+    return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  }
+
+  function normalizePlanEntry(p, fallbackName) {
+    if (!p.id) p.id = newPlanId();
+    p.name = String(p.name || "").trim() || fallbackName;
+    if (!p.startDate || !/^\d{4}-\d{2}-\d{2}$/.test(String(p.startDate))) p.startDate = todayISO();
+    p.weeks = Math.min(52, Math.max(1, parseInt(p.weeks, 10) || 8));
+    p.deloadWeek = Math.max(1, parseInt(p.deloadWeek, 10) || 5);
+    if (p.note == null) p.note = "";
+    p.exercises.forEach(function (ex) {
+      ["current", "goal"].forEach(function (kind) {
+        ex[kind].sets = ex[kind].sets.map(function (st) {
+          return { weight: Number(st && st.weight) || 0, reps: Number(st && st.reps) || 0 };
+        });
+      });
+    });
+    ensureDayOrder(p);
+    return p;
+  }
+
   function loadPlan() {
-    try {
-      var raw = localStorage.getItem(PLAN_KEY);
-      plan = raw ? JSON.parse(raw) : clone(DEFAULT_PLAN);
-      if (!isValidPlanShape(plan)) plan = clone(DEFAULT_PLAN);
-    } catch (e) { plan = clone(DEFAULT_PLAN); }
-    ensureDayOrder(plan);
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem(PLANS_KEY) || "null"); } catch (e) {}
+    plans = (stored && Array.isArray(stored.plans)) ? stored.plans.filter(isValidPlanEntry) : [];
+    exerciseArchive = (stored && stored.archive && typeof stored.archive === "object") ? stored.archive : {};
+    if (!plans.length) {
+      /* 1つだけのプラン（v11.6 まで）から引き継ぐ */
+      var legacy = null;
+      try { legacy = JSON.parse(localStorage.getItem(PLAN_KEY) || "null"); } catch (e) {}
+      plans = [isValidPlanShape(legacy) ? legacy : clone(DEFAULT_PLAN)];
+    }
+    plans.forEach(function (p, i) { normalizePlanEntry(p, i === 0 ? "メインプラン" : "プラン" + (i + 1)); });
+    var activeId = stored && stored.activeId;
+    plan = plans.filter(function (p) { return p.id === activeId; })[0] || plans[0];
+    persistPlan();
   }
 
   /* keeps plan.dayOrder.A / .B in sync with which exercises currently belong to each day —
@@ -3858,8 +3998,45 @@
       p.dayOrder[d] = order;
     });
   }
+  /* 使用中のプランを保存する。plan を別のオブジェクトに置き換えた場合も、同じIDの位置に入れ直す */
   function persistPlan() {
-    try { localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); } catch (e) {}
+    var idx = indexOfPlan(plan.id);
+    if (idx === -1) plans.push(plan); else plans[idx] = plan;
+    /* 同じ種目IDの名前・区分・単位は全プランでそろえる（使用中のプランの内容に合わせる）。
+       プランタブの編集・笠懸店プランの適用・取り込みなど、どの道で変えてもずれないように */
+    plan.exercises.forEach(syncExerciseIdentity);
+    plans.forEach(function (p) {
+      p.exercises.forEach(function (ex) {
+        exerciseArchive[ex.id] = {
+          id: ex.id, name: ex.name, unit: ex.unit, category: ex.category,
+          machineKey: ex.machineKey || "", machineTip: ex.machineTip || ""
+        };
+      });
+    });
+    try {
+      localStorage.setItem(PLANS_KEY, JSON.stringify({ activeId: plan.id, plans: plans, archive: exerciseArchive }));
+      localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
+    } catch (e) {}
+  }
+
+  function indexOfPlan(id) {
+    for (var i = 0; i < plans.length; i++) if (plans[i].id === id) return i;
+    return -1;
+  }
+
+  /* すべての種目（使用中のプラン → ほかのプラン → 外した種目の順。同じIDは1つ）。
+     別のプランで記録した種目も、履歴・シートで名前が分かるようにするため */
+  function catalogExercises() {
+    var out = [], seen = {};
+    function add(ex) { if (ex && !seen[ex.id]) { seen[ex.id] = true; out.push(ex); } }
+    plan.exercises.forEach(add);
+    plans.forEach(function (p) { if (p !== plan) p.exercises.forEach(add); });
+    Object.keys(exerciseArchive).forEach(function (id) { add(exerciseArchive[id]); });
+    return out;
+  }
+
+  function planExerciseById(id) {
+    return plan.exercises.filter(function (ex) { return ex.id === id; })[0] || null;
   }
 
   function fmtDate(iso) {
@@ -4802,7 +4979,7 @@
   /* 追加種目（決まった14種目以外）の列名。プランの並び順・重複なし。固定の見出しと同じ名前は除く */
   function sheetExtraColumns() {
     var names = [];
-    plan.exercises.forEach(function (ex) {
+    catalogExercises().forEach(function (ex) {
       if (SHEET_EX_KEYS.indexOf(ex.id) !== -1) return;
       var name = String(ex.name || "").trim();
       if (name && SHEET_COLUMNS.indexOf(name) === -1 && names.indexOf(name) === -1) names.push(name);
@@ -4813,7 +4990,7 @@
   /* 記録に含まれる追加種目の値 { 種目名: "40×10 / 45×8" } */
   function sheetExtraValues(rec) {
     var out = {};
-    plan.exercises.forEach(function (ex) {
+    catalogExercises().forEach(function (ex) {
       if (SHEET_EX_KEYS.indexOf(ex.id) !== -1 || !rec[ex.id]) return;
       var txt = displayValue(rec[ex.id], ex.unit);
       var name = String(ex.name || "").trim() || ex.id;
@@ -4935,6 +5112,7 @@
       b.classList.toggle("active", b.dataset.screen === name);
     });
     if (name !== "record") flushSheetSync();   /* 記録画面を離れるときに未送信分を送る */
+    if (name !== "targets" && targetsEditMode) { targetsEditMode = false; planDraft = null; }   /* 保存していないプラン編集は破棄（戻ったときと同じ扱い） */
     if (name === "record") { renderRecordScreen(); fitRecordTimerSpace(); }
     if (name === "home") renderHome();
     if (name === "history") renderHistory();
@@ -5012,8 +5190,9 @@
     try { localStorage.setItem(EXCLUDE_KEY, JSON.stringify(excludedState)); } catch (e) {}
   }
 
+  /* 種目をIDで探す。使用中のプランに無ければ、ほかのプラン・外した種目からも探す */
   function exerciseById(id) {
-    return plan.exercises.filter(function (ex) { return ex.id === id; })[0] || null;
+    return planExerciseById(id) || catalogExercises().filter(function (ex) { return ex.id === id; })[0] || null;
   }
 
   function findRecordByDate(date) {
@@ -5053,7 +5232,7 @@
         if (seen[ex.id]) return;
         seen[ex.id] = true;
         out.push(ex.id);
-        remaining--;
+        if (planExerciseById(ex.id)) remaining--;   // 使用中のプランの種目が全部そろったら打ち切る
       });
     }
     return out;
@@ -5066,7 +5245,7 @@
     var exIds = excludedIds().filter(function (id) { return doneIds.indexOf(id) === -1; });
     var ordered = [], seen = {};
     lastCompletedOrder(date).concat(plan.exercises.map(function (ex) { return ex.id; })).forEach(function (id) {
-      var ex = exerciseById(id);
+      var ex = planExerciseById(id);   /* 一覧に出すのは使用中のプランの種目だけ */
       if (!ex || seen[id]) return;
       seen[id] = true;
       ordered.push(ex);
@@ -5075,7 +5254,7 @@
       rec: rec,
       todo: ordered.filter(function (ex) { return doneIds.indexOf(ex.id) === -1 && exIds.indexOf(ex.id) === -1; }),
       done: doneIds.map(exerciseById).filter(Boolean),
-      excluded: exIds.map(exerciseById).filter(Boolean)
+      excluded: exIds.map(planExerciseById).filter(Boolean)
     };
   }
 
@@ -5095,7 +5274,7 @@
 
     wrap.innerHTML = "";
     if (!plan.exercises.length) {
-      wrap.innerHTML = '<div class="card rec-empty-hint">種目が登録されていません。「プラン」タブか「マシン図鑑」から追加してください。</div>';
+      wrap.innerHTML = '<div class="card rec-empty-hint">このプランには種目がありません。上の「＋ 種目を追加」か「マシン図鑑」から追加してください。</div>';
     } else if (!lists.todo.length) {
       wrap.innerHTML = '<div class="card rec-empty-hint">' +
         (lists.done.length ? '🎉 一覧の種目はすべて実施済みです。おつかれさまでした。' : 'すべて除外されています。下の「除外したマシン」から戻せます。') + '</div>';
@@ -5119,7 +5298,10 @@
       return '<div class="done-row"><span class="dr-idx">' + (i + 1) + '</span>' +
         '<div class="dr-main"><div class="dr-name">' + escapeHTML(ex.name) + '</div>' +
         '<div class="dr-val">' + escapeHTML(displayValue(lists.rec[ex.id], ex.unit)) + '</div></div>' +
-        '<button type="button" onclick="undoExerciseDone(' + jsArg(ex.id) + ')">やり直す</button></div>';
+        (planExerciseById(ex.id)
+          ? '<button type="button" onclick="undoExerciseDone(' + jsArg(ex.id) + ')">やり直す</button>'
+          : '<span class="dr-other-plan">ほかのプランの種目</span>') +
+        '</div>';
     }).join("");
 
     var exSec = document.getElementById("recExcludedSection");
@@ -5175,7 +5357,9 @@
       '<span class="ex-target">目標 ' + escapeHTML(formatQty(ex.goal, ex.unit)) + '</span>' +
       renderMachineTipsHTML(ex.machineTip, ex.name) +
       machineMemoLineHTML(ex) +
-      '</div></div>' +
+      '</div>' +
+      '<button type="button" class="ex-edit-btn" onclick="openExerciseEditor(' + jsArg(ex.id) + ')" aria-label="' + escapeAttr(ex.name) + 'の目標・設定を変更">✏️</button>' +
+      '</div>' +
       rows +
       '<button type="button" class="add-set-btn" onclick="addRecSet(' + jsArg(ex.id) + ')">＋ セットを追加</button>' +
       (prevText
@@ -5246,7 +5430,7 @@
   window.undoExerciseDone = function (exId) {
     var rec = findRecordByDate(recordDate());
     if (!rec) return;
-    if (isValidRecordEntry(rec[exId]) && recordDraft[exId]) recordDraft[exId].sets = clone(rec[exId].sets);
+    if (isValidRecordEntry(rec[exId])) recordDraft[exId] = { sets: clone(rec[exId].sets) };   /* 入力値は残す */
     if (!Array.isArray(rec.order)) rec.order = recordExerciseList(rec).map(function (ex) { return ex.id; });
     delete rec[exId];
     rec.order = rec.order.filter(function (id) { return id !== exId; });
@@ -5382,7 +5566,7 @@
   function renderHome() {
     var mainCount = plan.exercises.filter(function (e) { return e.category === "メイン"; }).length;
     var homeSubEl = document.getElementById("homeSub");
-    homeSubEl.textContent = plan.weeks + "週間プログラム 第" + computeWeek() + "週 ／ メイン種目" + mainCount + "種目を強化中";
+    homeSubEl.textContent = "プラン「" + plan.name + "」 " + plan.weeks + "週間 第" + computeWeek() + "週 ／ メイン種目" + mainCount + "種目";
     appendHomeVersionTag(homeSubEl);   /* textContent の書き換えで消えるため付け直す */
     document.getElementById("statCount").innerHTML = records.length + "<small>回</small>";
     document.getElementById("statLast").textContent = records.length ? fmtDate(records[records.length - 1].date) : "まだ記録なし";
@@ -5518,7 +5702,8 @@
      無い古い記録は現在の並び順 dayOrder で代用する。 */
   function recordExerciseList(rec) {
     var byId = {};
-    plan.exercises.forEach(function (ex) { byId[ex.id] = ex; });
+    var catalog = catalogExercises();
+    catalog.forEach(function (ex) { byId[ex.id] = ex; });
     var out = [], seen = {};
     function push(id) {
       if (seen[id] || !rec[id] || !byId[id]) return;
@@ -5527,7 +5712,7 @@
     }
     (rec.order || []).forEach(push);
     ((plan.dayOrder && plan.dayOrder[rec.day]) || []).forEach(push);
-    plan.exercises.forEach(function (ex) { push(ex.id); });   // 取りこぼし防止
+    catalog.forEach(function (ex) { push(ex.id); });   // 取りこぼし防止（ほかのプランで記録した種目も含む）
     return out;
   }
 
@@ -5857,6 +6042,7 @@
   };
 
   function renderTargets() {
+    renderPlanSwitchers();
     var btn = document.getElementById("targetEditBtn");
     var viewEl = document.getElementById("targetsView");
     var editEl = document.getElementById("targetsEdit");
@@ -5879,13 +6065,15 @@
 
   window.applyKasakakePlan = function () {
     askConfirm(
-      "エニタイムフィットネス アクロスプラザ笠懸店のマシンラインナップに最適化した全身プラン（案1: 着実増量）を適用します。\n\n※最新の実績重量をもとに目標が自動更新されます（過去の記録は消えません）。",
+      "使用中のプラン「" + plan.name + "」の中身を、エニタイムフィットネス アクロスプラザ笠懸店のマシンラインナップに最適化した全身プラン（案1: 着実増量）に置き換えます。\n\n※最新の実績重量をもとに目標が自動更新されます（過去の記録は消えません）。\n別のプランとして残したいときは、記録画面の「プラン」から新しいプランを作ってください。",
       "笠懸店プランを適用",
       false
     ).then(function (ok) {
       if (!ok) return;
       var newPlan = clone(KASAKAKE_PLAN);
       newPlan.startDate = todayISO();
+      newPlan.id = plan.id;       /* 使用中のプランの中身だけを入れ替える */
+      newPlan.name = plan.name;
       
       // 直近の記録があれば、current（現状）を最新実績で自動更新
       newPlan.exercises.forEach(function (ex) {
@@ -5907,10 +6095,13 @@
   };
 
   window.resetPlan = function () {
-    askConfirm("種目リストと目標重量を、はじめの8週間プログラムの内容に戻します。\n記録は消えません。", "リセットする", false)
+    askConfirm("使用中のプラン「" + plan.name + "」の種目リストと目標重量を、はじめの8週間プログラムの内容に戻します。\n記録は消えません。", "リセットする", false)
       .then(function (ok) {
         if (!ok) return;
+        var keep = { id: plan.id, name: plan.name };
         plan = clone(DEFAULT_PLAN);
+        plan.id = keep.id;
+        plan.name = keep.name;
         ensureDayOrder(plan);
         persistPlan();
         targetsEditMode = false;
@@ -5921,9 +6112,383 @@
       });
   };
 
+  /* ---------- 複数のプラン：切り替え・作成・設定 ---------- */
+  function renderPlanSwitchers() {
+    ["recPlanSelect", "planSelect"].forEach(function (id) {
+      var sel = document.getElementById(id);
+      if (!sel) return;
+      sel.innerHTML = plans.map(function (p) {
+        return '<option value="' + escapeAttr(p.id) + '">' + escapeHTML(p.name) + '（' + p.exercises.length + '種目）</option>';
+      }).join("") + '<option value="__new__">＋ 新しいプランを作る…</option>';
+      sel.value = plan.id;
+    });
+  }
+
+  /* プラン編集（プランタブ）の途中は、切り替えや追加をしない（編集中の内容が混ざるため） */
+  function planBusyNotice() {
+    if (!targetsEditMode) return false;
+    showToast("プランタブで編集中です。「プランを保存」か「キャンセル」を押してから操作してください", 4500);
+    return true;
+  }
+
+  /* プランや種目が変わったあと、各画面を描き直す（入力途中の記録は消さない） */
+  function refreshAfterPlanChange() {
+    plan.exercises.forEach(draftFor);
+    renderPlanSwitchers();
+    renderRecordScreen();
+    renderHome();
+    if (!targetsEditMode) renderTargets();
+    fitRecordTimerSpace();
+  }
+
+  window.onPlanSelect = function (sel) {
+    var id = sel.value;
+    if (id === "__new__") { sel.value = plan.id; openNewPlanDialog(); return; }
+    if (id === plan.id) return;
+    if (planBusyNotice()) { sel.value = plan.id; return; }
+    switchPlan(id);
+  };
+
+  function switchPlan(id) {
+    var idx = indexOfPlan(id);
+    if (idx === -1) return;
+    plan = plans[idx];
+    persistPlan();
+    refreshAfterPlanChange();
+    showToast("📋 プラン「" + plan.name + "」に切り替えました");
+  }
+
+  function planNameTaken(name, exceptId) {
+    return plans.some(function (p) { return p.id !== exceptId && p.name === name; });
+  }
+  function uniquePlanName(base) {
+    var name = base, n = 2;
+    while (planNameTaken(name, "")) { name = base + " " + n; n++; }
+    return name;
+  }
+
+  function createPlanFrom(base, name) {
+    var p;
+    if (base === "empty") {
+      p = { weeks: 8, deloadWeek: 5, note: "", exercises: [] };
+    } else if (base === "default" || base === "kasakake") {
+      p = clone(base === "kasakake" ? KASAKAKE_PLAN : DEFAULT_PLAN);
+      /* 最近の記録があれば「現状」を最新の実績にする */
+      p.exercises.forEach(function (ex) {
+        var last = lastEntryFor(ex.id);
+        if (last && isValidRecordEntry(last)) ex.current = clone(last);
+      });
+    } else {
+      p = clone(plan);
+    }
+    p.id = newPlanId();
+    p.name = name;
+    p.startDate = todayISO();
+    return normalizePlanEntry(p, name);
+  }
+
+  var planDialogKind = "";
+
+  function showPlanModal(kind, title, bodyHTML, extraHTML, okLabel) {
+    planDialogKind = kind;
+    document.getElementById("planModalTitle").textContent = title;
+    document.getElementById("planModalBody").innerHTML = bodyHTML;
+    document.getElementById("planModalExtra").innerHTML = extraHTML || "";
+    document.getElementById("planModalOk").textContent = okLabel;
+    document.getElementById("planModal").hidden = false;
+  }
+
+  window.closePlanModal = function () {
+    document.getElementById("planModal").hidden = true;
+    planDialogKind = "";
+  };
+
+  window.openNewPlanDialog = function () {
+    if (planBusyNotice()) return;
+    showPlanModal("new", "新しいプラン",
+      '<label class="pm-label" for="pm_name">プラン名</label>' +
+      '<input type="text" id="pm_name" maxlength="30" placeholder="例：上半身の日">' +
+      '<label class="pm-label" for="pm_base">はじめの中身</label>' +
+      '<select id="pm_base">' +
+        '<option value="copy">今のプラン（' + escapeHTML(plan.name) + '）をコピー</option>' +
+        '<option value="empty">空のプラン（種目は記録画面で追加）</option>' +
+        '<option value="default">はじめの8週間プログラム</option>' +
+        '<option value="kasakake">笠懸店 全身プラン</option>' +
+      '</select>' +
+      '<p class="pm-note">作ったプランに切り替わります。これまでの記録はそのまま残り、同じ種目の前回の値も引き継がれます。</p>',
+      "", "作成して切り替える");
+  };
+
+  window.openPlanSettings = function () {
+    if (planBusyNotice()) return;
+    var only = plans.length < 2;
+    showPlanModal("settings", "プランの設定",
+      '<label class="pm-label" for="pm_name">プラン名</label>' +
+      '<input type="text" id="pm_name" maxlength="30" value="' + escapeAttr(plan.name) + '">' +
+      '<div class="pm-row">' +
+        '<div><label class="pm-label" for="pm_start">開始日</label><input type="date" id="pm_start" value="' + escapeAttr(plan.startDate || todayISO()) + '"></div>' +
+        '<div><label class="pm-label" for="pm_weeks">期間（週）</label><input type="number" id="pm_weeks" min="1" max="52" inputmode="numeric" value="' + (plan.weeks || 8) + '"></div>' +
+      '</div>' +
+      '<p class="pm-note">種目は記録画面の「＋ 種目を追加」と各種目の ✏️ で追加・変更できます（全部まとめて直すときはプランタブの「編集する」）。</p>',
+      '<div class="pm-extra">' +
+        '<button type="button" onclick="duplicatePlan()">このプランを複製</button>' +
+        '<button type="button" class="danger" onclick="deletePlan()"' + (only ? " disabled" : "") + '>このプランを削除</button>' +
+      '</div>' +
+      (only ? '<p class="pm-note">プランが1つだけのときは削除できません。</p>' : ''),
+      "保存");
+  };
+
+  window.savePlanModal = function () {
+    var name = (val("pm_name") || "").trim();
+    if (!name) { showToast("プラン名を入れてください"); return; }
+    if (planDialogKind === "new") {
+      if (planNameTaken(name, "")) { showToast("同じ名前のプランがあります。別の名前にしてください"); return; }
+      var created = createPlanFrom(val("pm_base"), name);
+      plans.push(created);
+      plan = created;
+      persistPlan();
+      closePlanModal();
+      refreshAfterPlanChange();
+      showToast("📋 プラン「" + name + "」を作りました");
+      return;
+    }
+    if (planDialogKind === "settings") {
+      if (planNameTaken(name, plan.id)) { showToast("同じ名前のプランがあります。別の名前にしてください"); return; }
+      plan.name = name;
+      plan.startDate = val("pm_start") || plan.startDate;
+      var weeks = parseInt(val("pm_weeks"), 10);
+      if (weeks >= 1 && weeks <= 52) plan.weeks = weeks;
+      persistPlan();
+      closePlanModal();
+      refreshAfterPlanChange();
+      showToast("プランの設定を保存しました");
+    }
+  };
+
+  window.duplicatePlan = function () {
+    var copy = clone(plan);
+    copy.id = newPlanId();
+    copy.name = uniquePlanName(plan.name + "のコピー");
+    plans.push(copy);
+    plan = copy;
+    persistPlan();
+    closePlanModal();
+    refreshAfterPlanChange();
+    showToast("📋 「" + copy.name + "」を作って切り替えました");
+  };
+
+  window.deletePlan = function () {
+    if (plans.length < 2) return;
+    var target = plan;
+    askConfirm("プラン「" + target.name + "」を削除します。\nこれまでの記録は消えません（このプランだけの種目も、履歴にはそのまま残ります）。", "削除する", true)
+      .then(function (ok) {
+        if (!ok) return;
+        plans = plans.filter(function (p) { return p.id !== target.id; });
+        plan = plans[0];
+        persistPlan();
+        closePlanModal();
+        refreshAfterPlanChange();
+        showToast("プラン「" + target.name + "」を削除しました（「" + plan.name + "」に切り替えました）");
+      });
+  };
+
+  /* ---------- 記録画面から種目を追加・変更する ---------- */
+  var exEditor = null;   // { mode: "add" | "edit", exId, srcId, draft: { name, category, unit, goal } }
+
+  window.openExerciseEditor = function (exId) {
+    if (planBusyNotice()) return;
+    var ex = exId ? planExerciseById(exId) : null;
+    exEditor = ex
+      ? { mode: "edit", exId: ex.id, srcId: ex.id,
+          draft: { name: ex.name, category: ex.category || "補助", unit: ex.unit || "kg", goal: clone(ex.goal) } }
+      : { mode: "add", exId: "", srcId: "",
+          draft: { name: "", category: "補助", unit: "kg", goal: { sets: mkSets(20, 10, 3) } } };
+    renderExerciseEditor();
+    document.getElementById("exEditorModal").hidden = false;
+  };
+
+  window.closeExerciseEditor = function () {
+    document.getElementById("exEditorModal").hidden = true;
+    exEditor = null;
+  };
+
+  /* 入力欄の値を下書きに読み込む（再描画の前に呼ぶ） */
+  function collectExerciseEditor() {
+    if (!exEditor) return;
+    var d = exEditor.draft;
+    d.name = (val("exe_name") || "").trim();
+    d.category = val("exe_cat") || d.category;
+    d.goal.sets = d.goal.sets.map(function (st, j) {
+      return { weight: numVal("exe_w_" + j, st.weight), reps: numVal("exe_r_" + j, st.reps) };
+    });
+    d.unit = val("exe_unit") || d.unit;
+  }
+
+  function renderExerciseEditor() {
+    var e = exEditor, d = e.draft;
+    var ucfg = UNIT_CONFIG[d.unit] || UNIT_CONFIG.kg, rcfg = repsCfgFor(d.unit);
+    document.getElementById("exEditorTitle").textContent = e.mode === "edit"
+      ? "種目の変更（" + plan.name + "）"
+      : "種目を追加（" + plan.name + "）";
+    var html = "";
+    if (e.mode === "add") {
+      var others = catalogExercises().filter(function (ex) { return !planExerciseById(ex.id); });
+      if (others.length) {
+        html += '<label class="pm-label" for="exe_src">種目</label>' +
+          '<select id="exe_src" onchange="onExerciseEditorSource(this.value)">' +
+          '<option value="">新しい種目を作る</option>' +
+          others.map(function (ex) {
+            return '<option value="' + escapeAttr(ex.id) + '"' + (ex.id === e.srcId ? " selected" : "") + '>' +
+              escapeHTML(ex.name) + (ex.goal ? "（ほかのプランから）" : "（以前の種目）") + '</option>';
+          }).join("") +
+          '</select>';
+      }
+    }
+    html += '<label class="pm-label" for="exe_name">種目名</label>' +
+      '<input type="text" id="exe_name" maxlength="30" value="' + escapeAttr(d.name) + '" placeholder="例：チェストプレス">' +
+      '<div class="pm-row">' +
+        '<div><label class="pm-label" for="exe_cat">区分</label>' + catSelectHTML("exe_cat", d.category) + '</div>' +
+        '<div><label class="pm-label" for="exe_unit">単位</label>' + unitSelectHTML("exe_unit", d.unit, "onExerciseEditorUnit()") + '</div>' +
+      '</div>' +
+      '<div class="qty-group goal exe-goal">' +
+      '<div class="qg-label">目標<span class="qg-count">' + d.goal.sets.length + 'セット</span></div>' +
+      d.goal.sets.map(function (st, j) {
+        return '<div class="set-row"><div class="set-idx">' + (j + 1) + '</div><div class="set-fields">' +
+          qtyFieldHTML("exe_w_" + j, ucfg.label, st.weight, ucfg, d.unit, null) +
+          qtyFieldHTML("exe_r_" + j, rcfg.label, st.reps, rcfg, rcfg.suffix, null) +
+          '</div>' +
+          (d.goal.sets.length > 1
+            ? '<button type="button" class="set-remove" onclick="removeExerciseEditorSet(' + j + ')">✕</button>'
+            : '<span class="set-remove-spacer"></span>') +
+          '</div>';
+      }).join("") +
+      '<button type="button" class="add-set-btn" onclick="addExerciseEditorSet()">＋ セットを追加</button>' +
+      '</div>';
+    if (e.mode === "add") {
+      html += '<p class="pm-note">' + (e.srcId
+          ? 'これまでの記録とつながります。名前・区分・単位を変えると、ほかのプランと履歴の表示も変わります。'
+          : '新しい種目は、目標の値が記録画面の最初の入力値になります。') + '</p>' +
+        '<button type="button" class="pm-link-btn" onclick="exerciseEditorToCatalog()">📖 マシン図鑑から選んで追加する</button>';
+    } else {
+      html += '<p class="pm-note">名前・区分・単位は、同じ種目を使っているほかのプランにも反映されます。目標はこのプランだけ変わります。</p>' +
+        '<button type="button" class="pm-remove-btn" onclick="removeExerciseFromPlan()">このプランから外す</button>';
+    }
+    document.getElementById("exEditorBody").innerHTML = html;
+  }
+
+  window.onExerciseEditorSource = function (id) {
+    collectExerciseEditor();
+    var d = exEditor.draft;
+    var ex = id ? exerciseById(id) : null;
+    exEditor.srcId = ex ? ex.id : "";
+    if (ex) {
+      d.name = ex.name;
+      d.category = ex.category || "補助";
+      d.unit = ex.unit || "kg";
+      d.goal = ex.goal ? clone(ex.goal) : { sets: lastSetsFor(ex.id) || mkSets(20, 10, 3) };
+    }
+    renderExerciseEditor();
+  };
+  window.onExerciseEditorUnit = function () { collectExerciseEditor(); renderExerciseEditor(); };
+  window.addExerciseEditorSet = function () {
+    collectExerciseEditor();
+    var sets = exEditor.draft.goal.sets;
+    if (sets.length >= MAX_SETS) { showToast("セット数の上限（" + MAX_SETS + "）に達しています"); return; }
+    var last = sets[sets.length - 1] || { weight: 20, reps: 10 };
+    sets.push({ weight: last.weight, reps: last.reps });
+    renderExerciseEditor();
+  };
+  window.removeExerciseEditorSet = function (j) {
+    collectExerciseEditor();
+    var sets = exEditor.draft.goal.sets;
+    if (sets.length > 1) sets.splice(j, 1);
+    renderExerciseEditor();
+  };
+  window.exerciseEditorToCatalog = function () {
+    closeExerciseEditor();
+    openMachineListModal();
+  };
+
+  /* 名前・区分・単位は種目そのものの情報なので、同じIDを持つほかのプランにもそろえる */
+  function syncExerciseIdentity(ex) {
+    plans.forEach(function (p) {
+      p.exercises.forEach(function (other) {
+        if (other === ex || other.id !== ex.id) return;
+        other.name = ex.name;
+        other.category = ex.category;
+        other.unit = ex.unit;
+      });
+    });
+  }
+
+  window.saveExerciseEditor = function () {
+    if (!exEditor) return;
+    collectExerciseEditor();
+    var e = exEditor, d = e.draft;
+    if (!d.name) { showToast("種目名を入れてください"); return; }
+    var dup = plan.exercises.filter(function (ex) { return ex.name === d.name && ex.id !== e.exId; })[0];
+    if (dup) { showToast("「" + d.name + "」はこのプランにすでにあります"); return; }
+    var ex;
+    if (e.mode === "edit") {
+      ex = planExerciseById(e.exId);
+      if (!ex) { closeExerciseEditor(); return; }
+    } else {
+      /* ほかのプランや以前に同じ名前の種目があれば、同じIDにして記録をつなげる */
+      var src = e.srcId ? exerciseById(e.srcId)
+        : catalogExercises().filter(function (x) { return x.name === d.name && !planExerciseById(x.id); })[0];
+      ex = src ? clone(src) : { id: uniqueExerciseId("ex_" + Date.now().toString(36)) };
+      ex.day = "both";
+      ex.status = ex.status || "ok";
+      plan.exercises.push(ex);
+    }
+    ex.name = d.name;
+    ex.category = d.category;
+    ex.unit = d.unit;
+    ex.goal = clone(d.goal);
+    if (!ex.current || !isValidRecordEntry(ex.current)) ex.current = { sets: lastSetsFor(ex.id) || clone(d.goal.sets) };
+    syncExerciseIdentity(ex);
+    ensureDayOrder(plan);
+    persistPlan();
+    if (e.mode === "add") setExcluded(excludedIds().filter(function (id) { return id !== ex.id; }));
+    closeExerciseEditor();
+    refreshAfterPlanChange();
+    showToast(e.mode === "edit" ? "「" + ex.name + "」を変更しました" : "「" + ex.name + "」をプラン「" + plan.name + "」に追加しました");
+  };
+
+  window.removeExerciseFromPlan = function () {
+    var ex = exEditor && planExerciseById(exEditor.exId);
+    if (!ex) return;
+    askConfirm("「" + ex.name + "」をプラン「" + plan.name + "」から外します。\nこれまでの記録は消えません。", "外す", true)
+      .then(function (ok) {
+        if (!ok) return;
+        plan.exercises = plan.exercises.filter(function (x) { return x.id !== ex.id; });
+        ensureDayOrder(plan);
+        persistPlan();
+        closeExerciseEditor();
+        refreshAfterPlanChange();
+        showToast("「" + ex.name + "」をこのプランから外しました");
+      });
+  };
+
+  function wirePlanModals() {
+    ["planModal", "exEditorModal"].forEach(function (id) {
+      var modal = document.getElementById(id);
+      if (!modal) return;
+      modal.addEventListener("click", function (ev) {
+        if (ev.target !== modal) return;
+        if (id === "planModal") closePlanModal(); else closeExerciseEditor();
+      });
+    });
+  }
+
   /* ---------- Settings: export / import / wipe ---------- */
   function backupPayload() {
-    return { app: "IRON LOG", format: 1, exportedAt: new Date().toISOString(), records: records, plan: plan, machineSettings: machineSettings, floorLayout: floorLayout };
+    return {
+      app: "IRON LOG", format: 1, exportedAt: new Date().toISOString(), records: records,
+      plan: plan,   /* 以前の版で読み込んだとき用（使用中のプラン） */
+      plans: plans, activePlanId: plan.id, exerciseArchive: exerciseArchive,
+      machineSettings: machineSettings, floorLayout: floorLayout
+    };
   }
 
   /* 内容がまったく同じ記録を見分けるためのキー（重複取り込みの防止に使う） */
@@ -6060,6 +6625,9 @@
     var incomingPlan = isBareArray ? null : (incoming && incoming.plan);
     incomingMachineSettings = isBareArray ? null : ((incoming && incoming.machineSettings) || null);
     incomingFloorLayout = isBareArray ? null : ((incoming && incoming.floorLayout) || null);
+    incomingPlanSet = (!isBareArray && incoming && Array.isArray(incoming.plans))
+      ? { plans: incoming.plans, activeId: incoming.activePlanId, archive: incoming.exerciseArchive }
+      : null;
     if (!Array.isArray(incomingRecords)) {
       showToast("記録データが含まれていません");
       return Promise.resolve(false);
@@ -6073,7 +6641,8 @@
     var mode = currentImportMode();
     if (mode === "replace") {
       return askConfirm(
-        "今の記録 " + records.length + " 件をすべて破棄して、\n読み込んだ " + valid.length + " 件に置き換えます。",
+        "今の記録 " + records.length + " 件をすべて破棄して、\n読み込んだ " + valid.length + " 件に置き換えます。" +
+          (incomingPlanSet ? "\nプラン（今は " + plans.length + " 個）も、ファイルのプラン " + incomingPlanSet.plans.length + " 個に置き換わります。" : ""),
         "置き換える", true
       ).then(function (ok) {
         if (!ok) return false;
@@ -6098,6 +6667,34 @@
 
   var incomingMachineSettings = null;
   var incomingFloorLayout = null;
+  var incomingPlanSet = null;
+
+  /* バックアップのプランを取り込む。置き換え：ファイルのプランに。追加：端末に無いプランだけ足す */
+  function importPlanSet(mode, set) {
+    var list = clone(set.plans.filter(isValidPlanEntry));
+    if (!list.length) return false;
+    if (mode === "replace") {
+      plans = list;
+      plan = list.filter(function (p) { return p.id === set.activeId; })[0] || list[0];
+    } else {
+      list.forEach(function (p) {
+        if (p.id && indexOfPlan(p.id) !== -1) return;
+        p.name = uniquePlanName(String(p.name || "").trim() || "取り込んだプラン");
+        plans.push(p);
+      });
+    }
+    plans.forEach(function (p, i) { normalizePlanEntry(p, "プラン" + (i + 1)); });
+    if (set.archive && typeof set.archive === "object") {
+      Object.keys(set.archive).forEach(function (id) {
+        var a = set.archive[id];
+        if (!exerciseArchive[id] && a && a.name) {
+          exerciseArchive[id] = { id: id, name: String(a.name), unit: String(a.unit || "kg"), category: String(a.category || "補助"),
+            machineKey: String(a.machineKey || ""), machineTip: String(a.machineTip || "") };
+        }
+      });
+    }
+    return true;
+  }
 
   function finishImport(mode, added, skipped, incomingPlan) {
     if (incomingMachineSettings && typeof incomingMachineSettings === "object" && !Array.isArray(incomingMachineSettings)) {
@@ -6120,11 +6717,19 @@
     records.sort(function (a, b) { return (a.date || "").localeCompare(b.date || ""); });
     persistRecords();
 
-    if (incomingPlan && isValidPlanShape(incomingPlan)) {
+    if (incomingPlanSet && importPlanSet(mode, incomingPlanSet)) {
+      persistPlan();
+    } else if (incomingPlan && isValidPlanShape(incomingPlan)) {
+      /* 以前の版のバックアップ（プラン1つ）：使用中のプランの中身を置き換える */
+      var keep = { id: plan.id, name: plan.name };
       plan = incomingPlan;
+      plan.id = keep.id;
+      plan.name = keep.name;
       ensureDayOrder(plan);
       persistPlan();
     }
+    incomingPlanSet = null;
+    renderPlanSwitchers();
 
     renderHome();
     buildExerciseFields();
@@ -6236,14 +6841,16 @@
     wireConfirmDialog();
     wireMachineModals();
     updateRepeatBtnText();
+    renderPlanSwitchers();
+    wirePlanModals();
     loadTimerSound();
     window.addEventListener("resize", fitRecordTimerSpace);
     registerServiceWorker();
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v11.6";
-  var APP_BUILD_DATE = "2026-10-10";
+  var APP_VERSION = "v12";
+  var APP_BUILD_DATE = "2026-10-21";
   var swRegistration = null;
   var currentOfflineCacheName = null;
 
