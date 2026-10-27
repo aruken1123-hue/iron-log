@@ -946,6 +946,53 @@
   .map-disclaimer { font-size: 10.5px; color: var(--text-muted); margin: 0 0 6px; line-height: 1.5; }
   #confirmModal { z-index: 90; }   /* 他のモーダルの上から確認できるように */
   #planModal, #exEditorModal { z-index: 70; }
+  /* ストレッチ（全画面） */
+  .stretch-overlay { position: fixed; inset: 0; z-index: 65; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .stretch-overlay[hidden] { display: none; }
+  body.stretch-open { overflow: hidden; }
+  .stretch-sheet { max-width: 480px; margin: 0 auto; padding: 14px 16px calc(24px + env(safe-area-inset-bottom)); box-sizing: border-box; }
+  .st-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .st-head h2 { margin: 0; font-size: 18px; }
+  .st-close { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 16px; cursor: pointer; }
+  .st-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .st-modes button { padding: 10px 4px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  .st-modes button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .st-reason { font-size: 12.5px; line-height: 1.6; color: var(--text-muted); margin: 10px 0; }
+  .st-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .st-hint { font-size: 11px; line-height: 1.5; color: var(--text-muted); margin: 6px 2px 0; }
+  .st-total { margin: 12px 0 8px; font-weight: 700; font-size: 14px; }
+  .st-list { display: flex; flex-direction: column; gap: 6px; }
+  .st-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .st-item.off { opacity: 0.45; }
+  .st-item-icon { font-size: 22px; width: 30px; text-align: center; flex: none; }
+  .st-item-main { flex: 1; min-width: 0; }
+  .st-item-name { font-weight: 700; font-size: 13.5px; }
+  .st-item-part { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+  .st-sides { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; font-size: 10px; background: var(--accent-soft); color: var(--accent); vertical-align: 1px; }
+  .st-item-toggle { flex: none; padding: 7px 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer; }
+  .st-start { display: block; width: 100%; margin-top: 14px; padding: 14px; border-radius: 12px; border: none; background: var(--accent); color: var(--accent-ink); font-size: 16px; font-weight: 800; cursor: pointer; }
+  .st-start:disabled { opacity: 0.4; cursor: default; }
+  .st-safety { font-size: 11px; line-height: 1.6; color: var(--text-muted); margin: 12px 2px 0; }
+  .st-run, .st-done { text-align: center; }
+  .st-run-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; }
+  .st-count { color: var(--text-muted); font-family: var(--font-mono); }
+  .st-phase { color: var(--accent); }
+  .st-run.is-rest .st-phase { color: var(--text-muted); }
+  .st-run-icon { font-size: 54px; margin: 14px 0 6px; line-height: 1.1; }
+  .st-run-name { font-size: 20px; font-weight: 800; }
+  .st-run-part { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
+  .st-clock { font-family: var(--font-mono); font-size: 64px; font-weight: 700; margin: 10px 0 6px; font-variant-numeric: tabular-nums; }
+  .st-run.is-rest .st-clock { color: var(--text-muted); font-size: 48px; }
+  .st-bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .st-bar-fill { height: 100%; width: 0; background: var(--accent); transition: width 0.2s linear; }
+  .st-run.is-rest .st-bar-fill { background: var(--text-muted); }
+  .st-steps { text-align: left; margin: 14px 0 0; padding-left: 22px; font-size: 13.5px; line-height: 1.7; }
+  .st-caution { text-align: left; font-size: 12px; color: var(--text-muted); margin: 8px 0 0; }
+  .st-controls { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 8px; margin-top: 16px; }
+  .st-controls button { padding: 13px 4px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .st-controls button.main { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .st-quit { margin-top: 10px; padding: 10px 16px; border-radius: 10px; border: none; background: none; color: var(--text-muted); font-size: 12.5px; text-decoration: underline; cursor: pointer; }
+  .stretch-entry { display: block; width: 100%; margin: 4px 0 10px; padding: 13px 10px; border-radius: 12px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); font-size: 13.5px; font-weight: 700; cursor: pointer; }
   .pm-card {
     max-width: 420px;
     max-height: calc(100vh - 48px);
@@ -1659,6 +1706,15 @@
         <button class="go" onclick="startRecord()">記録する</button>
       </div>
 
+      <div class="card next-session stretch-home">
+        <div class="badge" aria-hidden="true">🧘</div>
+        <div class="info">
+          <div class="t">ストレッチ</div>
+          <div class="d" id="stretchHomeDesc">-</div>
+        </div>
+        <button class="go" onclick="openStretch('')">始める</button>
+      </div>
+
       <div class="section-label">種目の推移</div>
       <div id="sparkList"></div>
     </section>
@@ -1694,6 +1750,7 @@
       <div class="plan-actions-bar" style="margin-bottom:12px;">
         <button type="button" class="plan-act-btn" onclick="openFloorMapModal('TODO')">🗺️ 器具フロアマップ（未実施の位置）</button>
         <button type="button" class="plan-act-btn" onclick="openMachineListModal()">📖 マシン図鑑・種目を追加</button>
+        <button type="button" class="plan-act-btn" onclick="openStretch('before')">🧘 始める前のストレッチ</button>
       </div>
 
       <div id="recProgress" class="rec-progress"></div>
@@ -1712,6 +1769,8 @@
         </button>
         <div id="recExcludedList" class="rec-section-body"></div>
       </div>
+
+      <button type="button" class="stretch-entry" onclick="openStretch('after')">🧘 終わったあとのストレッチ（今日の種目に合わせて）</button>
 
       <div class="field" style="margin-top:8px;">
         <label>その他・メモ</label>
@@ -2040,13 +2099,14 @@
           IRON LOG <span id="vmAppVer" style="color:var(--accent);">v11</span>
         </div>
         <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;" id="vmOfflineStatus">
-          ビルド日：2026-10-21<br>
+          ビルド日：2026-10-28<br>
           オフラインキャッシュ：確認中…
         </div>
       </div>
 
       <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
+        <li><b>ストレッチ (v13)</b>: 今日の種目で使った部位に合わせたメニューを自動で作り、タイマーで案内。始める前・終わったあと・休みの日の3種類。1種目の秒数とインターバルを設定できます。</li>
         <li><b>プランを複数保存 (v12)</b>: 記録画面の「プラン」で切り替え・新規作成。「＋ 種目を追加」と各種目の ✏️ で、記録しながら種目や目標を追加・変更できます。</li>
         <li><b>タイマーの音を選べるように (v11.6)</b>: アプリ内の4種類・スマホの通知音・スマホの音声ファイルから選択。音量を底上げし、🔒で音の設定をロックできます。</li>
         <li><b>追加種目のシート列・タイマー音量 (v11.5)</b>: 図鑑から追加した種目を、スプレッドシートに種目ごとの列を作って記録（GAS v3）。休憩タイマーの音量をつまみで調整できます（秒数選択を開くと表示）。</li>
@@ -2067,6 +2127,16 @@
       <span></span>
       <button type="button" class="primary" onclick="closeVersionModal()">閉じる</button>
     </div>
+  </div>
+</div>
+
+<div class="stretch-overlay" id="stretchModal" hidden role="dialog" aria-modal="true" aria-labelledby="stretchTitle">
+  <div class="stretch-sheet">
+    <div class="st-head">
+      <h2 id="stretchTitle">🧘 ストレッチ</h2>
+      <button type="button" class="st-close" onclick="closeStretch()" aria-label="閉じる">✕</button>
+    </div>
+    <div id="stretchBody"></div>
   </div>
 </div>
 
@@ -4961,6 +5031,7 @@
     });
     /* 図鑑から追加した種目など。GAS v3 以上は種目ごとの列に書く。
        それより古い GAS は列を作れないので、従来どおり「その他」列にまとめて書く */
+    if (stretchSummaryText(rec)) payload.other = [payload.other, stretchSummaryText(rec)].filter(Boolean).join(" ／ ");
     var extra = sheetExtraValues(rec);
     var columns = (opts && opts.splitExtras) ? sheetExtraColumns() : [];
     var folded = [];
@@ -5218,7 +5289,7 @@
   }
 
   function recordHasContent(rec) {
-    return !!((rec.order && rec.order.length) || (rec.other && rec.other.trim()));
+    return !!((rec.order && rec.order.length) || (rec.other && rec.other.trim()) || (rec.stretch && rec.stretch.count));
   }
 
   /* 前回の実施順。その日より前の記録を新しい順にたどり、初めて出てきた種目から並べる。
@@ -5480,7 +5551,8 @@
     var rec = findRecordByDate(date);
     var count = rec ? recordExerciseList(rec).length : 0;
     if (!rec && !excludedIds().length) { showToast("この日の記録はまだありません"); return; }
-    askConfirm(fmtDate(date) + " の記録" + (count ? "（実施済み " + count + " 件）" : "") + "と除外を取り消して、最初からやり直します。\n元に戻せません。", "やり直す", true)
+    askConfirm(fmtDate(date) + " の記録" + (count ? "（実施済み " + count + " 件）" : "") +
+      (stretchSummaryText(rec) ? "・" + stretchSummaryText(rec) : "") + "と除外を取り消して、最初からやり直します。\n元に戻せません。", "やり直す", true)
       .then(function (ok) {
         if (!ok) return;
         if (rec) records.splice(records.indexOf(rec), 1);
@@ -5572,6 +5644,7 @@
     document.getElementById("statLast").textContent = records.length ? fmtDate(records[records.length - 1].date) : "まだ記録なし";
 
     renderTodayCard();
+    renderStretchHome();
 
     renderSparkList();
   }
@@ -5719,7 +5792,7 @@
   /* 履歴の各記録に付けるラベル（実施した種目数） */
   function recordCountLabel(rec) {
     var n = recordExerciseList(rec).length;
-    return n ? n + "種目" : "メモ";
+    return n ? n + "種目" : (rec.stretch && rec.stretch.count ? "ストレッチ" : "メモ");
   }
 
   function renderHistory() {
@@ -5733,7 +5806,9 @@
     sorted.forEach(function (rec) {
       var realIndex = records.indexOf(rec);
       var summary = recordExerciseList(rec)
-        .map(function (ex) { return ex.name + " " + displayValue(rec[ex.id], ex.unit); }).join(" ／ ");
+        .map(function (ex) { return ex.name + " " + displayValue(rec[ex.id], ex.unit); })
+        .concat(stretchSummaryText(rec) ? ["🧘 " + stretchSummaryText(rec)] : [])
+        .concat(!recordExerciseList(rec).length && rec.other ? [rec.other] : []).join(" ／ ");
       var card = document.createElement("div");
       card.className = "card hist-card";
       card.innerHTML =
@@ -5763,6 +5838,7 @@
       })
       .join("");
     if (rec.other) rows += '<div class="kv"><span class="k">その他</span><span class="v">' + escapeHTML(rec.other) + '</span></div>';
+    if (stretchSummaryText(rec)) rows += '<div class="kv"><span class="k">🧘 ストレッチ</span><span class="v">' + escapeHTML(stretchSummaryText(rec).replace(/^ストレッチ /, "")) + '</span></div>';
     rows += '<div class="hist-actions"><button onclick="deleteRecord(' + index + ')" class="del">削除</button></div>';
     return rows;
   }
@@ -6111,6 +6187,575 @@
         showToast("プランをリセットしました");
       });
   };
+
+  /* ---------- ストレッチ（今日の種目に合わせたメニュー・ガイド付きタイマー） ----------
+     ・終わったあと：今日「実施済み」にした種目で使った部位を、じっと伸ばす（静的ストレッチ）
+     ・始める前　　：これから行う種目の部位を、動かしながら温める（動的ストレッチ）
+     ・休みの日　　：全身をひととおり伸ばす
+     1種目の秒数とインターバル（次の種目までの準備時間）は画面で変えられ、端末に保存する */
+  var STRETCH_SETTINGS_KEY = "ironlog_stretch_settings_v1";
+  var STRETCH_HOLD_CFG = { min: 10, max: 120, step: 5 };
+  var STRETCH_REST_CFG = { min: 0, max: 60, step: 5 };
+  var STRETCH_SIDE_SWITCH_SEC = 3;   // 左右を入れ替える時間（インターバルより長くはしない）
+  var STRETCH_MAX_ITEMS = { after: 8, before: 6, rest: 12 };
+
+  /* 部位の名前 */
+  var MUSCLE_LABELS = {
+    chest: "胸", shoulderFront: "肩の前", triceps: "腕の裏", biceps: "力こぶ側", forearm: "前腕",
+    lats: "背中（広背筋）", back: "腰・背骨まわり", neck: "首・肩の上", abs: "お腹",
+    quads: "太もも前", hamstrings: "太もも裏", glutes: "お尻", adductors: "内もも", hipFlexor: "脚の付け根", calves: "ふくらはぎ"
+  };
+
+  /* ストレッチの一覧。並び順がそのまま実施順（立って上半身 → 立って下半身 → 床） */
+  var STRETCH_DB = [
+    /* 動的（始める前） */
+    { id: "arm_circle", kind: "dynamic", icon: "🔄", name: "肩回し（前・後ろ）", part: "肩・胸・背中", sides: false,
+      groups: ["shoulderFront", "chest", "lats", "neck"],
+      steps: ["両手の指先を肩にのせる", "肘で大きな円を描くように回す。前回しを半分、後ろ回しを半分の時間で", "ゆっくり大きく動かす"] },
+    { id: "wrist_circle", kind: "dynamic", icon: "✋", name: "手首・指をほぐす", part: "前腕・手首", sides: false,
+      groups: ["forearm", "biceps", "triceps"],
+      steps: ["両手の指を組んで、手首をぐるぐる回す", "途中で指を大きく開いて、握る動きをくり返す"] },
+    { id: "leg_swing", kind: "dynamic", icon: "🦵", name: "脚の前後振り", part: "太もも裏・脚の付け根", sides: true,
+      groups: ["hamstrings", "hipFlexor", "quads"],
+      steps: ["壁に片手をついて立つ", "外側の脚を前後に振り、少しずつ振り幅を大きくする", "上体はまっすぐのまま"] },
+    { id: "hip_circle", kind: "dynamic", icon: "🌀", name: "股関節回し", part: "お尻・内もも・脚の付け根", sides: true,
+      groups: ["glutes", "adductors", "hipFlexor"],
+      steps: ["壁に片手をついて立ち、外側のひざを腰の高さまで上げる", "ひざで外回りに大きな円を描く。途中から内回りに"] },
+    { id: "bw_squat", kind: "dynamic", icon: "🏋️", name: "自重スクワット（ゆっくり）", part: "太もも・お尻", sides: false,
+      groups: ["quads", "glutes", "adductors"],
+      steps: ["足を肩幅に開いて立つ", "3秒かけてしゃがみ、2秒で立つのをくり返す", "ひざとつま先の向きをそろえる"] },
+    { id: "calf_raise_slow", kind: "dynamic", icon: "🦶", name: "かかとの上げ下げ", part: "ふくらはぎ・足首", sides: false,
+      groups: ["calves"],
+      steps: ["壁に手をついて立つ", "かかとをゆっくり上げて、ゆっくり下ろすのをくり返す"] },
+    { id: "world_greatest", kind: "dynamic", icon: "🤸", name: "ランジ＋体ひねり", part: "脚の付け根・お尻・背中・胸", sides: true,
+      groups: ["hipFlexor", "glutes", "back", "chest"],
+      steps: ["大きく一歩前に出て、ランジの姿勢になる", "前脚の内側の床に手をつき、反対の腕を天井へ伸ばして体をひねる", "戻して、時間内でゆっくりくり返す"] },
+    { id: "cat_cow", kind: "dynamic", icon: "🐈", name: "キャット＆カウ", part: "背骨・お腹", sides: false,
+      groups: ["back", "abs"],
+      steps: ["四つんばいになる（手は肩の下、ひざは股関節の下）", "息を吐きながら背中を丸め、吸いながら胸を前に出して背中を反らす", "ゆっくりくり返す"] },
+
+    /* 静的（終わったあと・休みの日） */
+    { id: "neck_side", kind: "static", icon: "🙇", name: "首を横に倒す", part: "首・肩の上", sides: true,
+      groups: ["neck"],
+      steps: ["背すじを伸ばして座るか立つ", "頭をゆっくり横に倒し、反対側の肩を下げる"],
+      caution: "手で頭を強く引っぱらない" },
+    { id: "chest_wall", kind: "static", icon: "🧱", name: "胸を開く（壁）", part: "胸・肩の前", sides: true,
+      groups: ["chest", "shoulderFront"],
+      steps: ["壁の横に立ち、肘を肩の高さで90度に曲げて前腕を壁につける", "体を壁と反対側へゆっくりひねり、胸の前が伸びるところで止める"],
+      caution: "肩をすくめない。呼吸を止めない" },
+    { id: "shoulder_clasp", kind: "static", icon: "🙆", name: "後ろで手を組んで胸を張る", part: "肩の前・胸", sides: false,
+      groups: ["shoulderFront", "chest"],
+      steps: ["背すじを伸ばして立ち、体の後ろで両手を組む", "肩甲骨を寄せながら、組んだ手を後ろ下へ伸ばす"],
+      caution: "腰を反らしすぎない" },
+    { id: "biceps_wall", kind: "static", icon: "💪", name: "力こぶ側（壁に手をつく）", part: "力こぶ側・胸", sides: true,
+      groups: ["biceps", "chest"],
+      steps: ["壁の横に立ち、腕を伸ばして手のひらを壁につける（肩より少し低く）", "体をゆっくり壁と反対側へひねる"],
+      caution: "肘に痛みが出るときは、肘を少し曲げる" },
+    { id: "triceps_overhead", kind: "static", icon: "🙋", name: "腕の裏（頭の後ろ）", part: "腕の裏・わきの下", sides: true,
+      groups: ["triceps", "lats"],
+      steps: ["片腕を上げて肘を曲げ、手を背中側へ下ろす", "反対の手で肘を持ち、頭の後ろへゆっくり引く"],
+      caution: "首を前に倒しすぎない" },
+    { id: "forearm", kind: "static", icon: "🤚", name: "前腕（手首を反らす・曲げる）", part: "前腕", sides: true,
+      groups: ["forearm"],
+      steps: ["前半：手のひらを前に向けて腕を伸ばし、反対の手で指先を手前へ引く", "後半：手のひらを下に向け、手首を下へ曲げて、手の甲を手前へ引く"],
+      caution: "肘は軽く伸ばしたまま。しびれが出たら中止" },
+    { id: "lats_side", kind: "static", icon: "🌙", name: "体を横に倒す", part: "背中（広背筋）・わき腹", sides: true,
+      groups: ["lats"],
+      steps: ["片腕を頭の上へまっすぐ伸ばす", "反対側へ体を横に倒し、わきの下から腰の横が伸びるところで止める"],
+      caution: "体が前に倒れないようにする" },
+    { id: "quad_stand", kind: "static", icon: "🦩", name: "太もも前（立って）", part: "太もも前・脚の付け根", sides: true,
+      groups: ["quads", "hipFlexor"],
+      steps: ["壁などに片手をついて立つ", "外側の足首を持ち、かかとをお尻に近づける"],
+      caution: "ひざは真下に向け、腰を反らさない" },
+    { id: "calf_wall", kind: "static", icon: "🦶", name: "ふくらはぎ（壁押し）", part: "ふくらはぎ", sides: true,
+      groups: ["calves"],
+      steps: ["壁に両手をつき、片脚を大きく後ろへ引く", "後ろ脚のかかとを床につけたまま、前のひざを曲げて体重を前へ"],
+      caution: "後ろ脚のつま先はまっすぐ前に向ける" },
+    { id: "hipflexor_kneel", kind: "static", icon: "🧎", name: "脚の付け根（片ひざ立ち）", part: "脚の付け根の前・太もも前", sides: true,
+      groups: ["hipFlexor", "quads"],
+      steps: ["片ひざを床につき、もう片方の脚を前に出す", "上体をまっすぐにしたまま、腰をゆっくり前へ押し出す"],
+      caution: "ひざの下にタオルなどを敷くと楽" },
+    { id: "ham_seated", kind: "static", icon: "🙇‍♂️", name: "太もも裏（座って前屈）", part: "太もも裏・腰", sides: true,
+      groups: ["hamstrings", "back"],
+      steps: ["床に座り、片脚を前に伸ばして、もう片方はひざを曲げる", "背すじを伸ばしたまま、伸ばした脚のつま先へ上体を倒す"],
+      caution: "背中を丸めて無理に倒さない" },
+    { id: "glute_fig4", kind: "static", icon: "4️⃣", name: "お尻（脚を4の字に組む）", part: "お尻", sides: true,
+      groups: ["glutes"],
+      steps: ["仰向けでひざを立て、片足首を反対のひざの上にのせる", "下の脚の太ももを両手で抱え、胸へ引き寄せる"],
+      caution: "お尻の奥が伸びるところで止める" },
+    { id: "adductor_butterfly", kind: "static", icon: "🦋", name: "内もも（足の裏を合わせる）", part: "内もも・お尻", sides: false,
+      groups: ["adductors", "glutes"],
+      steps: ["床に座り、両足の裏を合わせてかかとを体に近づける", "背すじを伸ばし、ひざを床の方へゆっくり下ろす"],
+      caution: "手でひざを強く押さない" },
+    { id: "child_pose", kind: "static", icon: "🧘", name: "背中・腰（チャイルドポーズ）", part: "背中・腰", sides: false,
+      groups: ["back", "lats"],
+      steps: ["正座から両手を前に伸ばし、上体を前に伏せる", "お尻はかかとに近づけたまま、手を遠くへ伸ばす"],
+      caution: "ゆっくり深く呼吸する" },
+    { id: "cobra", kind: "static", icon: "🐍", name: "お腹（うつ伏せで上体を起こす）", part: "お腹・背骨", sides: false,
+      groups: ["abs", "back"],
+      steps: ["うつ伏せで、手を肩の横につく", "おへそを床につけたまま、腕で上体をゆっくり起こす"],
+      caution: "腰に痛みが出るときは、肘をついた高さまで" }
+  ];
+  var REST_DAY_STRETCHES = ["neck_side", "chest_wall", "triceps_overhead", "lats_side", "quad_stand", "calf_wall",
+    "hipflexor_kneel", "ham_seated", "glute_fig4", "adductor_butterfly", "child_pose", "cobra"];
+
+  /* 決まった14種目で使う部位（先頭がいちばん使う部位） */
+  var EXERCISE_MUSCLES = {
+    handG: ["forearm"], bPress: ["chest", "shoulderFront", "triceps"], squat: ["quads", "glutes", "adductors", "back"],
+    sPress: ["shoulderFront", "triceps", "neck"], dLift: ["hamstrings", "glutes", "back", "forearm"],
+    armCurl: ["biceps", "forearm"], calf: ["calves"], inBPress: ["chest", "shoulderFront", "triceps"],
+    wSquat: ["adductors", "quads", "glutes"], bSquat: ["quads", "glutes", "hipFlexor"],
+    lunge: ["quads", "glutes", "hipFlexor"], pulldown: ["lats", "biceps"], legE: ["quads"], legC: ["hamstrings"]
+  };
+  /* それ以外の種目は、名前・マシン図鑑の「効く部位」の言葉から割り出す */
+  var MUSCLE_KEYWORDS = [
+    [/大胸筋|胸|チェスト|ベンチ|ペック|ダンベルフライ|ディップ|プッシュアップ/, "chest"],
+    [/三角筋|肩|ショルダー|デルト|サイドレイズ|フロントレイズ|ラテラルレイズ/, "shoulderFront"],
+    [/三頭|トライセプス|プレスダウン|キックバック|フレンチ/, "triceps"],
+    [/二頭|バイセプス|アームカール|ダンベルカール|バーベルカール|ハンマーカール|プリーチャー/, "biceps"],
+    [/前腕|握力|グリップ|手首/, "forearm"],
+    [/広背筋|背中|ラット|プルダウン|ロウ|ロー[^ラ]|チンニング|懸垂|プルオーバー/, "lats"],
+    [/脊柱|腰|デッド|バックエクステンション|体幹/, "back"],
+    [/大腿四頭|太もも前|スクワット|レッグプレス|レッグエクステンション|ランジ/, "quads"],
+    [/ハムストリング|太もも裏|レッグカール|デッド/, "hamstrings"],
+    [/臀|お尻|ヒップ|グルート|アブダクション/, "glutes"],
+    [/内転|内もも|アダクション|ワイドスクワット|ワイドスタンス/, "adductors"],
+    [/腸腰|股関節|ランジ|ブルガリアン/, "hipFlexor"],
+    [/下腿|ふくらはぎ|カーフ|バイク|ランニング|トレッドミル|ウォーク/, "calves"],
+    [/僧帽|首|シュラッグ/, "neck"],
+    [/腹|アブ|クランチ|レッグレイズ/, "abs"]
+  ];
+
+  function stretchById(id) {
+    for (var i = 0; i < STRETCH_DB.length; i++) if (STRETCH_DB[i].id === id) return STRETCH_DB[i];
+    return null;
+  }
+
+  function musclesOfExercise(ex) {
+    if (!ex) return [];
+    if (EXERCISE_MUSCLES[ex.id]) return EXERCISE_MUSCLES[ex.id];
+    var text = (ex.name || "") + " " + (ex.machineTip || "");
+    var m = ex.machineKey && MACHINE_DB[ex.machineKey];
+    if (m) text = (m.target || "") + " " + text + " " + (m.subTarget || "");
+    var out = [];
+    MUSCLE_KEYWORDS.forEach(function (kw) {
+      if (kw[0].test(text) && out.indexOf(kw[1]) === -1) out.push(kw[1]);
+    });
+    return out;
+  }
+
+  var stretchSettings = { hold: 30, rest: 10 };
+  function loadStretchSettings() {
+    try {
+      var v = JSON.parse(localStorage.getItem(STRETCH_SETTINGS_KEY) || "null");
+      if (v) {
+        stretchSettings.hold = clampStep(v.hold, STRETCH_HOLD_CFG, 30);
+        stretchSettings.rest = clampStep(v.rest, STRETCH_REST_CFG, 10);
+      }
+    } catch (e) {}
+  }
+  function saveStretchSettings() {
+    try { localStorage.setItem(STRETCH_SETTINGS_KEY, JSON.stringify(stretchSettings)); } catch (e) {}
+  }
+  function clampStep(v, cfg, fallback) {
+    var n = parseInt(v, 10);
+    if (isNaN(n)) return fallback;
+    return Math.max(cfg.min, Math.min(cfg.max, n));
+  }
+
+  /* メニューを作る。戻り値 { items: [stretch], reason: "..." } */
+  function buildStretchMenu(mode) {
+    if (mode === "rest") {
+      return { items: REST_DAY_STRETCHES.map(stretchById).filter(Boolean), reason: "全身をひととおり伸ばすメニューです。" };
+    }
+    var lists = recordScreenLists();
+    var basis = mode === "after" ? lists.done : lists.todo;
+    var basisLabel = mode === "after" ? "今日実施した" : "これから行う";
+    if (!basis.length) {
+      basis = plan.exercises.slice();
+      basisLabel = "プラン「" + plan.name + "」の";
+    }
+    var score = {};
+    basis.forEach(function (ex) {
+      musclesOfExercise(ex).forEach(function (g, i) { score[g] = (score[g] || 0) + (i === 0 ? 2 : 1); });
+    });
+    var kind = mode === "after" ? "static" : "dynamic";
+    var pool = STRETCH_DB.filter(function (st) { return st.kind === kind; });
+    var picked = [];
+    var max = STRETCH_MAX_ITEMS[mode] || 8;
+    while (picked.length < max) {
+      var best = null, bestScore = 0;
+      pool.forEach(function (st) {
+        if (picked.indexOf(st) !== -1) return;
+        var sc = st.groups.reduce(function (sum, g, i) { return sum + (score[g] || 0) * (i === 0 ? 1 : 0.5); }, 0);
+        if (sc > bestScore) { best = st; bestScore = sc; }
+      });
+      if (!best) break;
+      picked.push(best);
+      best.groups.forEach(function (g) { score[g] = (score[g] || 0) * 0.3; });   /* 同じ部位ばかりにならないように */
+    }
+    if (!picked.length) {
+      return { items: (mode === "after" ? REST_DAY_STRETCHES : ["arm_circle", "cat_cow", "world_greatest", "leg_swing", "hip_circle", "bw_squat"])
+        .map(stretchById).filter(Boolean),
+        reason: basis.length ? "種目から部位が分からなかったため、全身のメニューにしました。" : "プランに種目がないため、全身のメニューにしました。" };
+    }
+    picked.sort(function (a, b) { return STRETCH_DB.indexOf(a) - STRETCH_DB.indexOf(b); });
+    var names = basis.slice(0, 4).map(function (ex) { return ex.name; }).join("・") + (basis.length > 4 ? " ほか" : "");
+    return { items: picked, reason: basisLabel + "種目（" + names + "）で使う部位から選びました。" };
+  }
+
+  /* ---- 状態 ---- */
+  var stretchState = null;   // { mode, menu, skip: {id: true}, view: "setup"|"run"|"done", phases, idx, endAt, pausedLeft, timer, doneIds, heldSec }
+  var stretchWakeLock = null;
+
+  function stretchModeAuto() {
+    var lists = recordScreenLists();
+    return lists.done.length ? "after" : (lists.todo.length ? "before" : "rest");
+  }
+
+  window.openStretch = function (mode) {
+    loadStretchSettings();
+    mode = mode || stretchModeAuto();
+    stretchState = { mode: mode, menu: buildStretchMenu(mode), skip: {}, view: "setup" };
+    document.getElementById("stretchModal").hidden = false;
+    document.body.classList.add("stretch-open");
+    renderStretch();
+  };
+
+  window.setStretchMode = function (mode) {
+    if (!stretchState || stretchState.view !== "setup") return;
+    stretchState.mode = mode;
+    stretchState.menu = buildStretchMenu(mode);
+    stretchState.skip = {};
+    renderStretch();
+  };
+
+  window.toggleStretchItem = function (id) {
+    if (!stretchState) return;
+    stretchState.skip[id] = !stretchState.skip[id];
+    renderStretch();
+  };
+
+  window.onStretchSetting = function () {
+    stretchSettings.hold = clampStep(val("st_hold"), STRETCH_HOLD_CFG, stretchSettings.hold);
+    stretchSettings.rest = clampStep(val("st_rest"), STRETCH_REST_CFG, stretchSettings.rest);
+    saveStretchSettings();
+    var total = document.getElementById("stTotal");
+    if (total) total.textContent = stretchTotalText();
+  };
+
+  function activeStretchItems() {
+    return stretchState.menu.items.filter(function (st) { return !stretchState.skip[st.id]; });
+  }
+
+  function buildStretchPhases(items) {
+    var hold = stretchSettings.hold, rest = stretchSettings.rest;
+    var sw = Math.min(STRETCH_SIDE_SWITCH_SEC, rest);
+    var phases = [];
+    items.forEach(function (st, i) {
+      var sides = st.sides ? ["右", "左"] : [""];
+      sides.forEach(function (side, k) {
+        if (k > 0 && sw > 0) phases.push({ type: "switch", item: i, side: side, sec: sw });
+        phases.push({ type: "hold", item: i, side: side, sec: hold });
+      });
+      if (i < items.length - 1 && rest > 0) phases.push({ type: "rest", item: i + 1, side: "", sec: rest });
+    });
+    return phases;
+  }
+
+  function stretchTotalText() {
+    var items = activeStretchItems();
+    var sec = buildStretchPhases(items).reduce(function (sum, ph) { return sum + ph.sec; }, 0);
+    return items.length + "種目・約" + Math.max(1, Math.round(sec / 60)) + "分（" + Math.floor(sec / 60) + "分" + (sec % 60) + "秒）";
+  }
+
+  function fmtClock(sec) {
+    sec = Math.max(0, Math.ceil(sec));
+    return Math.floor(sec / 60) + ":" + (sec % 60 < 10 ? "0" : "") + (sec % 60);
+  }
+
+  function renderStretch() {
+    var body = document.getElementById("stretchBody");
+    if (!body || !stretchState) return;
+    var stt = stretchState;
+    if (stt.view === "setup") body.innerHTML = stretchSetupHTML();
+    else if (stt.view === "run") body.innerHTML = stretchRunHTML();
+    else body.innerHTML = stretchDoneHTML();
+    if (stt.view === "run") updateStretchClock();
+    if (stt.view === "setup") {
+      [["st_hold", "hold"], ["st_rest", "rest"]].forEach(function (pair) {
+        var el = document.getElementById(pair[0]);
+        if (el) el.addEventListener("change", function () { onStretchSetting(); el.value = stretchSettings[pair[1]]; });
+      });
+    }
+  }
+
+  function stretchSetupHTML() {
+    var stt = stretchState;
+    var modes = [["after", "終わったあと"], ["before", "始める前"], ["rest", "休みの日"]];
+    return '<div class="st-modes" role="tablist">' + modes.map(function (m) {
+        return '<button type="button" class="' + (stt.mode === m[0] ? "on" : "") + '" onclick="setStretchMode(' + jsArg(m[0]) + ')">' + m[1] + '</button>';
+      }).join("") + '</div>' +
+      '<p class="st-reason">' + escapeHTML(stt.menu.reason) + '</p>' +
+      '<div class="st-settings">' +
+        qtyFieldHTML("st_hold", "1種目の秒数", stretchSettings.hold, STRETCH_HOLD_CFG, "秒", "onStretchSetting()") +
+        qtyFieldHTML("st_rest", "インターバル", stretchSettings.rest, STRETCH_REST_CFG, "秒", "onStretchSetting()") +
+      '</div>' +
+      '<p class="st-hint">左右があるものは、右・左それぞれこの秒数です。インターバルは次の種目までの準備時間です。</p>' +
+      '<div class="st-total" id="stTotal">' + escapeHTML(stretchTotalText()) + '</div>' +
+      '<div class="st-list">' + stt.menu.items.map(function (st, i) {
+        var off = !!stt.skip[st.id];
+        return '<div class="st-item' + (off ? " off" : "") + '">' +
+          '<span class="st-item-icon">' + st.icon + '</span>' +
+          '<div class="st-item-main"><div class="st-item-name">' + escapeHTML(st.name) + (st.sides ? '<span class="st-sides">左右</span>' : '') + '</div>' +
+          '<div class="st-item-part">' + escapeHTML(st.part) + '</div></div>' +
+          '<button type="button" class="st-item-toggle" onclick="toggleStretchItem(' + jsArg(st.id) + ')">' + (off ? "戻す" : "外す") + '</button>' +
+          '</div>';
+      }).join("") + '</div>' +
+      '<button type="button" class="st-start" onclick="startStretch()"' + (activeStretchItems().length ? "" : " disabled") + '>▶ 始める</button>' +
+      '<p class="st-safety">痛みやしびれが出たらすぐにやめてください。反動をつけず、気持ちよく伸びるところで止めます。けがや持病がある場合は、医師に相談してから行ってください。</p>';
+  }
+
+  function stretchRunHTML() {
+    var stt = stretchState, ph = stt.phases[stt.idx], items = stt.items;
+    var st = items[ph.item];
+    var label = ph.type === "rest" ? "インターバル　次はこれ"
+      : ph.type === "switch" ? "反対側（" + ph.side + "）へ"
+      : (ph.side ? ph.side + "側" : (st.kind === "dynamic" ? "動かす" : "伸ばす"));
+    return '<div class="st-run' + (ph.type !== "hold" ? " is-rest" : "") + '">' +
+      '<div class="st-run-top"><span class="st-count">' + (ph.item + 1) + ' / ' + items.length + '</span>' +
+      '<span class="st-phase">' + escapeHTML(label) + '</span></div>' +
+      '<div class="st-run-icon">' + st.icon + '</div>' +
+      '<div class="st-run-name">' + escapeHTML(st.name) + '</div>' +
+      '<div class="st-run-part">伸びる部位：' + escapeHTML(st.part) + '</div>' +
+      '<div class="st-clock" id="stClock">0:00</div>' +
+      '<div class="st-bar"><div class="st-bar-fill" id="stBarFill"></div></div>' +
+      '<ol class="st-steps">' + st.steps.map(function (t) { return '<li>' + escapeHTML(t) + '</li>'; }).join("") + '</ol>' +
+      (st.caution ? '<p class="st-caution">⚠ ' + escapeHTML(st.caution) + '</p>' : '') +
+      '<div class="st-controls">' +
+        '<button type="button" onclick="stretchPrev()" aria-label="前の種目へ">⏮ 前へ</button>' +
+        '<button type="button" class="main" id="stPauseBtn" onclick="toggleStretchPause()">' + (stt.pausedLeft != null ? "▶ 再開" : "⏸ 一時停止") + '</button>' +
+        '<button type="button" onclick="stretchNext()" aria-label="次へ進む">次へ ⏭</button>' +
+      '</div>' +
+      '<button type="button" class="st-quit" onclick="finishStretch(true)">ここで終える</button>' +
+      '</div>';
+  }
+
+  function stretchDoneHTML() {
+    var stt = stretchState;
+    var n = stt.doneIds.length;
+    return '<div class="st-done">' +
+      '<div class="st-run-icon">🎉</div>' +
+      '<div class="st-run-name">おつかれさまでした</div>' +
+      (n ? '<p class="st-reason">' + n + '種目・' + fmtClock(stt.heldSec) + ' のストレッチを ' + escapeHTML(fmtDate(recordDate())) + ' の記録に残しました。</p>'
+         : '<p class="st-reason">最後まで伸ばした種目がなかったので、記録には残していません。</p>') +
+      '<button type="button" class="st-start" onclick="closeStretch()">閉じる</button>' +
+      '</div>';
+  }
+
+  /* ---- 進行 ---- */
+  window.startStretch = function () {
+    if (!stretchState) return;
+    var items = activeStretchItems();
+    if (!items.length) return;
+    stretchState.items = items;
+    stretchState.phases = buildStretchPhases(items);
+    stretchState.doneIds = [];
+    stretchState.heldBy = {};   // 種目ごとに伸ばした秒数
+    stretchState.heldSec = 0;
+    stretchState.view = "run";
+    if (timerSoundEnabled) timerAudio();   /* 合図の音を鳴らせるよう、押したときに準備する */
+    keepScreenOnForStretch();
+    startStretchPhase(0);
+  };
+
+  /* 伸ばした秒数を種目ごとに足す。その種目の合計（左右なら2回分）の半分以上なら「実施」に数える */
+  function addStretchHeld(ph, sec) {
+    var stt = stretchState;
+    var st = stt.items[ph.item];
+    stt.heldBy[st.id] = (stt.heldBy[st.id] || 0) + Math.max(0, sec);
+    var full = stretchSettings.hold * (st.sides ? 2 : 1);
+    if (stt.heldBy[st.id] >= full / 2 && stt.doneIds.indexOf(st.id) === -1) stt.doneIds.push(st.id);
+    stt.heldSec = stt.doneIds.reduce(function (sum, id) { return sum + (stt.heldBy[id] || 0); }, 0);
+  }
+
+  function heldInPhase(ph) {
+    var stt = stretchState;
+    var left = stt.pausedLeft != null ? stt.pausedLeft : (stt.endAt - Date.now()) / 1000;
+    return Math.max(0, Math.min(ph.sec, Math.round(ph.sec - left)));
+  }
+
+  function startStretchPhase(i, keepPaused) {
+    var stt = stretchState;
+    clearInterval(stt.timer);
+    if (i >= stt.phases.length) { finishStretch(false); return; }
+    stt.idx = i;
+    stt.pausedLeft = keepPaused ? stt.phases[i].sec : null;   /* 一時停止中に「次へ」「前へ」を押したときは止めたまま */
+    stt.endAt = Date.now() + stt.phases[i].sec * 1000;
+    if (!keepPaused) stretchCue(stt.phases[i].type === "hold" ? "start" : "rest");
+    renderStretch();
+    stt.timer = setInterval(tickStretch, 200);
+  }
+
+  function tickStretch() {
+    var stt = stretchState;
+    if (!stt || stt.view !== "run" || stt.pausedLeft != null) return;
+    if (Date.now() >= stt.endAt) {
+      var ph = stt.phases[stt.idx];
+      if (ph.type === "hold") addStretchHeld(ph, ph.sec);
+      startStretchPhase(stt.idx + 1);
+      return;
+    }
+    updateStretchClock();
+  }
+
+  function updateStretchClock() {
+    var stt = stretchState;
+    var ph = stt.phases[stt.idx];
+    var left = stt.pausedLeft != null ? stt.pausedLeft : (stt.endAt - Date.now()) / 1000;
+    var clock = document.getElementById("stClock");
+    var fill = document.getElementById("stBarFill");
+    if (clock) clock.textContent = fmtClock(left);
+    if (fill) fill.style.width = Math.max(0, Math.min(100, (1 - left / ph.sec) * 100)) + "%";
+  }
+
+  window.toggleStretchPause = function () {
+    var stt = stretchState;
+    if (!stt || stt.view !== "run") return;
+    if (stt.pausedLeft != null) {
+      stt.endAt = Date.now() + stt.pausedLeft * 1000;
+      stt.pausedLeft = null;
+    } else {
+      stt.pausedLeft = Math.max(0, (stt.endAt - Date.now()) / 1000);
+    }
+    var btn = document.getElementById("stPauseBtn");
+    if (btn) btn.textContent = stt.pausedLeft != null ? "▶ 再開" : "⏸ 一時停止";
+    updateStretchClock();
+  };
+
+  /* 次へ：今の段階を飛ばす（伸ばしている途中なら、伸ばした秒数だけ数える） */
+  window.stretchNext = function () {
+    var stt = stretchState;
+    if (!stt || stt.view !== "run") return;
+    var ph = stt.phases[stt.idx];
+    if (ph.type === "hold") addStretchHeld(ph, heldInPhase(ph));
+    startStretchPhase(stt.idx + 1, stt.pausedLeft != null);
+  };
+
+  /* 前へ：今の種目の最初へ。すでに最初なら1つ前の種目の最初へ */
+  window.stretchPrev = function () {
+    var stt = stretchState;
+    if (!stt || stt.view !== "run") return;
+    var cur = stt.phases[stt.idx].item;
+    var firstOf = function (item) {
+      for (var i = 0; i < stt.phases.length; i++) if (stt.phases[i].item === item && stt.phases[i].type !== "rest") return i;
+      return 0;
+    };
+    var start = firstOf(cur);
+    startStretchPhase(stt.idx > start ? start : firstOf(Math.max(0, cur - 1)), stt.pausedLeft != null);
+  };
+
+  window.finishStretch = function (early) {
+    var stt = stretchState;
+    if (!stt) return;
+    clearInterval(stt.timer);
+    if (early && stt.view === "run") {
+      var ph = stt.phases[stt.idx];
+      if (ph.type === "hold") addStretchHeld(ph, heldInPhase(ph));
+    }
+    if (stt.view === "run") {
+      saveStretchRecord(stt);
+      if (!early) stretchCue("finish");
+    }
+    stt.view = "done";
+    releaseStretchWakeLock();
+    renderStretch();
+  };
+
+  function saveStretchRecord(stt) {
+    if (!stt.doneIds.length) return;
+    var rec = ensureRecordForDate();
+    var prev = rec.stretch || { count: 0, seconds: 0 };
+    rec.stretch = {
+      count: (prev.count || 0) + stt.doneIds.length,
+      seconds: (prev.seconds || 0) + stt.heldSec,
+      modes: (prev.modes || []).concat(stt.mode)
+    };
+    afterRecordChange(rec);
+    renderHome();
+  }
+
+  window.closeStretch = function () {
+    if (stretchState && stretchState.view === "run") {
+      askConfirm("ストレッチを終えますか？\nここまでの分は記録に残します。", "終える", false).then(function (ok) {
+        if (!ok) return;
+        finishStretch(true);
+        closeStretch();
+      });
+      return;
+    }
+    if (stretchState) clearInterval(stretchState.timer);
+    stretchState = null;
+    releaseStretchWakeLock();
+    document.getElementById("stretchModal").hidden = true;
+    document.body.classList.remove("stretch-open");
+  };
+
+  /* 合図の音。タイマー音の ON/OFF・音量に従う（通知音・音声ファイルを選んでいても、ここは短い電子音） */
+  function stretchCue(kind) {
+    try {
+      if ("vibrate" in navigator) navigator.vibrate(kind === "finish" ? [200, 100, 200] : kind === "start" ? 120 : 60);
+    } catch (e) {}
+    if (!timerSoundEnabled || timerVolume <= 0) return;
+    try {
+      var ctx = timerAudio();
+      if (!ctx || !timerMaster) return;
+      var t = ctx.currentTime + 0.03;
+      timerMaster.gain.setValueAtTime(timerGain(), t);
+      if (kind === "start") tone(ctx, t, 1320, 0.18, { hold: 0.1 });
+      else if (kind === "rest") tone(ctx, t, 880, 0.14, { hold: 0.08 });
+      else { tone(ctx, t, 1047, 0.3, {}); tone(ctx, t + 0.25, 1319, 0.3, {}); tone(ctx, t + 0.5, 1568, 0.5, {}); }
+    } catch (e) {}
+  }
+
+  /* ストレッチ中は画面を消さない（自分で「常時点灯」をONにしていない場合だけ、終わったら戻す） */
+  function keepScreenOnForStretch() {
+    if (wakeLockSentinel || stretchWakeLock || !("wakeLock" in navigator)) return;
+    navigator.wakeLock.request("screen").then(function (lock) {
+      if (!stretchState || stretchState.view !== "run" || stretchWakeLock) { try { lock.release(); } catch (e) {} return; }
+      stretchWakeLock = lock;
+      lock.addEventListener("release", function () { if (stretchWakeLock === lock) stretchWakeLock = null; });
+    }).catch(function () {});
+  }
+  function releaseStretchWakeLock() {
+    if (!stretchWakeLock) return;
+    var lock = stretchWakeLock;
+    stretchWakeLock = null;
+    try { lock.release(); } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && stretchState && stretchState.view === "run" && !stretchWakeLock && !wakeLockSentinel) {
+      keepScreenOnForStretch();
+    }
+  });
+
+  function stretchSummaryText(rec) {
+    var stt = rec && rec.stretch;
+    if (!stt || !stt.count) return "";
+    return "ストレッチ " + stt.count + "種目・" + Math.max(1, Math.round((stt.seconds || 0) / 60)) + "分";
+  }
+
+  function renderStretchHome() {
+    var desc = document.getElementById("stretchHomeDesc");
+    if (!desc) return;
+    var date = recordDate();   /* 保存先（記録画面の日付）と同じ日を見る */
+    var rec = findRecordByDate(date);
+    var text = stretchSummaryText(rec);
+    var lists = recordScreenLists();
+    desc.textContent = text ? (date === todayISO() ? "今日" : fmtDate(date)) + "：" + text + "（済）"
+      : lists.done.length ? "今日の種目に合わせたクールダウン（終わったあと）"
+      : "トレーニング前の準備運動・休みの日のメニューも選べます";
+  }
 
   /* ---------- 複数のプラン：切り替え・作成・設定 ---------- */
   function renderPlanSwitchers() {
@@ -6849,8 +7494,8 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v12";
-  var APP_BUILD_DATE = "2026-10-21";
+  var APP_VERSION = "v13";
+  var APP_BUILD_DATE = "2026-10-28";
   var swRegistration = null;
   var currentOfflineCacheName = null;
 
