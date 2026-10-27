@@ -962,8 +962,18 @@
   .st-hint { font-size: 11px; line-height: 1.5; color: var(--text-muted); margin: 6px 2px 0; }
   .st-total { margin: 12px 0 8px; font-weight: 700; font-size: 14px; }
   .st-list { display: flex; flex-direction: column; gap: 6px; }
-  .st-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
-  .st-item.off { opacity: 0.45; }
+  .st-list-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-size: 11.5px; color: var(--text-muted); }
+  .st-list-head button { flex: none; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer; }
+  .st-item-wrap { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .st-item-wrap.open { border-color: var(--accent); }
+  .st-item-wrap.off .st-item { opacity: 0.45; }
+  .st-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 4px; }
+  .st-item-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 4px 6px; border: none; background: none; color: var(--text); text-align: left; cursor: pointer; font: inherit; }
+  .st-item-info .st-item-name, .st-item-info .st-item-part { display: block; }
+  .st-item-caret { flex: none; color: var(--text-muted); font-size: 13px; }
+  .st-info { padding: 0 12px 12px 14px; }
+  .st-info-meta { font-size: 11.5px; color: var(--accent); font-weight: 700; }
+  .st-info .st-steps { margin-top: 6px; font-size: 13px; }
   .st-item-icon { font-size: 22px; width: 30px; text-align: center; flex: none; }
   .st-item-main { flex: 1; min-width: 0; }
   .st-item-name { font-weight: 700; font-size: 13.5px; }
@@ -6416,7 +6426,7 @@
   window.openStretch = function (mode) {
     loadStretchSettings();
     mode = mode || stretchModeAuto();
-    stretchState = { mode: mode, menu: buildStretchMenu(mode), skip: {}, view: "setup" };
+    stretchState = { mode: mode, menu: buildStretchMenu(mode), skip: {}, open: {}, view: "setup" };
     document.getElementById("stretchModal").hidden = false;
     document.body.classList.add("stretch-open");
     renderStretch();
@@ -6427,6 +6437,35 @@
     stretchState.mode = mode;
     stretchState.menu = buildStretchMenu(mode);
     stretchState.skip = {};
+    renderStretch();
+  };
+
+  /* メニュー画面で、ストレッチのやり方（手順・注意）を開閉する */
+  function stretchInfoHTML(st) {
+    var how = st.kind === "dynamic" ? "動かしながら温める" : "じっと伸ばす";
+    return '<div class="st-info">' +
+      '<div class="st-info-meta">' + escapeHTML(how) + '・<span class="st-info-time" data-sides="' + (st.sides ? 1 : 0) + '">' +
+      escapeHTML(stretchHoldText(st.sides)) + '</span>・伸びる部位：' + escapeHTML(st.part) + '</div>' +
+      '<ol class="st-steps">' + st.steps.map(function (t) { return '<li>' + escapeHTML(t) + '</li>'; }).join("") + '</ol>' +
+      (st.caution ? '<p class="st-caution">⚠ ' + escapeHTML(st.caution) + '</p>' : '') +
+      '</div>';
+  }
+  function stretchHoldText(sides) {
+    return stretchSettings.hold + "秒" + (sides ? "（右・左それぞれ）" : "");
+  }
+  function allStretchInfoOpen() {
+    var stt = stretchState;
+    return stt.menu.items.length > 0 && stt.menu.items.every(function (st) { return stt.open[st.id]; });
+  }
+  window.toggleStretchInfo = function (id) {
+    if (!stretchState) return;
+    stretchState.open[id] = !stretchState.open[id];
+    renderStretch();
+  };
+  window.toggleAllStretchInfo = function () {
+    if (!stretchState) return;
+    var openAll = !allStretchInfoOpen();
+    stretchState.menu.items.forEach(function (st) { stretchState.open[st.id] = openAll; });
     renderStretch();
   };
 
@@ -6442,6 +6481,9 @@
     saveStretchSettings();
     var total = document.getElementById("stTotal");
     if (total) total.textContent = stretchTotalText();
+    document.querySelectorAll(".st-info-time").forEach(function (el) {   /* 開いているやり方の秒数も合わせる */
+      el.textContent = stretchHoldText(el.getAttribute("data-sides") === "1");
+    });
   };
 
   function activeStretchItems() {
@@ -6503,13 +6545,22 @@
       '</div>' +
       '<p class="st-hint">左右があるものは、右・左それぞれこの秒数です。インターバルは次の種目までの準備時間です。</p>' +
       '<div class="st-total" id="stTotal">' + escapeHTML(stretchTotalText()) + '</div>' +
-      '<div class="st-list">' + stt.menu.items.map(function (st, i) {
+      '<div class="st-list-head"><span>種目名を押すと、やり方を見られます</span>' +
+        '<button type="button" onclick="toggleAllStretchInfo()">' + (allStretchInfoOpen() ? "すべて閉じる" : "すべて開く") + '</button></div>' +
+      '<div class="st-list">' + stt.menu.items.map(function (st) {
         var off = !!stt.skip[st.id];
-        return '<div class="st-item' + (off ? " off" : "") + '">' +
+        var open = !!stt.open[st.id];
+        return '<div class="st-item-wrap' + (off ? " off" : "") + (open ? " open" : "") + '">' +
+          '<div class="st-item">' +
+          '<button type="button" class="st-item-info" onclick="toggleStretchInfo(' + jsArg(st.id) + ')" aria-expanded="' + open + '">' +
           '<span class="st-item-icon">' + st.icon + '</span>' +
-          '<div class="st-item-main"><div class="st-item-name">' + escapeHTML(st.name) + (st.sides ? '<span class="st-sides">左右</span>' : '') + '</div>' +
-          '<div class="st-item-part">' + escapeHTML(st.part) + '</div></div>' +
+          '<span class="st-item-main"><span class="st-item-name">' + escapeHTML(st.name) + (st.sides ? '<span class="st-sides">左右</span>' : '') + '</span>' +
+          '<span class="st-item-part">' + escapeHTML(st.part) + '</span></span>' +
+          '<span class="st-item-caret">' + (open ? "▴" : "▾") + '</span>' +
+          '</button>' +
           '<button type="button" class="st-item-toggle" onclick="toggleStretchItem(' + jsArg(st.id) + ')">' + (off ? "戻す" : "外す") + '</button>' +
+          '</div>' +
+          (open ? stretchInfoHTML(st) : '') +
           '</div>';
       }).join("") + '</div>' +
       '<button type="button" class="st-start" onclick="startStretch()"' + (activeStretchItems().length ? "" : " disabled") + '>▶ 始める</button>' +
@@ -7494,7 +7545,7 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v13";
+  var APP_VERSION = "v13.1";
   var APP_BUILD_DATE = "2026-10-28";
   var swRegistration = null;
   var currentOfflineCacheName = null;
