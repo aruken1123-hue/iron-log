@@ -1994,6 +1994,24 @@
       </div>
 
       <div class="card settings-card">
+        <h3>スマートグラスに表示（Even G2 など）</h3>
+        <p>休憩タイマーの終わり（次の種目と目標）と、ストレッチの切り替えを、スマホの通知としても出します。
+          Even アプリの「Settings → Notifications」で IRON LOG をオンにすると、メガネに表示されます。音はこれまでどおりタイマーの設定で鳴り、通知は音なしで出します。
+          スマホの画面が消えていると通知が遅れることがあるため、使うときは記録画面の「常時点灯」をONにしてください。</p>
+        <div class="switch-row">
+          <span class="switch-label">通知をメガネにも出す</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="glassesNotifyToggle" onchange="setGlassesNotify(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button onclick="testGlassesNotify()">試しに送る</button>
+        </div>
+        <p class="sheet-env-note" id="glassesNotifyHint" hidden></p>
+      </div>
+
+      <div class="card settings-card">
         <h3>Googleスプレッドシート連携</h3>
         <p>記録の保存時に、手書き用紙と同じ列フォーマットでGoogleスプレッドシートへ書き込みます。同じ記録を何度送っても行は増えず、上書きされます。</p>
         <div class="sheet-env-note" id="sheetEnvNote" hidden></div>
@@ -2116,6 +2134,7 @@
 
       <div style="font-size:12.5px;font-weight:700;color:var(--accent);margin-top:4px;">✨ 主な機能と最近の更新内容</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text);">
+        <li><b>スマートグラスに表示 (v13.2)</b>: 設定の「スマートグラスに表示」をONにすると、休憩の終わり（次の種目と目標）とストレッチの切り替えを通知で出し、Even G2 などのメガネに表示できます。</li>
         <li><b>ストレッチ (v13)</b>: 今日の種目で使った部位に合わせたメニューを自動で作り、タイマーで案内。始める前・終わったあと・休みの日の3種類。1種目の秒数とインターバルを設定できます。</li>
         <li><b>プランを複数保存 (v12)</b>: 記録画面の「プラン」で切り替え・新規作成。「＋ 種目を追加」と各種目の ✏️ で、記録しながら種目や目標を追加・変更できます。</li>
         <li><b>タイマーの音を選べるように (v11.6)</b>: アプリ内の4種類・スマホの通知音・スマホの音声ファイルから選択。音量を底上げし、🔒で音の設定をロックできます。</li>
@@ -4324,25 +4343,98 @@
     return !IS_ARTIFACT_HOST && "Notification" in window && "serviceWorker" in navigator && !!swRegistration;
   }
 
-  function showTimerNotification(body) {
+  /* 通知を出す。スマートグラス（Even G2）は絵文字を表示できないので、題名と本文は文字だけにする。
+     silent のときは音と振動なし（タイマーやストレッチの音は別に鳴らしている） */
+  function showAppNotification(title, body, opts) {
     if (!canUseTimerNotify() || Notification.permission !== "granted") return Promise.resolve(false);
-    return swRegistration.showNotification("IRON LOG ⏱️ 休憩終了", {
-      body: body || "次のセットへ",
-      tag: "ironlog-timer",
+    opts = opts || {};
+    var o = {
+      body: body,
+      tag: opts.tag || "ironlog-timer",
       renotify: true,
-      silent: false,
+      silent: !!opts.silent,
       icon: "icons/icon-192.png",
-      badge: "icons/icon-192.png",
-      vibrate: [250, 100, 250, 100, 400]
-    }).then(function () { return true; }, function () { return false; });
+      badge: "icons/icon-192.png"
+    };
+    if (!opts.silent) o.vibrate = [250, 100, 250, 100, 400];   // 音なしの通知に振動を付けるとエラーになる
+    return swRegistration.showNotification(title, o).then(function () { return true; }, function () { return false; });
   }
+
+  function showTimerNotification(body, silent) {
+    return showAppNotification("休憩終了", body || "次のセットへ", { tag: "ironlog-timer", silent: silent });
+  }
+
+  /* 休憩が終わったときの本文：いま取り組んでいる種目（最後に入力を触った未実施の種目。無ければ一覧の先頭）と目標 */
+  var lastTouchedExId = null;
+  function restEndNotifyText() {
+    var lists;
+    try { lists = recordScreenLists(); } catch (e) { return "次のセットへ"; }
+    if (!lists.todo.length) return lists.done.length ? "全種目 実施済み。おつかれさまでした" : "次のセットへ";
+    var ex = null;
+    lists.todo.forEach(function (e) { if (e.id === lastTouchedExId) ex = e; });
+    ex = ex || lists.todo[0];
+    return ex.name + "\n目標 " + formatQty(ex.goal, ex.unit) + "／残り" + lists.todo.length + "種目";
+  }
+
+  /* ---- スマートグラス（Even G2 など）に出す通知 ---- */
+  var GLASSES_KEY = "ironlog_glasses_notify";
+  var glassesNotify = false;
+
+  function glassesNotifyReady() {
+    return glassesNotify && canUseTimerNotify() && Notification.permission === "granted";
+  }
+
+  function notifyGlasses(title, body, tag) {
+    if (!glassesNotifyReady()) return;
+    showAppNotification(title, body, { tag: tag, silent: true });
+  }
+
+  function renderGlassesNotify() {
+    var box = document.getElementById("glassesNotifyToggle");
+    if (box) box.checked = glassesNotify;
+    var hint = document.getElementById("glassesNotifyHint");
+    if (!hint) return;
+    var text = "";
+    if (!canUseTimerNotify()) text = IS_ARTIFACT_HOST ? "Artifact版では通知が使えません。GitHub Pages 版のアプリで設定してください。" : "この画面では通知が使えません。";
+    else if (glassesNotify && Notification.permission !== "granted") text = "通知が許可されていません。スマホの設定で IRON LOG の通知を許可してください。";
+    hint.textContent = text;
+    hint.hidden = !text;
+  }
+
+  window.setGlassesNotify = function (on) {
+    var done = function (value, msg) {
+      glassesNotify = value;
+      try { localStorage.setItem(GLASSES_KEY, value ? "on" : "off"); } catch (e) {}
+      renderGlassesNotify();
+      if (msg) showToast(msg, 4000);
+    };
+    if (!on) { done(false, "メガネへの通知：OFF"); return; }
+    if (!canUseTimerNotify()) {
+      done(false, IS_ARTIFACT_HOST ? "Artifact版では通知が使えません。GitHub Pages 版のアプリで設定してください" : "この画面では通知が使えません");
+      return;
+    }
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== "granted") { done(false, "通知が許可されていません。スマホの設定で IRON LOG の通知を許可してください"); return; }
+      done(true, "メガネへの通知：ON。「試しに送る」で表示を確かめてください");
+    }).catch(function () { done(false, "通知の許可を確認できませんでした"); });
+  };
+
+  window.testGlassesNotify = function () {
+    if (!canUseTimerNotify()) { showToast("この画面では通知が使えません"); return; }
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== "granted") { showToast("通知が許可されていません。スマホの設定で IRON LOG の通知を許可してください", 4000); return; }
+      showAppNotification("IRON LOG テスト", "この文字がメガネに出れば設定完了です", { tag: "ironlog-test", silent: true }).then(function (ok) {
+        showToast(ok ? "通知を送りました。メガネに表示されたか確認してください" : "通知を出せませんでした", 4000);
+      });
+    }).catch(function () { showToast("通知の許可を確認できませんでした"); });
+  };
 
   /* タイマー終了・試聴で鳴らす。鳴らせなかった種類は標準の音に切り替える */
   function playTimerSound(force) {
     if (!force && !timerSoundEnabled) return;
     try {
       if (timerSoundType === "notify") {
-        showTimerNotification(force ? "通知音のテストです" : "").then(function (ok) {
+        showTimerNotification(force ? "通知音のテストです" : restEndNotifyText(), false).then(function (ok) {
           if (!ok && timerVolume > 0) playTimerSynth("beep");
         });
         return;
@@ -4442,7 +4534,9 @@
       timerSoundType = TIMER_SOUND_TYPES.some(function (x) { return x.id === t; }) ? t : "beep";
       timerSoundLocked = localStorage.getItem(TIMER_LOCK_KEY) === "on";
       timerFileName = localStorage.getItem(TIMER_FILE_NAME_KEY) || "";
+      glassesNotify = localStorage.getItem(GLASSES_KEY) === "on";
     } catch (e) {}
+    renderGlassesNotify();
     var sel = document.getElementById("timerSoundType");
     if (sel) {
       sel.innerHTML = TIMER_SOUND_TYPES.map(function (x) {
@@ -4674,6 +4768,9 @@
       if (fill) fill.style.width = "100%";
       highlightTimerPreset(null);
       playTimerSound();
+      if (glassesNotifyReady() && !(timerSoundEnabled && timerSoundType === "notify")) {
+        showTimerNotification(restEndNotifyText(), true);
+      }
       if ("vibrate" in navigator) {
         try { navigator.vibrate([250, 100, 250, 100, 400]); } catch (e) {}
       }
@@ -5405,6 +5502,7 @@
   window.onRecFieldChange = function (el, exId, setIdx, field) {
     var v = parseFloat(el.value);
     if (isNaN(v)) return;
+    lastTouchedExId = exId;
     if (recordDraft[exId] && recordDraft[exId].sets[setIdx]) recordDraft[exId].sets[setIdx][field] = v;
   };
 
@@ -5467,6 +5565,7 @@
     var ex = exerciseById(exId);
     if (!ex) return;
     draftFor(ex).sets = clone(prev);
+    lastTouchedExId = exId;
     rerenderCard(exId);
     showToast("前回のセット内容を反映しました");
   };
@@ -5477,6 +5576,7 @@
     if (draft.sets.length >= MAX_SETS) { showToast("セット数の上限（" + MAX_SETS + "）に達しています"); return; }
     var last = draft.sets[draft.sets.length - 1] || { weight: 20, reps: 10 };
     draft.sets.push({ weight: last.weight, reps: last.reps });
+    lastTouchedExId = exId;
     rerenderCard(exId);
   };
 
@@ -6643,9 +6743,21 @@
     stt.idx = i;
     stt.pausedLeft = keepPaused ? stt.phases[i].sec : null;   /* 一時停止中に「次へ」「前へ」を押したときは止めたまま */
     stt.endAt = Date.now() + stt.phases[i].sec * 1000;
-    if (!keepPaused) stretchCue(stt.phases[i].type === "hold" ? "start" : "rest");
+    if (!keepPaused) {
+      stretchCue(stt.phases[i].type === "hold" ? "start" : "rest");
+      notifyStretchPhase(stt.phases[i]);
+    }
     renderStretch();
     stt.timer = setInterval(tickStretch, 200);
+  }
+
+  function notifyStretchPhase(ph) {
+    var stt = stretchState;
+    var st = stt.items[ph.item];
+    var side = ph.side ? "（" + ph.side + "）" : "";
+    if (ph.type === "hold") notifyGlasses("ストレッチ " + (ph.item + 1) + "/" + stt.items.length, st.name + side + "\n" + ph.sec + "秒", "ironlog-stretch");
+    else if (ph.type === "switch") notifyGlasses("反対側へ", st.name + side, "ironlog-stretch");
+    else notifyGlasses("インターバル " + ph.sec + "秒", "次：" + st.name, "ironlog-stretch");
   }
 
   function tickStretch() {
@@ -6674,6 +6786,7 @@
     var stt = stretchState;
     if (!stt || stt.view !== "run") return;
     if (stt.pausedLeft != null) {
+      if (stt.pausedLeft >= stt.phases[stt.idx].sec) notifyStretchPhase(stt.phases[stt.idx]);   /* 止めたまま段階を移っていた */
       stt.endAt = Date.now() + stt.pausedLeft * 1000;
       stt.pausedLeft = null;
     } else {
@@ -6717,6 +6830,7 @@
     if (stt.view === "run") {
       saveStretchRecord(stt);
       if (!early) stretchCue("finish");
+      notifyGlasses("ストレッチ終了", stt.doneIds.length ? stt.doneIds.length + "種目・" + fmtClock(stt.heldSec) : "記録なし", "ironlog-stretch");
     }
     stt.view = "done";
     releaseStretchWakeLock();
@@ -7545,7 +7659,7 @@
   }
 
   /* sw.js の APP_VERSION と合わせる */
-  var APP_VERSION = "v13.1";
+  var APP_VERSION = "v13.2";
   var APP_BUILD_DATE = "2026-10-28";
   var swRegistration = null;
   var currentOfflineCacheName = null;
@@ -7622,6 +7736,8 @@
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("./sw.js").then(function (reg) {
         swRegistration = reg;
+        renderGlassesNotify();   /* 登録前は「通知が使えません」と判定されるため、ここで描き直す */
+        renderTimerSound();
         askServiceWorkerVersion();
         document.addEventListener("visibilitychange", function () {
           if (document.visibilityState === "visible") reg.update().catch(function () {});
